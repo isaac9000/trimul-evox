@@ -43,6 +43,7 @@ from tools import (
     _log_experiment_direct,
     set_run_directory,
     set_agent_iteration,
+    set_llm_call_count,
 )
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -100,9 +101,10 @@ def build_worker(model_name: str, env: dict):
     return agent, checkpointer
 
 
-def stream_agent(agent, config: dict, message: str, label: str) -> str:
-    """Stream an agent to completion and return the final text response."""
+def stream_agent(agent, config: dict, message: str, label: str) -> tuple[str, int]:
+    """Stream an agent to completion. Returns (final_text, llm_call_count)."""
     result = None
+    n_llm_calls = 0
     for chunk in agent.stream(
         {"messages": [{"role": "user", "content": message}]},
         config=config,
@@ -111,6 +113,8 @@ def stream_agent(agent, config: dict, message: str, label: str) -> str:
         result = chunk
         last_msg = chunk["messages"][-1]
         msg_type = type(last_msg).__name__
+        if msg_type == "AIMessage":
+            n_llm_calls += 1
         if hasattr(last_msg, "tool_calls") and last_msg.tool_calls:
             for tc in last_msg.tool_calls:
                 print(f"  [{label}] {tc['name']}({str(tc.get('args', ''))[:120]})", flush=True)
@@ -122,12 +126,14 @@ def stream_agent(agent, config: dict, message: str, label: str) -> str:
                 print(f"  [{label}] {preview}", flush=True)
 
     if result is None:
-        return ""
+        return "", 0
     final = result["messages"][-1]
     content = getattr(final, "content", "") or ""
     if isinstance(content, list):
-        return " ".join(b.get("text", "") for b in content if isinstance(b, dict) and b.get("type") == "text")
-    return str(content)
+        text = " ".join(b.get("text", "") for b in content if isinstance(b, dict) and b.get("type") == "text")
+    else:
+        text = str(content)
+    return text, n_llm_calls
 
 
 def _is_transient_error(exc: Exception) -> bool:
@@ -144,10 +150,12 @@ def stream_agent_retrying(
     label: str,
     max_attempts: int = 3,
     base_delay: float = 15.0,
-) -> str:
-    """Like stream_agent but retries on transient API errors with fresh thread IDs."""
+) -> tuple[str, int]:
+    """Like stream_agent but retries on transient API errors with fresh thread IDs.
+    Returns (final_text, llm_call_count) — counts across all attempts."""
     thread_id = config["configurable"]["thread_id"]
     last_exc: Exception | None = None
+    total_calls = 0
 
     for attempt in range(max_attempts):
         if attempt > 0:
@@ -160,7 +168,8 @@ def stream_agent_retrying(
             cfg = config
 
         try:
-            return stream_agent(agent, cfg, message, label)
+            text, n = stream_agent(agent, cfg, message, label)
+            return text, total_calls + n
         except Exception as e:
             if _is_transient_error(e) and attempt < max_attempts - 1:
                 print(f"  [{label}] Transient error on attempt {attempt + 1}: "
@@ -227,13 +236,14 @@ def save_proposals(run_dir: str, proposals: list) -> None:
             f.write(f"---\n\n## Iteration {iteration}\n\n{proposal}\n\n")
 
 
-def print_checkpoint(iteration: int, total: int, start_time: float) -> None:
+def print_checkpoint(iteration: int, total: int, start_time: float, llm_call_count: int = 0) -> None:
     elapsed_min = (time.time() - start_time) / 60
     rate = iteration / elapsed_min if elapsed_min > 0 else 0
     summary = read_results_summary()
     print(f"\n{'#'*60}")
     print(f"  CHECKPOINT — Iteration {iteration}/{total}")
     print(f"  Elapsed: {elapsed_min:.1f} min | Rate: {rate:.1f} iter/min")
+    print(f"  LLM calls (total): {llm_call_count}")
     print(f"{'#'*60}")
     print(summary)
     try:
@@ -243,10 +253,11 @@ def print_checkpoint(iteration: int, total: int, start_time: float) -> None:
     print(f"{'#'*60}\n")
 
 
-def print_final_report(total_iterations: int, actual_iterations: int, start_time: float):
+def print_final_report(total_iterations: int, actual_iterations: int, start_time: float, llm_call_count: int = 0):
     elapsed_min = (time.time() - start_time) / 60
     print(f"\n{'='*60}\n  FINAL REPORT\n{'='*60}")
     print(f"  Iterations: {actual_iterations}/{total_iterations} | Time: {elapsed_min:.1f} min")
+    print(f"  LLM calls (total): {llm_call_count}")
     print(read_results_summary())
     try:
         _update_plot()
@@ -352,6 +363,7 @@ def main():
         kickoff_note = "submission.py is the current kernel. Benchmark it first, then improve. "
 
     all_proposals: list = []
+    total_llm_calls = 0
     iteration = 0
     try:
         while iteration < args.iterations:
@@ -371,7 +383,9 @@ def main():
                 "Call get_experiment_history for the full code and results, "
                 "then output your structured proposal."
             )
-            proposal = stream_agent_retrying(advisor_agent, advisor_config, advisor_message, label="advisor")
+            proposal, advisor_calls = stream_agent_retrying(advisor_agent, advisor_config, advisor_message, label="advisor")
+            total_llm_calls += advisor_calls
+            set_llm_call_count(total_llm_calls)
             all_proposals.append((iteration, proposal))
             print(f"\n[advisor proposal]\n{'-'*40}\n{proposal[:1000]}\n{'-'*40}\n", flush=True)
             save_proposals(run_dir, all_proposals)
@@ -396,7 +410,9 @@ def main():
             )
             kickoff_note = ""  # only shown on first iteration
 
-            stream_agent_retrying(worker_agent, worker_config, worker_message, label="worker")
+            _, worker_calls = stream_agent_retrying(worker_agent, worker_config, worker_message, label="worker")
+            total_llm_calls += worker_calls
+            set_llm_call_count(total_llm_calls)
 
             log_count_after = _get_next_iteration() - 1
             if log_count_after <= log_count_before:
@@ -424,7 +440,7 @@ def main():
                         print(f"  [crash restore] submission.py restored from {os.path.basename(restore_src)}", flush=True)
 
             if iteration % args.checkpoint_every == 0:
-                print_checkpoint(iteration, args.iterations, start_time)
+                print_checkpoint(iteration, args.iterations, start_time, total_llm_calls)
 
     except KeyboardInterrupt:
         print(f"\n--- Interrupted at iteration {iteration} ---")
@@ -433,7 +449,7 @@ def main():
         import traceback; traceback.print_exc()
     finally:
         save_proposals(run_dir, all_proposals)
-        print_final_report(args.iterations, iteration, start_time)
+        print_final_report(args.iterations, iteration, start_time, total_llm_calls)
 
 
 if __name__ == "__main__":

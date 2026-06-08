@@ -10,6 +10,7 @@ PLOT_FILE = "progress.png"
 
 _run_directory = None
 _current_agent_iteration = 0
+_llm_call_count = 0
 
 
 def set_run_directory(run_dir):
@@ -23,6 +24,11 @@ def set_run_directory(run_dir):
 def set_agent_iteration(n: int):
     global _current_agent_iteration
     _current_agent_iteration = n
+
+
+def set_llm_call_count(n: int):
+    global _llm_call_count
+    _llm_call_count = n
 
 
 def _ensure_history_file():
@@ -131,6 +137,14 @@ def _update_plot():
             fontsize=11, fontweight="bold", color="#3b82f6",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#3b82f6", alpha=0.9),
         )
+
+    ax.annotate(
+        f"LLM calls: {_llm_call_count}",
+        xy=(0.98, 0.02), xycoords="axes fraction",
+        ha="right", va="bottom",
+        fontsize=10, color="#6b7280",
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#d1d5db", alpha=0.9),
+    )
 
     fig.tight_layout()
     fig.savefig(PLOT_FILE, dpi=150)

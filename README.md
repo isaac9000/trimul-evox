@@ -1,6 +1,34 @@
-# Advisor-Worker Autoresearch
+# Grayscale Autoresearch
 
-An advisor-worker agent pair that iteratively optimizes CUDA kernels. Each iteration the **advisor** reviews experiment history and proposes a strategic direction; the **worker** implements it, evaluates on a cloud GPU via Modal, and logs the result.
+An advisor-worker agent pair that iteratively optimizes a CUDA kernel for RGB-to-grayscale conversion on NVIDIA A100. Each iteration the **advisor** reviews experiment history and proposes a strategic direction; the **worker** implements it, evaluates on an A100 via Modal, and logs the result.
+
+## Task
+
+Convert a square RGB image to grayscale using the standard luminance coefficients:
+
+```
+Y = 0.2989 R + 0.5870 G + 0.1140 B
+```
+
+`custom_kernel` receives an RGB tensor and returns a grayscale tensor:
+
+| Argument | Shape | Dtype |
+|---|---|---|
+| input | `H × W × 3` | `float32` |
+| output | `H × W` | `float32` |
+
+**Benchmark shapes:**
+
+| Size | Image |
+|---|---|
+| 512 | 512 × 512 × 3 |
+| 1024 | 1024 × 1024 × 3 |
+| 2048 | 2048 × 2048 × 3 |
+| 4096 | 4096 × 4096 × 3 |
+| 8192 | 8192 × 8192 × 3 |
+| 16384 | 16384 × 16384 × 3 |
+
+Ranked by geometric mean latency across all six shapes (lower is better).
 
 ## Setup
 
@@ -17,31 +45,19 @@ MODAL_TOKEN_SECRET=...
 AUTORESEARCH_MODEL=claude-sonnet-4-6   # optional, this is the default
 ```
 
----
-
-## Problem: Grayscale (A100)
-
-Convert an RGB image to grayscale using `Y = 0.2989 R + 0.5870 G + 0.1140 B`.
-
-- **Input:** `(H, W, 3)` float32 tensor on CUDA
-- **Output:** `(H, W)` float32 tensor
-- **Benchmark sizes:** 512, 1024, 2048, 4096, 8192, 16384 (square images)
-- **Target GPU:** A100 via Modal
-- **Metric:** Geometric mean latency across all 6 sizes
-
-### Deploy the evaluator (once)
+Deploy the A100 evaluator (once, before any agent runs):
 
 ```bash
 uv run modal deploy eval_modal_grayscale.py
 ```
 
-### Run the agent
+## Running the agent
 
 ```bash
 uv run grayscale/agent.py --iterations 20
 ```
 
-Start from a specific baseline:
+Start from a specific baseline file:
 
 ```bash
 uv run grayscale/agent.py --baseline grayscale/submission.py --iterations 20
@@ -63,70 +79,38 @@ tmux attach -t agent
 Evaluate a kernel file without running the agent:
 
 ```bash
-uv run grayscale/run_eval.py grayscale/submission.py -o results.json
+cd grayscale && python run_eval.py submission.py -o results.json
+python run_eval.py submission.py -o results.json --mode test   # correctness only
 ```
 
-### Structure
+## Structure
 
 ```
+eval_modal_grayscale.py   — deployable Modal A100 evaluator
 grayscale/
-├── agent.py            — advisor-worker agentic loop
-├── advisor_prompt.md   — advisor system prompt: strategy, comparison discipline
-├── worker_prompt.md    — worker system prompt: mandatory sequence, rules
-├── submission.py       — the kernel file the worker edits each iteration
-├── run_eval.py         — submits submission.py to the Modal A100 evaluator
-├── tools.py            — log_experiment and get_experiment_history tools
-└── runs/               — one directory per run: history, TSV log, plots, best submission
-eval_modal_grayscale.py — Modal app deployed on A100
+├── agent.py              — advisor-worker agentic loop
+├── advisor_prompt.md     — advisor system prompt: strategy, comparison discipline
+├── worker_prompt.md      — worker system prompt: mandatory sequence, rules
+├── submission.py         — the kernel file the worker edits each iteration
+├── run_eval.py           — submits submission.py to the deployed Modal evaluator
+├── tools.py              — log_experiment and get_experiment_history tools
+└── runs/                 — one directory per run: history, TSV log, plots, best submission
 ```
 
----
-
-## Problem: NVfp4 GEMV (B200)
-
-Batched NVfp4 matrix-vector multiplication with fp8 block scale factors, producing fp16 output. Ranked by geometric mean latency across three shapes.
-
-- **Target GPU:** B200 via Modal
-- **Benchmark shapes:** (M=7168, K=16384, L=1), (M=4096, K=7168, L=8), (M=7168, K=2048, L=4)
-
-### Deploy the evaluator (once)
-
-```bash
-uv run modal deploy eval_modal_nvfp4_gemv.py
-```
-
-### Run the agent
-
-```bash
-uv run nvfp4_gemv/agent.py --iterations 20
-uv run nvfp4_gemv/agent.py --baseline nvfp4_gemv/baseline37.py --iterations 20
-uv run nvfp4_gemv/agent.py --advisor-model claude-opus-4-8 --worker-model claude-sonnet-4-6 --iterations 20
-```
-
-### Structure
-
-```
-nvfp4_gemv/
-├── agent.py            — advisor-worker agentic loop
-├── advisor_prompt.md   — advisor system prompt
-├── worker_prompt.md    — worker system prompt
-├── submission.py       — the kernel file the worker edits each iteration
-├── run_eval.py         — submits submission.py to the Modal B200 evaluator
-├── tools.py            — log_experiment and get_experiment_history tools
-├── baseline37.py       — custom CUDA kernel baseline (~21 µs geomean)
-└── runs/               — one directory per run
-eval_modal_nvfp4_gemv.py — Modal app deployed on B200
-```
-
----
-
-## Run directory contents
-
-Each run directory under `*/runs/` contains:
+Each run directory contains:
 - `experiment_history.md` — full log of every attempt with code and result
 - `results.tsv` — tab-separated summary for plotting
-- `progress.png` — latency plot updated each iteration
-- `iterations.png` — best-per-advisor-iteration plot
-- `best_submission.py` — snapshot of the fastest kernel found
+- `progress.png` — latency scatter plot updated each experiment; shows keep/discard/crash points, best-time step line, and cumulative LLM call count
+- `iterations.png` — best latency per advisor iteration
+- `best_submission.py` — snapshot of the fastest kernel found so far
 - `proposals.md` — advisor proposals for every iteration
 - `snapshot_iter{N}.py` — per-iteration snapshot of submission.py before the worker edits it
+
+## LLM Call Counter
+
+The agent tracks how many times the LLM is invoked across both the advisor and worker agents (each tool-calling turn and each plain response counts as one call). This is reported:
+
+- **Per-iteration** in the console: `[advisor]` and `[worker]` call counts accumulated into a running total
+- **At each checkpoint** (every `--checkpoint-every` iterations): `LLM calls (total): T`
+- **In the final report**: `LLM calls (total): T`
+- **On `progress.png`**: displayed as a badge in the bottom-right corner of every plot, updated live as experiments are logged
