@@ -1,17 +1,18 @@
 max_iterations: 25
 checkpoint_interval: 5
+log_level: INFO
 
 llm:
-  # Anthropic's OpenAI-compatible endpoint.
-  # Set OPENAI_API_KEY=$ANTHROPIC_API_KEY before running.
-  primary_model: "claude-sonnet-4-6"
-  primary_model_weight: 1.0
-  secondary_model: "claude-haiku-4-5-20251001"
-  secondary_model_weight: 0.0
-  api_base: "https://api.anthropic.com/v1"
+  models:
+    - name: "claude-sonnet-4-6"
+      weight: 1.0
+  # api_base auto-detected from "claude-" prefix → https://api.anthropic.com/v1/
+  # api_key resolved from ANTHROPIC_API_KEY env var
   temperature: 0.7
+  top_p: null  # Anthropic rejects requests that set both temperature and top_p
   max_tokens: 8000
   timeout: 180
+  retries: 3
 
 prompt:
   system_message: >
@@ -22,18 +23,16 @@ prompt:
     vectorized loads), BLOCK_SIZE tuning, exploiting H100 memory bandwidth, and reducing
     arithmetic overhead. The function signature must remain: custom_kernel(data) where
     data = (rgb_tensor, output_tensor).
+    Output ONLY Python code — no explanations.
 
-database:
-  population_size: 20
-  archive_size: 10
-  num_islands: 2
-  elite_selection_ratio: 0.2
-  exploitation_ratio: 0.7
+search:
+  type: "evox"
 
 evaluator:
   timeout: 450
-  cascade_thresholds: [0.5]
+  max_retries: 1
+  cascade_evaluation: false
   parallel_evaluations: 1
 
-diff_based_evolution: true
-max_code_length: 10000
+diff_based_generation: true
+max_solution_length: 10000

@@ -1,10 +1,10 @@
 [project]
-name = "grayscale-openevolve"
+name = "grayscale-evox"
 version = "0.1.0"
-description = "OpenEvolve baseline for grayscale CUDA kernel optimization on H100"
+description = "SkyDiscover/EvoX benchmark for grayscale CUDA kernel optimization on H100"
 requires-python = ">=3.11"
 dependencies = [
-    "python-dotenv>=1.0.0",
+    "skydiscover>=0.1.0",
     "modal>=0.73.0",
-    "openevolve>=0.2.0",
+    "python-dotenv>=1.0.0",
 ]

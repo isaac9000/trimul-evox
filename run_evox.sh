@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Run OpenEvolve for 25 iterations, but first verify the H100 baseline
-# is within TARGET_LOW–TARGET_HIGH µs (proxy for SXM5 node).
-# Also accepts if GPU name contains "HBM3" (SXM5 identifier).
+# Run SkyDiscover/EvoX for 25 iterations, but first verify the H100 baseline
+# is within TARGET_LOW–TARGET_HIGH µs (proxy for consistent node).
 # Retries up to MAX_ATTEMPTS times before giving up.
 
 set -uo pipefail
@@ -9,12 +8,11 @@ set -uo pipefail
 TARGET_LOW=85.0
 TARGET_HIGH=108.0
 MAX_ATTEMPTS=10
-RUN_BASE="grayscale/openevolve_runs"
+RUN_BASE="grayscale/skydiscover_runs"
 
 set -a
 source .env
 set +a
-export OPENAI_API_KEY="$ANTHROPIC_API_KEY"
 
 mkdir -p "$RUN_BASE"
 
@@ -34,7 +32,6 @@ while [ "$attempt" -lt "$MAX_ATTEMPTS" ]; do
         continue
     fi
 
-    # Parse geomean and GPU name from the saved markdown
     PARSE=$(python3.13 -c "
 import json, re
 md = json.load(open('$BASELINE_JSON'))
@@ -51,44 +48,43 @@ print(gpu.group(1) if gpu else 'unknown')
     echo "  GPU         : $GPU_NAME"
     echo "  Geomean     : ${GEOMEAN} µs   (target: ${TARGET_LOW}–${TARGET_HIGH} µs)"
 
-    # Accept only if geomean is within target range
     IN_RANGE=$(python3.13 -c "
 g = float('$GEOMEAN')
 print('yes' if $TARGET_LOW <= g <= $TARGET_HIGH else 'no')
 ")
 
     if [ "$IN_RANGE" = "yes" ]; then
-        echo "  ✅ Baseline accepted — starting 25-iteration run"
+        echo "  ✅ Baseline accepted — starting 25-iteration EvoX run"
 
         RUN_NUM=$(ls -d "$RUN_BASE"/run* 2>/dev/null | wc -l)
         RUN_NUM=$((RUN_NUM + 1))
         RUN_OUT="$RUN_BASE/run$RUN_NUM"
         mkdir -p "$RUN_OUT"
 
-        tmux kill-session -t openevolve 2>/dev/null || true
-        tmux new-session -d -s openevolve
+        tmux kill-session -t evox-grayscale 2>/dev/null || true
+        tmux new-session -d -s evox-grayscale
 
-        tmux send-keys -t openevolve \
-            "set -a && source .env && set +a && export OPENAI_API_KEY=\$ANTHROPIC_API_KEY && \
-python3.13 -m openevolve.cli \
+        tmux send-keys -t evox-grayscale \
+            "cd /workspace/grayscale-openevolve && set -a && source .env && set +a && \
+skydiscover-run \
   grayscale/starting_point.py \
-  grayscale/openevolve_evaluator.py \
-  --config grayscale/openevolve_config.yaml \
+  grayscale/skydiscover_evaluator.py \
+  --config grayscale/skydiscover_config.yaml \
+  --search evox \
   --iterations 25 \
   --output $RUN_OUT \
 2>&1 | tee ${RUN_OUT}.log" Enter
 
         echo ""
-        echo "  tmux session : openevolve"
+        echo "  tmux session : evox-grayscale"
         echo "  Output dir   : $RUN_OUT"
         echo "  Log          : ${RUN_OUT}.log"
         echo ""
-        echo "  Monitor : tmux attach -t openevolve"
-        echo "  Plot    : python3.13 grayscale/plot_run.py $RUN_OUT"
+        echo "  Monitor : tmux attach -t evox-grayscale"
         exit 0
     else
         if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-            echo "  ❌ PCIe node — waiting 30s for Modal to reallocate..."
+            echo "  ❌ Out of range — waiting 30s..."
             sleep 30
         else
             echo "  ❌ Gave up after $MAX_ATTEMPTS attempts. Last: ${GEOMEAN} µs on $GPU_NAME"
