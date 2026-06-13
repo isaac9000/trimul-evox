@@ -1,0 +1,81 @@
+iteration: 1
+diverge_label_length: 3628
+refine_label_length: 2963
+
+diverge_label: |
+  ## IMPORTANT: YOU MUST FOLLOW THE FOLLOWING IN YOUR GENERATION, OTHERWISE THE SOLUTION WILL BE REJECTED.
+  
+  ### Goal
+  You MUST USE a FUNDAMENTALLY DIFFERENT APPROACH to the following code, NOT JUST parameter tweaks or local changes.
+  This may mean using different solver, function, or library, a different algorithm, or a different method entirely; or adding new components that have never been used before.
+  You can replace partial or the entire code if needed (i.e., rewrite a simpler solution from scratch), or build upon / complement it.
+  Think through what is needed to achieve a BREAKTHROUGH SCORE.
+  
+  **Tools Available:**
+  You have access to a list of libraries. Use these tools to your advantage.
+  - Choose library functions appropriate to the problem's structure and constraints.
+  - Feel free to break from the existing code entirely — focus on correct library usage for the problem, not on preserving the current code's structure.
+  - **Prioritize libraries and functions not already used by the parent program.** Adding new components or changing how existing ones are combined is fine, but prefer approaches that introduce something the parent has never tried.
+  
+  **CRITICAL: IF A LIBRARY EXISTS FOR AN ALGORITHM, USE IT. DO NOT REIMPLEMENT MANUALLY. SEE THE EXAMPLES BELOW FOR RELEVANT LIBRARIES.**
+  
+  ### Examples
+  EXAMPLES OF DIFFERENT approaches (NOT LIMITED TO, PROPOSE YOUR OWN):
+  
+  - **Libraries / solvers**: `torch: torch.bmm, torch.matmul, torch.einsum` ↔ `torch.backends.cuda: matmul with BF16/FP16` ↔ `triton: triton.jit (custom fused kernels)` ↔ `torch.nn.functional: linear, layer_norm` ↔ `torch.cuda: streams for pipelining`
+  
+  - **Outer-product einsum strategy (primary bottleneck)**: Reshape "...ikd, ...jkd->...ijd" into batched GEMM via `torch.bmm` on reshaped (bs*seqlen, d, seqlen) tensors ↔ use `torch.matmul` with explicit batch dims ↔ write a Triton kernel tiling over i/j/d with k as reduction ↔ split k-dim into chunks and accumulate to reduce SRAM pressure ↔ exploit symmetry (if i==j dims) to halve work
+  
+  - **Kernel fusion strategy**: Fuse LayerNorm + linear projections + sigmoid gate into a single Triton kernel before the outer product ↔ fuse output LayerNorm + gate + linear projection after the outer product ↔ fuse the entire pipeline (all ops) into one mega-kernel for small seqlen ↔ two-kernel split: (fused pre-processing) → (fused outer-product + post-processing)
+  
+  - **Precision & memory layout**: Use BF16 throughout (inputs, weights, intermediates) with FP32 accumulation in outer product ↔ FP16 with loss-scaling-aware accumulation ↔ keep weights in FP32 but cast activations to BF16 just before GEMM ↔ use `torch.compile` with `mode='reduce-overhead'` or `mode='max-autotune'` to auto-select precision/layout
+  
+  - **Weight/object caching & compilation**: Cache `nn.Linear` weight tensors as module-level globals keyed by shape to avoid repeated Python object creation ↔ pre-transpose weight matrices once and store ↔ use `torch.compile` on the entire forward function ↔ pre-allocate output buffers and reuse across calls with `out=` parameter
+  
+  - **Algorithm decomposition by sequence length**: For small seqlen (≤128) use a single fully-fused Triton kernel ↔ for medium seqlen (128–512) use cuBLAS batched GEMM via `torch.bmm` ↔ for large seqlen (>512) tile the outer product over i-blocks to stay within L2 cache ↔ dispatch at runtime based on `seqlen` and `dim` to the best-performing path
+  
+  ---
+  
+  ### Output
+  Your solution MUST still be VALID / CORRECT for the same problem. A broken "creative" solution is worthless.
+  
+  Format:
+  1. APPROACH: Describe your different approach.
+  2. CODE: Implementation.
+
+refine_label: |
+  ## IMPORTANT: YOU MUST FOLLOW THE FOLLOWING IN YOUR GENERATION, OTHERWISE THE SOLUTION WILL BE REJECTED.
+  
+  ### Goal
+  You should keep the same fundamental approach and algorithm structure.
+  DO NOT switch to a different problem formulation.
+  Focus on REFINING / EXPLOITING the current approach: better inputs, additional polish, etc.
+  Think through what is needed to SQUEEZE the last few percent of performance.
+  Use sufficient computational budget for refinement.
+  
+  **Tools Available:**
+  You have access to a list of libraries. Use these tools to your advantage.
+  - Choose library functions appropriate to the problem's structure and constraints.
+  - Feel free to break from the existing code entirely — focus on correct library usage for the problem, not on preserving the current code's structure.
+  
+  **CRITICAL: IF A LIBRARY EXISTS FOR AN ALGORITHM, USE IT. DO NOT REIMPLEMENT MANUALLY. SEE THE EXAMPLES BELOW FOR RELEVANT LIBRARIES.**
+  
+  ### Examples
+  EXAMPLES OF REFINEMENT strategies (NOT LIMITED TO, PROPOSE YOUR OWN):
+  
+  - **Libraries / tools for refinement**: `torch.bmm` with explicit pre-transposed weight tensors ↔ `torch.compile(mode='max-autotune')` with `fullgraph=True` ↔ Triton `triton.autotune` with expanded config grid (BLOCK_M, BLOCK_N, BLOCK_K, num_warps, num_stages) ↔ `torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True` ↔ `torch.cuda.amp.autocast(dtype=torch.bfloat16)`
+  
+  - **Triton kernel tuning (if using Triton)**: Expand `@triton.autotune` config list with more BLOCK_M/BLOCK_N/BLOCK_K combinations ↔ increase `num_stages` (2→4) for better memory latency hiding ↔ tune `num_warps` (4→8) for H100 warp occupancy ↔ add `tl.constexpr` for dim sizes to enable compile-time unrolling ↔ use `tl.dot` with `allow_tf32=True` for H100 tensor cores
+  
+  - **Memory traffic reduction**: Pre-transpose projection weight matrices once at init and store as contiguous tensors ↔ ensure all intermediate tensors are contiguous before GEMM (`.contiguous()`) ↔ use `torch.empty` + in-place ops instead of allocating new tensors per call ↔ pin mask tensor and reuse across calls
+  
+  - **Precision tuning**: Force BF16 for all linear layers and layer norms ↔ use `torch.set_float32_matmul_precision('high')` to enable TF32 on H100 ↔ cast to BF16 immediately after LayerNorm to reduce bandwidth in outer product ↔ keep only the final output in FP32 if correctness requires it
+  
+  - **Batched GEMM reshape polish**: After reshaping for `torch.bmm`, ensure the tensor is `(batch, seqlen_i, seqlen_j)` contiguous in memory ↔ try `(batch*seqlen, k, d)` vs `(batch, seqlen*k, d)` reshape orderings to find the layout with best cache reuse ↔ benchmark `torch.matmul` vs `torch.bmm` vs `torch.einsum` with `opt_einsum=True` for the specific shapes at each seqlen
+  
+  ### Output
+  Your solution MUST still be VALID / CORRECT for the same problem. A broken solution is worthless.
+  
+  Format:
+  1. REFINEMENT: Describe what you are refining.
+  2. CODE: Implementation with refinement.

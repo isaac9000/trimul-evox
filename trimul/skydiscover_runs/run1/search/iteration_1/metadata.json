@@ -1,0 +1,1663 @@
+{
+  "iteration": 1,
+  "program_id": "b6b66ae2-aa89-4487-8177-c6f387d5d616",
+  "score": null,
+  "metrics": {
+    "validity": 1,
+    "combined_score": 199.2108779344974,
+    "window_start_iteration": 8,
+    "search_window_start_score": 107.9192668914697,
+    "search_window_end_score": 157.4265915867766,
+    "search_horizon": 2
+  },
+  "pending_score": false,
+  "combined_score": 199.2108779344974,
+  "is_new_best": true,
+  "start_db_stats": {
+    "previous_programs": [
+      {
+        "id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nInitial TriMul submission \u2014 PyTorch baseline with dummy Triton kernel.\n\"\"\"\n\nimport torch\nfrom torch import nn, einsum\nimport triton\nimport triton.language as tl\n\n\n@triton.jit\ndef _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):\n    pid = tl.program_id(0)\n    pass\n\n\nclass TriMul(nn.Module):\n    def __init__(\n        self,\n        dim: int,\n        hidden_dim: int,\n    ):\n        super().__init__()\n\n        self.norm = nn.LayerNorm(dim)\n\n        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n\n        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n\n        self.to_out_norm = nn.LayerNorm(hidden_dim)\n        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)\n\n    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:\n        batch_size, seq_len, _, dim = x.shape\n\n        x = self.norm(x)\n        x = x.to(torch.float32)\n\n        left = self.left_proj(x.to(torch.float32))\n        right = self.right_proj(x.to(torch.float32))\n\n        mask = mask.unsqueeze(-1)\n        left = left * mask\n        right = right * mask\n\n        left_gate = self.left_gate(x.to(torch.float32)).sigmoid()\n        right_gate = self.right_gate(x.to(torch.float32)).sigmoid()\n        out_gate = self.out_gate(x.to(torch.float32)).sigmoid()\n\n        left = left * left_gate\n        right = right * right_gate\n\n        out = einsum('... i k d, ... j k d -> ... i j d', left.to(torch.bfloat16), right.to(torch.bfloat16))\n\n        out = out.to(torch.float32)\n        out = self.to_out_norm(out)\n        out = out * out_gate\n        return self.to_out(out)\n\n\ndef custom_kernel(data):\n    input_tensor, mask, weights, config = data\n    trimul = TriMul(config[\"dim\"], config[\"hidden_dim\"]).to(input_tensor.device)\n\n    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))\n    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))\n    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))\n    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))\n    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))\n    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))\n    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))\n    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))\n    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))\n    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))\n\n    output = trimul(input_tensor, mask).to(torch.float32)\n\n    return output\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 88.04160775949428,
+          "geomean_us": 11358.266,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 0,
+        "parent_id": null,
+        "other_context_ids": null,
+        "parent_info": null,
+        "context_info": null,
+        "timestamp": 1781308376.5246594,
+        "metadata": {},
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul using functional ops to avoid module instantiation overhead.\nUses F.layer_norm and F.linear directly. Computes outer product via bmm\nby reshaping: (bs, seqlen, k, d) -> permute to (bs*d, seqlen, k) then bmm.\nUses BF16 for the heavy outer product matmul.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass using functional ops:\n    1. F.layer_norm and F.linear to avoid nn.Module instantiation overhead\n    2. Outer product via bmm: reshape left/right to (bs*hidden_dim, seqlen, k)\n       then bmm(left_t, right) gives (bs*hidden_dim, seqlen, seqlen)\n    3. BF16 for outer product bmm, FP32 for layer norms\n    \"\"\"\n    input_tensor, mask, weights, config = data\n    device = input_tensor.device\n\n    # Load weights, keep in float32 for norms, bf16 for matmuls\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    lp_w = weights['left_proj.weight'].float()\n    rp_w = weights['right_proj.weight'].float()\n    lg_w = weights['left_gate.weight'].float()\n    rg_w = weights['right_gate.weight'].float()\n    og_w = weights['out_gate.weight'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = input_tensor.float()\n    x = F.layer_norm(x, [dim], norm_w, norm_b)\n\n    # Left and right projections: (bs, seq, seq, hidden_dim)\n    left = F.linear(x, lp_w)   # no bias\n    right = F.linear(x, rp_w)\n\n    # Apply mask: mask shape (bs, seq, seq) -> unsqueeze last dim\n    mask_f = mask.float().unsqueeze(-1)\n    left = left * mask_f\n    right = right * mask_f\n\n    # Gating\n    left_gate = torch.sigmoid(F.linear(x, lg_w))\n    right_gate = torch.sigmoid(F.linear(x, rg_w))\n    out_gate = torch.sigmoid(F.linear(x, og_w))\n\n    left = left * left_gate\n    right = right * right_gate\n\n    # Outer product: ... i k d, ... j k d -> ... i j d\n    # Reshape to (bs, seq, seq, hidden_dim) -> need (bs, i, k, d) x (bs, j, k, d)\n    # Use einsum but with bfloat16 for speed\n    left_bf = left.to(torch.bfloat16)\n    right_bf = right.to(torch.bfloat16)\n\n    # Efficient bmm approach:\n    # left: (bs, seq, seq, hidden_dim) = (bs, i, k, d)\n    # right: (bs, seq, seq, hidden_dim) = (bs, j, k, d)\n    # We want out[bs, i, j, d] = sum_k left[bs, i, k, d] * right[bs, j, k, d]\n    # Reshape: left -> (bs*d, i, k), right -> (bs*d, j, k)\n    # out = bmm(left_t, right_t^T) -> (bs*d, i, j) -> (bs, i, j, d)\n\n    # left: (bs, i, k, d) -> (bs, d, i, k) -> (bs*d, i, k)\n    left_t = left_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n    # right: (bs, j, k, d) -> (bs, d, j, k) -> (bs*d, j, k)\n    right_t = right_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))  # (bs*d, i, j)\n\n    # Reshape back: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n\n    # Output gate and projection\n    out = out * out_gate\n    out = F.linear(out, to_w)\n\n    return out.float()\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.01761595572725,
+          "geomean_us": 9344.256,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 1,
+        "parent_id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "other_context_ids": [],
+        "parent_info": [
+          "",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "context_info": [],
+        "timestamp": 1781308511.0193722,
+        "metadata": {
+          "changes": "Change 1: Renamed function `_dummy_kernel` \u2192 `custom_kernel`",
+          "parent_metrics": {
+            "combined_score": 88.04160775949428,
+            "geomean_us": 11358.266,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul using functional ops to avoid module instantiation overhead.\nUses F.layer_norm and F.linear directly. Computes outer product via bmm\nby reshaping: (bs, seqlen, k, d) -> permute to (bs*d, seqlen, k) then bmm.\nUses BF16 for the heavy outer product matmul.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass using functional ops:\n    1. F.layer_norm and F.linear to avoid nn.Module instantiation overhead\n    2. Outer product via bmm: reshape left/right to (bs*hidden_dim, seqlen, k)\n       then bmm(left_t, right_t^T) gives (bs*hidden_dim, seqlen, seqlen)\n    3. BF16 for outer product bmm, FP32 for layer norms\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    lp_w = weights['left_proj.weight'].float()\n    rp_w = weights['right_proj.weight'].float()\n    lg_w = weights['left_gate.weight'].float()\n    rg_w = weights['right_gate.weight'].float()\n    og_w = weights['out_gate.weight'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Left and right projections: (bs, seq, seq, hidden_dim)\n    left = F.linear(x, lp_w)\n    right = F.linear(x, rp_w)\n\n    # Apply mask\n    mask_f = mask.float().unsqueeze(-1)\n    left = left * mask_f\n    right = right * mask_f\n\n    # Gating\n    left_gate = torch.sigmoid(F.linear(x, lg_w))\n    right_gate = torch.sigmoid(F.linear(x, rg_w))\n    out_gate = torch.sigmoid(F.linear(x, og_w))\n\n    left = left * left_gate\n    right = right * right_gate\n\n    # Outer product: ... i k d, ... j k d -> ... i j d\n    # Efficient bmm: left -> (bs*d, i, k), right -> (bs*d, j, k)\n    # out = bmm(left_t, right_t^T) -> (bs*d, i, j) -> (bs, i, j, d)\n    left_bf = left.to(torch.bfloat16)\n    right_bf = right.to(torch.bfloat16)\n\n    # left: (bs, i, k, d) -> (bs, d, i, k) -> (bs*d, i, k)\n    left_t = left_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n    # right: (bs, j, k, d) -> (bs, d, j, k) -> (bs*d, j, k)\n    right_t = right_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape back: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n\n    # Output gate and projection\n    out = out * out_gate\n    out = F.linear(out, to_w)\n\n    return out.float()\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 106.87775450692803,
+          "geomean_us": 9356.484,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 3,
+        "parent_id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "other_context_ids": [
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+        ],
+        "parent_info": [
+          "",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "context_info": [
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ]
+        ],
+        "timestamp": 1781308556.5351002,
+        "metadata": {
+          "changes": "Change 1: Renamed function `_dummy_kernel` \u2192 `custom_kernel`",
+          "parent_metrics": {
+            "combined_score": 88.04160775949428,
+            "geomean_us": 11358.266,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul\n    # Stack weights: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask\n    mask_f = mask.float().unsqueeze(-1)\n    left = left * mask_f\n    right = right * mask_f\n\n    # Gating\n    left  = left  * torch.sigmoid(lg)\n    right = right * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.62976651874749,
+          "geomean_us": 9291.11,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 4,
+        "parent_id": "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+        "other_context_ids": [
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+        ],
+        "parent_info": [
+          "",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+        ],
+        "context_info": [
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ],
+          [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+          ]
+        ],
+        "timestamp": 1781308603.894291,
+        "metadata": {
+          "changes": "Change 1: Modified function `custom_kernel`: TriMul forward pass:",
+          "parent_metrics": {
+            "combined_score": 107.01761595572725,
+            "geomean_us": 9344.256,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "1b494428-654e-4e65-86d3-766b102daa3c",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous tensors for efficient memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32)\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.18783392359887,
+          "geomean_us": 9329.417,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 5,
+        "parent_id": "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+        "other_context_ids": [
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+        ],
+        "parent_info": [
+          "",
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+        ],
+        "context_info": [
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ],
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ],
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ]
+        ],
+        "timestamp": 1781308659.810063,
+        "metadata": {
+          "changes": "Change 1: Modified function `custom_kernel`: TriMul forward pass:",
+          "parent_metrics": {
+            "combined_score": 106.87775450692803,
+            "geomean_us": 9356.484,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous permutes for efficient bmm memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32)\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.9192668914697,
+          "geomean_us": 9266.186,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 6,
+        "parent_id": "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+        "other_context_ids": [
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+          "1b494428-654e-4e65-86d3-766b102daa3c",
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "parent_info": [
+          "",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+        ],
+        "context_info": [
+          [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+          ],
+          [
+            "",
+            "1b494428-654e-4e65-86d3-766b102daa3c"
+          ],
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ],
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ]
+        ],
+        "timestamp": 1781308708.3224816,
+        "metadata": {
+          "changes": "Change 1: Modified function `custom_kernel`: TriMul forward pass:",
+          "parent_metrics": {
+            "combined_score": 107.01761595572725,
+            "geomean_us": 9344.256,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "19c7b4ee-8f8e-4263-babd-91800600097a",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous permutes for efficient bmm memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32) - avoids nn.Module overhead\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.49233391547598,
+          "geomean_us": 9302.989,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 7,
+        "parent_id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "other_context_ids": [
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+          "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+          "1b494428-654e-4e65-86d3-766b102daa3c",
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+        ],
+        "parent_info": [
+          "",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "context_info": [
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ],
+          [
+            "",
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340"
+          ],
+          [
+            "",
+            "1b494428-654e-4e65-86d3-766b102daa3c"
+          ],
+          [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+          ]
+        ],
+        "timestamp": 1781308753.0650978,
+        "metadata": {
+          "changes": "Change 1: Renamed function `_dummy_kernel` \u2192 `custom_kernel`",
+          "parent_metrics": {
+            "combined_score": 88.04160775949428,
+            "geomean_us": 11358.266,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous tensors for efficient memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32)\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Use matmul on transposed dims: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    left_bf  = left.to(torch.bfloat16).permute(0, 3, 1, 2)   # (bs, d, i, k)\n    right_bf = right.to(torch.bfloat16).permute(0, 3, 2, 1)  # (bs, d, k, j)\n\n    # matmul: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    out_t = torch.matmul(left_bf, right_bf)\n\n    # Reshape: (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.73995195660062,
+          "geomean_us": 9281.608,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 8,
+        "parent_id": "1b494428-654e-4e65-86d3-766b102daa3c",
+        "other_context_ids": [
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+          "19c7b4ee-8f8e-4263-babd-91800600097a",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "parent_info": [
+          "",
+          "1b494428-654e-4e65-86d3-766b102daa3c"
+        ],
+        "context_info": [
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ],
+          [
+            "",
+            "19c7b4ee-8f8e-4263-babd-91800600097a"
+          ],
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ],
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ]
+        ],
+        "timestamp": 1781308786.118223,
+        "metadata": {
+          "changes": "Change 1: Near `# Outer product: (bs, i, k, d), (bs, j, k, d) -> (...` (10\u219210 lines)",
+          "parent_metrics": {
+            "combined_score": 107.18783392359887,
+            "geomean_us": 9329.417,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      }
+    ],
+    "population_size": 8,
+    "solution_score_summary": {
+      "best": 107.9192668914697,
+      "q75": 107.71240559713733,
+      "q50": 107.34008391953742,
+      "q25": 106.91271986912784,
+      "worst": 88.04160775949428,
+      "score_tiers": {
+        "top": {
+          "threshold": "score >= 107.7124",
+          "pct_programs": 25.0
+        },
+        "upper_mid": {
+          "threshold": "107.3401 <= score < 107.7124",
+          "pct_programs": 25.0
+        },
+        "lower_mid": {
+          "threshold": "106.9127 <= score < 107.3401",
+          "pct_programs": 25.0
+        },
+        "bottom": {
+          "threshold": "score < 106.9127",
+          "pct_programs": 25.0
+        }
+      },
+      "unique_scores": 8
+    },
+    "avg_solutions_per_parent": 1.75,
+    "top_solution_scores": [
+      107.9192668914697,
+      107.73995195660062,
+      107.62976651874749,
+      107.49233391547598,
+      107.18783392359887,
+      107.01761595572725,
+      106.87775450692803,
+      88.04160775949428
+    ],
+    "recent_solution_stats": {
+      "num_recent_iterations": 8,
+      "execution_trace": [
+        {
+          "iteration": 0,
+          "program": [
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "parent": null,
+          "context": null
+        },
+        {
+          "iteration": 1,
+          "program": [
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+            107.01761595572725
+          ],
+          "parent": [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "context": null
+        },
+        {
+          "iteration": 3,
+          "program": [
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+            106.87775450692803
+          ],
+          "parent": [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "context": [
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ]
+          ]
+        },
+        {
+          "iteration": 4,
+          "program": [
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+            107.62976651874749
+          ],
+          "parent": [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+            107.01761595572725
+          ],
+          "context": [
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ],
+            [
+              "",
+              "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+              106.87775450692803
+            ]
+          ]
+        },
+        {
+          "iteration": 5,
+          "program": [
+            "1b494428-654e-4e65-86d3-766b102daa3c",
+            107.18783392359887
+          ],
+          "parent": [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+            106.87775450692803
+          ],
+          "context": [
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ],
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ],
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ]
+          ]
+        },
+        {
+          "iteration": 6,
+          "program": [
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+            107.9192668914697
+          ],
+          "parent": [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+            107.01761595572725
+          ],
+          "context": [
+            [
+              "",
+              "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+              106.87775450692803
+            ],
+            [
+              "",
+              "1b494428-654e-4e65-86d3-766b102daa3c",
+              107.18783392359887
+            ],
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ],
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ]
+          ]
+        },
+        {
+          "iteration": 7,
+          "program": [
+            "19c7b4ee-8f8e-4263-babd-91800600097a",
+            107.49233391547598
+          ],
+          "parent": [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "context": [
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ],
+            [
+              "",
+              "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+              107.9192668914697
+            ],
+            [
+              "",
+              "1b494428-654e-4e65-86d3-766b102daa3c",
+              107.18783392359887
+            ],
+            [
+              "",
+              "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+              106.87775450692803
+            ]
+          ]
+        },
+        {
+          "iteration": 8,
+          "program": [
+            "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+            107.73995195660062
+          ],
+          "parent": [
+            "",
+            "1b494428-654e-4e65-86d3-766b102daa3c",
+            107.18783392359887
+          ],
+          "context": [
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ],
+            [
+              "",
+              "19c7b4ee-8f8e-4263-babd-91800600097a",
+              107.49233391547598
+            ],
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ],
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ]
+          ]
+        }
+      ],
+      "score_trajectory": [
+        88.04160775949428,
+        107.01761595572725,
+        106.87775450692803,
+        107.62976651874749,
+        107.18783392359887,
+        107.9192668914697,
+        107.49233391547598,
+        107.73995195660062
+      ],
+      "parent_scores": [
+        null,
+        88.04160775949428,
+        88.04160775949428,
+        107.01761595572725,
+        106.87775450692803,
+        107.01761595572725,
+        88.04160775949428,
+        107.18783392359887
+      ],
+      "iterations_without_improvement": 2,
+      "improvement_threshold": 0.01,
+      "most_reused_parent_ratio": 0.42857142857142855,
+      "most_reused_parent_score": 88.04160775949428,
+      "most_reused_context_ratio": 0.6666666666666666,
+      "most_reused_context_score": 107.01761595572725
+    }
+  },
+  "end_db_stats": {
+    "previous_programs": [
+      {
+        "id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nInitial TriMul submission \u2014 PyTorch baseline with dummy Triton kernel.\n\"\"\"\n\nimport torch\nfrom torch import nn, einsum\nimport triton\nimport triton.language as tl\n\n\n@triton.jit\ndef _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):\n    pid = tl.program_id(0)\n    pass\n\n\nclass TriMul(nn.Module):\n    def __init__(\n        self,\n        dim: int,\n        hidden_dim: int,\n    ):\n        super().__init__()\n\n        self.norm = nn.LayerNorm(dim)\n\n        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n\n        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)\n\n        self.to_out_norm = nn.LayerNorm(hidden_dim)\n        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)\n\n    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:\n        batch_size, seq_len, _, dim = x.shape\n\n        x = self.norm(x)\n        x = x.to(torch.float32)\n\n        left = self.left_proj(x.to(torch.float32))\n        right = self.right_proj(x.to(torch.float32))\n\n        mask = mask.unsqueeze(-1)\n        left = left * mask\n        right = right * mask\n\n        left_gate = self.left_gate(x.to(torch.float32)).sigmoid()\n        right_gate = self.right_gate(x.to(torch.float32)).sigmoid()\n        out_gate = self.out_gate(x.to(torch.float32)).sigmoid()\n\n        left = left * left_gate\n        right = right * right_gate\n\n        out = einsum('... i k d, ... j k d -> ... i j d', left.to(torch.bfloat16), right.to(torch.bfloat16))\n\n        out = out.to(torch.float32)\n        out = self.to_out_norm(out)\n        out = out * out_gate\n        return self.to_out(out)\n\n\ndef custom_kernel(data):\n    input_tensor, mask, weights, config = data\n    trimul = TriMul(config[\"dim\"], config[\"hidden_dim\"]).to(input_tensor.device)\n\n    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))\n    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))\n    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))\n    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))\n    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))\n    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))\n    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))\n    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))\n    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))\n    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))\n\n    output = trimul(input_tensor, mask).to(torch.float32)\n\n    return output\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 88.04160775949428,
+          "geomean_us": 11358.266,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 0,
+        "parent_id": null,
+        "other_context_ids": null,
+        "parent_info": null,
+        "context_info": null,
+        "timestamp": 1781308376.5246594,
+        "metadata": {},
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul using functional ops to avoid module instantiation overhead.\nUses F.layer_norm and F.linear directly. Computes outer product via bmm\nby reshaping: (bs, seqlen, k, d) -> permute to (bs*d, seqlen, k) then bmm.\nUses BF16 for the heavy outer product matmul.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass using functional ops:\n    1. F.layer_norm and F.linear to avoid nn.Module instantiation overhead\n    2. Outer product via bmm: reshape left/right to (bs*hidden_dim, seqlen, k)\n       then bmm(left_t, right) gives (bs*hidden_dim, seqlen, seqlen)\n    3. BF16 for outer product bmm, FP32 for layer norms\n    \"\"\"\n    input_tensor, mask, weights, config = data\n    device = input_tensor.device\n\n    # Load weights, keep in float32 for norms, bf16 for matmuls\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    lp_w = weights['left_proj.weight'].float()\n    rp_w = weights['right_proj.weight'].float()\n    lg_w = weights['left_gate.weight'].float()\n    rg_w = weights['right_gate.weight'].float()\n    og_w = weights['out_gate.weight'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = input_tensor.float()\n    x = F.layer_norm(x, [dim], norm_w, norm_b)\n\n    # Left and right projections: (bs, seq, seq, hidden_dim)\n    left = F.linear(x, lp_w)   # no bias\n    right = F.linear(x, rp_w)\n\n    # Apply mask: mask shape (bs, seq, seq) -> unsqueeze last dim\n    mask_f = mask.float().unsqueeze(-1)\n    left = left * mask_f\n    right = right * mask_f\n\n    # Gating\n    left_gate = torch.sigmoid(F.linear(x, lg_w))\n    right_gate = torch.sigmoid(F.linear(x, rg_w))\n    out_gate = torch.sigmoid(F.linear(x, og_w))\n\n    left = left * left_gate\n    right = right * right_gate\n\n    # Outer product: ... i k d, ... j k d -> ... i j d\n    # Reshape to (bs, seq, seq, hidden_dim) -> need (bs, i, k, d) x (bs, j, k, d)\n    # Use einsum but with bfloat16 for speed\n    left_bf = left.to(torch.bfloat16)\n    right_bf = right.to(torch.bfloat16)\n\n    # Efficient bmm approach:\n    # left: (bs, seq, seq, hidden_dim) = (bs, i, k, d)\n    # right: (bs, seq, seq, hidden_dim) = (bs, j, k, d)\n    # We want out[bs, i, j, d] = sum_k left[bs, i, k, d] * right[bs, j, k, d]\n    # Reshape: left -> (bs*d, i, k), right -> (bs*d, j, k)\n    # out = bmm(left_t, right_t^T) -> (bs*d, i, j) -> (bs, i, j, d)\n\n    # left: (bs, i, k, d) -> (bs, d, i, k) -> (bs*d, i, k)\n    left_t = left_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n    # right: (bs, j, k, d) -> (bs, d, j, k) -> (bs*d, j, k)\n    right_t = right_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))  # (bs*d, i, j)\n\n    # Reshape back: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n\n    # Output gate and projection\n    out = out * out_gate\n    out = F.linear(out, to_w)\n\n    return out.float()\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.01761595572725,
+          "geomean_us": 9344.256,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 1,
+        "parent_id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "other_context_ids": [],
+        "parent_info": [
+          "",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "context_info": [],
+        "timestamp": 1781308511.0193722,
+        "metadata": {
+          "changes": "Change 1: Renamed function `_dummy_kernel` \u2192 `custom_kernel`",
+          "parent_metrics": {
+            "combined_score": 88.04160775949428,
+            "geomean_us": 11358.266,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul using functional ops to avoid module instantiation overhead.\nUses F.layer_norm and F.linear directly. Computes outer product via bmm\nby reshaping: (bs, seqlen, k, d) -> permute to (bs*d, seqlen, k) then bmm.\nUses BF16 for the heavy outer product matmul.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass using functional ops:\n    1. F.layer_norm and F.linear to avoid nn.Module instantiation overhead\n    2. Outer product via bmm: reshape left/right to (bs*hidden_dim, seqlen, k)\n       then bmm(left_t, right_t^T) gives (bs*hidden_dim, seqlen, seqlen)\n    3. BF16 for outer product bmm, FP32 for layer norms\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    lp_w = weights['left_proj.weight'].float()\n    rp_w = weights['right_proj.weight'].float()\n    lg_w = weights['left_gate.weight'].float()\n    rg_w = weights['right_gate.weight'].float()\n    og_w = weights['out_gate.weight'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Left and right projections: (bs, seq, seq, hidden_dim)\n    left = F.linear(x, lp_w)\n    right = F.linear(x, rp_w)\n\n    # Apply mask\n    mask_f = mask.float().unsqueeze(-1)\n    left = left * mask_f\n    right = right * mask_f\n\n    # Gating\n    left_gate = torch.sigmoid(F.linear(x, lg_w))\n    right_gate = torch.sigmoid(F.linear(x, rg_w))\n    out_gate = torch.sigmoid(F.linear(x, og_w))\n\n    left = left * left_gate\n    right = right * right_gate\n\n    # Outer product: ... i k d, ... j k d -> ... i j d\n    # Efficient bmm: left -> (bs*d, i, k), right -> (bs*d, j, k)\n    # out = bmm(left_t, right_t^T) -> (bs*d, i, j) -> (bs, i, j, d)\n    left_bf = left.to(torch.bfloat16)\n    right_bf = right.to(torch.bfloat16)\n\n    # left: (bs, i, k, d) -> (bs, d, i, k) -> (bs*d, i, k)\n    left_t = left_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n    # right: (bs, j, k, d) -> (bs, d, j, k) -> (bs*d, j, k)\n    right_t = right_bf.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape back: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n\n    # Output gate and projection\n    out = out * out_gate\n    out = F.linear(out, to_w)\n\n    return out.float()\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 106.87775450692803,
+          "geomean_us": 9356.484,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 3,
+        "parent_id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "other_context_ids": [
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+        ],
+        "parent_info": [
+          "",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "context_info": [
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ]
+        ],
+        "timestamp": 1781308556.5351002,
+        "metadata": {
+          "changes": "Change 1: Renamed function `_dummy_kernel` \u2192 `custom_kernel`",
+          "parent_metrics": {
+            "combined_score": 88.04160775949428,
+            "geomean_us": 11358.266,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul\n    # Stack weights: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask\n    mask_f = mask.float().unsqueeze(-1)\n    left = left * mask_f\n    right = right * mask_f\n\n    # Gating\n    left  = left  * torch.sigmoid(lg)\n    right = right * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.62976651874749,
+          "geomean_us": 9291.11,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 4,
+        "parent_id": "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+        "other_context_ids": [
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+        ],
+        "parent_info": [
+          "",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+        ],
+        "context_info": [
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ],
+          [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+          ]
+        ],
+        "timestamp": 1781308603.894291,
+        "metadata": {
+          "changes": "Change 1: Modified function `custom_kernel`: TriMul forward pass:",
+          "parent_metrics": {
+            "combined_score": 107.01761595572725,
+            "geomean_us": 9344.256,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "1b494428-654e-4e65-86d3-766b102daa3c",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous tensors for efficient memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32)\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.18783392359887,
+          "geomean_us": 9329.417,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 5,
+        "parent_id": "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+        "other_context_ids": [
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+        ],
+        "parent_info": [
+          "",
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+        ],
+        "context_info": [
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ],
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ],
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ]
+        ],
+        "timestamp": 1781308659.810063,
+        "metadata": {
+          "changes": "Change 1: Modified function `custom_kernel`: TriMul forward pass:",
+          "parent_metrics": {
+            "combined_score": 106.87775450692803,
+            "geomean_us": 9356.484,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous permutes for efficient bmm memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32)\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.9192668914697,
+          "geomean_us": 9266.186,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 6,
+        "parent_id": "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+        "other_context_ids": [
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+          "1b494428-654e-4e65-86d3-766b102daa3c",
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "parent_info": [
+          "",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+        ],
+        "context_info": [
+          [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+          ],
+          [
+            "",
+            "1b494428-654e-4e65-86d3-766b102daa3c"
+          ],
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ],
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ]
+        ],
+        "timestamp": 1781308708.3224816,
+        "metadata": {
+          "changes": "Change 1: Modified function `custom_kernel`: TriMul forward pass:",
+          "parent_metrics": {
+            "combined_score": 107.01761595572725,
+            "geomean_us": 9344.256,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "19c7b4ee-8f8e-4263-babd-91800600097a",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous permutes for efficient bmm memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32) - avoids nn.Module overhead\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm\n    left_t  = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t.transpose(1, 2))\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.49233391547598,
+          "geomean_us": 9302.989,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 7,
+        "parent_id": "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+        "other_context_ids": [
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+          "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+          "1b494428-654e-4e65-86d3-766b102daa3c",
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+        ],
+        "parent_info": [
+          "",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "context_info": [
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ],
+          [
+            "",
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340"
+          ],
+          [
+            "",
+            "1b494428-654e-4e65-86d3-766b102daa3c"
+          ],
+          [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+          ]
+        ],
+        "timestamp": 1781308753.0650978,
+        "metadata": {
+          "changes": "Change 1: Renamed function `_dummy_kernel` \u2192 `custom_kernel`",
+          "parent_metrics": {
+            "combined_score": 88.04160775949428,
+            "geomean_us": 11358.266,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses contiguous tensors for efficient memory access.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32)\n    2. Single fused matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, k, j)\n    4. F.layer_norm + out projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32)\n    x = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n\n    # Fuse all 5 linear projections into one matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).float()\n\n    # Single matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating\n    mask_f = mask.float().unsqueeze(-1)\n    left  = left  * mask_f * torch.sigmoid(lg)\n    right = right * mask_f * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Use matmul on transposed dims: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    left_bf  = left.to(torch.bfloat16).permute(0, 3, 1, 2)   # (bs, d, i, k)\n    right_bf = right.to(torch.bfloat16).permute(0, 3, 2, 1)  # (bs, d, k, j)\n\n    # matmul: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    out_t = torch.matmul(left_bf, right_bf)\n\n    # Reshape: (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 107.73995195660062,
+          "geomean_us": 9281.608,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 8,
+        "parent_id": "1b494428-654e-4e65-86d3-766b102daa3c",
+        "other_context_ids": [
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+          "19c7b4ee-8f8e-4263-babd-91800600097a",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "parent_info": [
+          "",
+          "1b494428-654e-4e65-86d3-766b102daa3c"
+        ],
+        "context_info": [
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ],
+          [
+            "",
+            "19c7b4ee-8f8e-4263-babd-91800600097a"
+          ],
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ],
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ]
+        ],
+        "timestamp": 1781308786.118223,
+        "metadata": {
+          "changes": "Change 1: Near `# Outer product: (bs, i, k, d), (bs, j, k, d) -> (...` (10\u219210 lines)",
+          "parent_metrics": {
+            "combined_score": 107.18783392359887,
+            "geomean_us": 9329.417,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "2203f024-2097-4f61-8e8c-9d283435768d",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection in BF16, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses BF16 throughout projections to maximize H100 tensor core throughput.\nEnables TF32 for FP32 matmuls. Pre-transposes right tensor for contiguous bmm.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n# Enable TF32 for H100 tensor cores on FP32 matmuls\ntorch.backends.cuda.matmul.allow_tf32 = True\ntorch.backends.cudnn.allow_tf32 = True\ntorch.set_float32_matmul_precision('high')\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32), then cast to BF16\n    2. Single fused BF16 matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, j, k)^T\n       - right_t transposed as (bs*d, k, j) via permute(0,3,2,1) for contiguous layout\n    4. F.layer_norm (FP32) + gate + projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32) then cast to BF16 for projections\n    x_f32 = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n    x_bf16 = x_f32.to(torch.bfloat16)\n\n    # Fuse all 5 linear projections into one BF16 matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).to(torch.bfloat16)\n\n    # Single BF16 matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x_bf16, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating (in BF16)\n    mask_bf = mask.to(torch.bfloat16).unsqueeze(-1)\n    left  = left  * mask_bf * torch.sigmoid(lg)\n    right = right * mask_bf * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # left:  (bs, i, k, d) -> permute(0,3,1,2) -> (bs, d, i, k) -> reshape (bs*d, i, k)\n    # right: (bs, j, k, d) -> permute(0,3,2,1) -> (bs, d, k, j) -> reshape (bs*d, k, j)\n    # bmm(left_t, right_t) -> (bs*d, i, j) directly without extra transpose\n    left_t  = left.permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n    right_t = right.permute(0, 3, 2, 1).contiguous().reshape(bs * hidden_dim, seq_len, seq_len)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t)\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate.float()\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 152.15660688332144,
+          "geomean_us": 6572.176,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 9,
+        "parent_id": "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+        "other_context_ids": [
+          "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+          "1b494428-654e-4e65-86d3-766b102daa3c",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+        ],
+        "parent_info": [
+          "## IMPORTANT: YOU MUST FOLLOW THE FOLLOWING IN YOUR GENERATION, OTHERWISE THE SOLUTION WILL BE REJECTED.\n\n### Goal\nYou should keep the same fundamental approach and algorithm structure.\nDO NOT switch to a different problem formulation.\nFocus on REFINING / EXPLOITING the current approach: better inputs, additional polish, etc.\nThink through what is needed to SQUEEZE the last few percent of performance.\nUse sufficient computational budget for refinement.\n\n**Tools Available:**\nYou have access to a list of libraries. Use these tools to your advantage.\n- Choose library functions appropriate to the problem's structure and constraints.\n- Feel free to break from the existing code entirely \u2014 focus on correct library usage for the problem, not on preserving the current code's structure.\n\n**CRITICAL: IF A LIBRARY EXISTS FOR AN ALGORITHM, USE IT. DO NOT REIMPLEMENT MANUALLY. SEE THE EXAMPLES BELOW FOR RELEVANT LIBRARIES.**\n\n### Examples\nEXAMPLES OF REFINEMENT strategies (NOT LIMITED TO, PROPOSE YOUR OWN):\n\n- **Libraries / tools for refinement**: `torch.bmm` with explicit pre-transposed weight tensors \u2194 `torch.compile(mode='max-autotune')` with `fullgraph=True` \u2194 Triton `triton.autotune` with expanded config grid (BLOCK_M, BLOCK_N, BLOCK_K, num_warps, num_stages) \u2194 `torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True` \u2194 `torch.cuda.amp.autocast(dtype=torch.bfloat16)`\n\n- **Triton kernel tuning (if using Triton)**: Expand `@triton.autotune` config list with more BLOCK_M/BLOCK_N/BLOCK_K combinations \u2194 increase `num_stages` (2\u21924) for better memory latency hiding \u2194 tune `num_warps` (4\u21928) for H100 warp occupancy \u2194 add `tl.constexpr` for dim sizes to enable compile-time unrolling \u2194 use `tl.dot` with `allow_tf32=True` for H100 tensor cores\n\n- **Memory traffic reduction**: Pre-transpose projection weight matrices once at init and store as contiguous tensors \u2194 ensure all intermediate tensors are contiguous before GEMM (`.contiguous()`) \u2194 use `torch.empty` + in-place ops instead of allocating new tensors per call \u2194 pin mask tensor and reuse across calls\n\n- **Precision tuning**: Force BF16 for all linear layers and layer norms \u2194 use `torch.set_float32_matmul_precision('high')` to enable TF32 on H100 \u2194 cast to BF16 immediately after LayerNorm to reduce bandwidth in outer product \u2194 keep only the final output in FP32 if correctness requires it\n\n- **Batched GEMM reshape polish**: After reshaping for `torch.bmm`, ensure the tensor is `(batch, seqlen_i, seqlen_j)` contiguous in memory \u2194 try `(batch*seqlen, k, d)` vs `(batch, seqlen*k, d)` reshape orderings to find the layout with best cache reuse \u2194 benchmark `torch.matmul` vs `torch.bmm` vs `torch.einsum` with `opt_einsum=True` for the specific shapes at each seqlen\n\n### Output\nYour solution MUST still be VALID / CORRECT for the same problem. A broken solution is worthless.\n\nFormat:\n1. REFINEMENT: Describe what you are refining.\n2. CODE: Implementation with refinement.\n",
+          "6a7f79a0-0f88-4637-bfde-e702a40fa340"
+        ],
+        "context_info": [
+          [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2"
+          ],
+          [
+            "",
+            "1b494428-654e-4e65-86d3-766b102daa3c"
+          ],
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ],
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ]
+        ],
+        "timestamp": 1781308885.2289963,
+        "metadata": {
+          "changes": "Change 1: Modified function `custom_kernel` (72\u219282 lines)",
+          "parent_metrics": {
+            "combined_score": 107.9192668914697,
+            "geomean_us": 9266.186,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection in BF16, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses BF16 throughout projections to maximize H100 tensor core throughput.\nEnables TF32 for FP32 matmuls. Pre-transposes right tensor for contiguous bmm.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n# Enable TF32 for H100 tensor cores on FP32 matmuls\ntorch.backends.cuda.matmul.allow_tf32 = True\ntorch.backends.cudnn.allow_tf32 = True\ntorch.set_float32_matmul_precision('high')\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32), then cast to BF16\n    2. Single fused BF16 matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, j, k)^T\n       - right_t transposed as (bs*d, k, j) via permute(0,3,2,1) for contiguous layout\n    4. F.layer_norm (FP32) + gate + projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32) then cast to BF16 for projections\n    x_f32 = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n    x_bf16 = x_f32.to(torch.bfloat16)\n\n    # Fuse all 5 linear projections into one BF16 matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).to(torch.bfloat16)\n\n    # Single BF16 matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x_bf16, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating (in BF16)\n    mask_bf = mask.to(torch.bfloat16).unsqueeze(-1)\n    left  = left  * mask_bf * torch.sigmoid(lg)\n    right = right * mask_bf * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Use 4D matmul: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    left_t  = left.permute(0, 3, 1, 2).contiguous()   # (bs, d, i, k)\n    right_t = right.permute(0, 3, 1, 2).contiguous()  # (bs, d, j, k)\n\n    # matmul with transpose: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    out_t = torch.matmul(left_t, right_t.transpose(-1, -2))\n\n    # Reshape: (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate.float()\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 152.38148644178105,
+          "geomean_us": 6562.477,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 13,
+        "parent_id": "2203f024-2097-4f61-8e8c-9d283435768d",
+        "other_context_ids": [
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+          "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+          "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "parent_info": [
+          "",
+          "2203f024-2097-4f61-8e8c-9d283435768d"
+        ],
+        "context_info": [
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ],
+          [
+            "",
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340"
+          ],
+          [
+            "",
+            "5277bb73-28df-42c1-b8b3-22dc8cc25198"
+          ],
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ]
+        ],
+        "timestamp": 1781309040.8286376,
+        "metadata": {
+          "changes": "Change 1: Near `# Outer product: (bs, i, k, d), (bs, j, k, d) -> (...` (12\u219210 lines)",
+          "parent_metrics": {
+            "combined_score": 152.15660688332144,
+            "geomean_us": 6572.176,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection in BF16, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses BF16 throughout projections to maximize H100 tensor core throughput.\nEnables TF32 for FP32 matmuls. Pre-transposes right tensor for contiguous bmm.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n# Enable TF32 for H100 tensor cores on FP32 matmuls\ntorch.backends.cuda.matmul.allow_tf32 = True\ntorch.backends.cudnn.allow_tf32 = True\ntorch.set_float32_matmul_precision('high')\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32), then cast to BF16\n    2. Single fused BF16 matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, j, k)^T\n       - right_t transposed as (bs*d, k, j) via permute(0,3,2,1) for contiguous layout\n    4. F.layer_norm (FP32) + gate + projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32) then cast to BF16 for projections\n    x_f32 = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n    x_bf16 = x_f32.to(torch.bfloat16)\n\n    # Fuse all 5 linear projections into one BF16 matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).to(torch.bfloat16)\n\n    # Single BF16 matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x_bf16, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating (in BF16)\n    mask_bf = mask.to(torch.bfloat16).unsqueeze(-1)\n    left  = left  * mask_bf * torch.sigmoid(lg)\n    right = right * mask_bf * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Use matmul on (bs, i, k, d) treated as (bs*i, k, d) x (bs*j, k, d)^T\n    # Reshape left: (bs*i, k, d), right: (bs*j, d, k) then matmul -> (bs*i, k, k)?\n    # Better: permute to (bs, d, i, k) and (bs, d, j, k), then matmul\n    left_t  = left.permute(0, 3, 1, 2).contiguous()   # (bs, d, i, k)\n    right_t = right.permute(0, 3, 1, 2).contiguous()  # (bs, d, j, k)\n\n    # matmul: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    out_t = torch.matmul(left_t, right_t.transpose(-1, -2))\n\n    # Reshape: (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.permute(0, 2, 3, 1).contiguous().float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate.float()\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 157.4265915867766,
+          "geomean_us": 6352.167,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 17,
+        "parent_id": "2203f024-2097-4f61-8e8c-9d283435768d",
+        "other_context_ids": [
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+          "19c7b4ee-8f8e-4263-babd-91800600097a",
+          "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+          "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+        ],
+        "parent_info": [
+          "",
+          "2203f024-2097-4f61-8e8c-9d283435768d"
+        ],
+        "context_info": [
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ],
+          [
+            "",
+            "19c7b4ee-8f8e-4263-babd-91800600097a"
+          ],
+          [
+            "",
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340"
+          ],
+          [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df"
+          ]
+        ],
+        "timestamp": 1781309216.6786013,
+        "metadata": {
+          "changes": "Change 1: Near `# Outer product: (bs, i, k, d), (bs, j, k, d) -> (...` (12\u219212 lines)\nChange 2: Modified function `custom_kernel`: TriMul: LayerNorm(fp32) -> fused BF16 linear (5 projections) ->",
+          "parent_metrics": {
+            "combined_score": 152.15660688332144,
+            "geomean_us": 6572.176,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "986d9642-918f-428f-9976-1ba58b0db145",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection in BF16, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses BF16 throughout projections to maximize H100 tensor core throughput.\nEnables TF32 for FP32 matmuls. Pre-transposes right tensor for contiguous bmm.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n# Enable TF32 for H100 tensor cores on FP32 matmuls\ntorch.backends.cuda.matmul.allow_tf32 = True\ntorch.backends.cudnn.allow_tf32 = True\ntorch.set_float32_matmul_precision('high')\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32), then cast to BF16\n    2. Single fused BF16 matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, j, k)^T\n       - right_t transposed as (bs*d, k, j) via permute(0,3,2,1) for contiguous layout\n    4. F.layer_norm (FP32) + gate + projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32) then cast to BF16 for projections\n    x_f32 = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n    x_bf16 = x_f32.to(torch.bfloat16)\n\n    # Fuse all 5 linear projections into one BF16 matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).to(torch.bfloat16)\n\n    # Single BF16 matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x_bf16, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating (in BF16)\n    mask_bf = mask.to(torch.bfloat16).unsqueeze(-1)\n    left  = left  * mask_bf * torch.sigmoid(lg)\n    right = right * mask_bf * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Reshape to (bs*d, i, k) for bmm: avoids extra contiguous via reshape after permute\n    left_t  = left.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len)   # (bs*d, i, k)\n    right_t = right.permute(0, 3, 2, 1).reshape(bs * hidden_dim, seq_len, seq_len)  # (bs*d, k, j)\n\n    # bmm: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)\n    out_t = torch.bmm(left_t, right_t)\n\n    # Reshape: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate.float()\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 154.29831913583067,
+          "geomean_us": 6480.952,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 18,
+        "parent_id": "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8",
+        "other_context_ids": [
+          "19c7b4ee-8f8e-4263-babd-91800600097a",
+          "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a",
+          "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+          "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+        ],
+        "parent_info": [
+          "",
+          "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8"
+        ],
+        "context_info": [
+          [
+            "",
+            "19c7b4ee-8f8e-4263-babd-91800600097a"
+          ],
+          [
+            "",
+            "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a"
+          ],
+          [
+            "",
+            "5277bb73-28df-42c1-b8b3-22dc8cc25198"
+          ],
+          [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12"
+          ]
+        ],
+        "timestamp": 1781309328.3686144,
+        "metadata": {
+          "changes": "Change 1: Near `# Outer product: (bs, i, k, d), (bs, j, k, d) -> (...` (12\u219210 lines)",
+          "parent_metrics": {
+            "combined_score": 157.4265915867766,
+            "geomean_us": 6352.167,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      },
+      {
+        "id": "da104b96-04b4-4095-8a99-eee79af49329",
+        "solution": "# EVOLVE-BLOCK-START\n\"\"\"\nOptimized TriMul: fused 5-way linear projection in BF16, BF16 outer product via bmm.\nFuses left_proj, right_proj, left_gate, right_gate, out_gate into one matmul.\nUses BF16 throughout projections to maximize H100 tensor core throughput.\nEnables TF32 for FP32 matmuls. Pre-transposes right tensor for contiguous bmm.\n\"\"\"\n\nimport torch\nimport torch.nn.functional as F\n\n# Enable TF32 for H100 tensor cores on FP32 matmuls\ntorch.backends.cuda.matmul.allow_tf32 = True\ntorch.backends.cudnn.allow_tf32 = True\ntorch.set_float32_matmul_precision('high')\n\n\ndef custom_kernel(data):\n    \"\"\"\n    TriMul forward pass:\n    1. F.layer_norm for input norm (float32), then cast to BF16\n    2. Single fused BF16 matmul for all 5 projections (left, right, lg, rg, og)\n    3. Outer product via BF16 bmm: reshape to (bs*d, i, k) x (bs*d, j, k)^T\n       - right_t transposed as (bs*d, k, j) via permute(0,3,2,1) for contiguous layout\n    4. F.layer_norm (FP32) + gate + projection\n    \"\"\"\n    input_tensor, mask, weights, config = data\n\n    norm_w = weights['norm.weight'].float()\n    norm_b = weights['norm.bias'].float()\n    ton_w = weights['to_out_norm.weight'].float()\n    ton_b = weights['to_out_norm.bias'].float()\n    to_w = weights['to_out.weight'].float()\n\n    bs, seq_len, _, dim = input_tensor.shape\n    hidden_dim = config[\"hidden_dim\"]\n\n    # Input LayerNorm (float32) then cast to BF16 for projections\n    x_f32 = F.layer_norm(input_tensor.float(), [dim], norm_w, norm_b)\n    x_bf16 = x_f32.to(torch.bfloat16)\n\n    # Fuse all 5 linear projections into one BF16 matmul: (5*hidden_dim, dim)\n    fused_w = torch.cat([\n        weights['left_proj.weight'],\n        weights['right_proj.weight'],\n        weights['left_gate.weight'],\n        weights['right_gate.weight'],\n        weights['out_gate.weight'],\n    ], dim=0).to(torch.bfloat16)\n\n    # Single BF16 matmul: (bs, seq, seq, 5*hidden_dim)\n    all_proj = F.linear(x_bf16, fused_w)\n\n    # Split projections\n    left     = all_proj[..., :hidden_dim]\n    right    = all_proj[..., hidden_dim:2*hidden_dim]\n    lg       = all_proj[..., 2*hidden_dim:3*hidden_dim]\n    rg       = all_proj[..., 3*hidden_dim:4*hidden_dim]\n    out_gate = all_proj[..., 4*hidden_dim:]\n\n    # Apply mask and gating (in BF16)\n    mask_bf = mask.to(torch.bfloat16).unsqueeze(-1)\n    left  = left  * mask_bf * torch.sigmoid(lg)\n    right = right * mask_bf * torch.sigmoid(rg)\n    out_gate = torch.sigmoid(out_gate)\n\n    # Outer product: (bs, i, k, d), (bs, j, k, d) -> (bs, i, j, d)\n    # Use 4D matmul: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    left_t  = left.permute(0, 3, 1, 2).contiguous()   # (bs, d, i, k)\n    right_t = right.permute(0, 3, 1, 2).contiguous()  # (bs, d, j, k)\n\n    # matmul: (bs, d, i, k) x (bs, d, k, j) -> (bs, d, i, j)\n    out_t = torch.matmul(left_t, right_t.transpose(-1, -2))\n\n    # Reshape: (bs, d, i, j) -> (bs, i, j, d)\n    out = out_t.permute(0, 2, 3, 1).contiguous().float()\n\n    # Output LayerNorm + gate + projection\n    out = F.layer_norm(out, [hidden_dim], ton_w, ton_b)\n    out = out * out_gate.float()\n    return F.linear(out, to_w)\n# EVOLVE-BLOCK-END\n",
+        "language": "python",
+        "metrics": {
+          "combined_score": 155.56040558331185,
+          "geomean_us": 6428.371,
+          "pass_rate": 1.0
+        },
+        "iteration_found": 21,
+        "parent_id": "986d9642-918f-428f-9976-1ba58b0db145",
+        "other_context_ids": [
+          "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8",
+          "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a",
+          "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+          "6a7f79a0-0f88-4637-bfde-e702a40fa340"
+        ],
+        "parent_info": [
+          "",
+          "986d9642-918f-428f-9976-1ba58b0db145"
+        ],
+        "context_info": [
+          [
+            "",
+            "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8"
+          ],
+          [
+            "",
+            "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a"
+          ],
+          [
+            "",
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e"
+          ],
+          [
+            "",
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340"
+          ]
+        ],
+        "timestamp": 1781309382.9602187,
+        "metadata": {
+          "changes": "Change 1: Near `# Outer product: (bs, i, k, d), (bs, j, k, d) -> (...` (10\u219210 lines)",
+          "parent_metrics": {
+            "combined_score": 154.29831913583067,
+            "geomean_us": 6480.952,
+            "pass_rate": 1.0
+          }
+        },
+        "artifacts": {},
+        "prompts": null,
+        "generation": 0
+      }
+    ],
+    "population_size": 13,
+    "solution_score_summary": {
+      "best": 157.4265915867766,
+      "q75": 153.33990278880586,
+      "q50": 107.73995195660062,
+      "q25": 107.10272493966306,
+      "worst": 88.04160775949428,
+      "score_tiers": {
+        "top": {
+          "threshold": "score >= 153.3399",
+          "pct_programs": 23.076923076923077
+        },
+        "upper_mid": {
+          "threshold": "107.7400 <= score < 153.3399",
+          "pct_programs": 30.76923076923077
+        },
+        "lower_mid": {
+          "threshold": "107.1027 <= score < 107.7400",
+          "pct_programs": 23.076923076923077
+        },
+        "bottom": {
+          "threshold": "score < 107.1027",
+          "pct_programs": 23.076923076923077
+        }
+      },
+      "unique_scores": 13
+    },
+    "avg_solutions_per_parent": 1.5,
+    "top_solution_scores": [
+      157.4265915867766,
+      155.56040558331185,
+      154.29831913583067,
+      152.38148644178105,
+      152.15660688332144,
+      107.9192668914697,
+      107.73995195660062,
+      107.62976651874749,
+      107.49233391547598,
+      107.18783392359887,
+      107.01761595572725,
+      106.87775450692803,
+      88.04160775949428
+    ],
+    "recent_solution_stats": {
+      "num_recent_iterations": 13,
+      "execution_trace": [
+        {
+          "iteration": 0,
+          "program": [
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "parent": null,
+          "context": null
+        },
+        {
+          "iteration": 1,
+          "program": [
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+            107.01761595572725
+          ],
+          "parent": [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "context": null
+        },
+        {
+          "iteration": 3,
+          "program": [
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+            106.87775450692803
+          ],
+          "parent": [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "context": [
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ]
+          ]
+        },
+        {
+          "iteration": 4,
+          "program": [
+            "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+            107.62976651874749
+          ],
+          "parent": [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+            107.01761595572725
+          ],
+          "context": [
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ],
+            [
+              "",
+              "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+              106.87775450692803
+            ]
+          ]
+        },
+        {
+          "iteration": 5,
+          "program": [
+            "1b494428-654e-4e65-86d3-766b102daa3c",
+            107.18783392359887
+          ],
+          "parent": [
+            "",
+            "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+            106.87775450692803
+          ],
+          "context": [
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ],
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ],
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ]
+          ]
+        },
+        {
+          "iteration": 6,
+          "program": [
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+            107.9192668914697
+          ],
+          "parent": [
+            "",
+            "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+            107.01761595572725
+          ],
+          "context": [
+            [
+              "",
+              "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+              106.87775450692803
+            ],
+            [
+              "",
+              "1b494428-654e-4e65-86d3-766b102daa3c",
+              107.18783392359887
+            ],
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ],
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ]
+          ]
+        },
+        {
+          "iteration": 7,
+          "program": [
+            "19c7b4ee-8f8e-4263-babd-91800600097a",
+            107.49233391547598
+          ],
+          "parent": [
+            "",
+            "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+            88.04160775949428
+          ],
+          "context": [
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ],
+            [
+              "",
+              "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+              107.9192668914697
+            ],
+            [
+              "",
+              "1b494428-654e-4e65-86d3-766b102daa3c",
+              107.18783392359887
+            ],
+            [
+              "",
+              "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+              106.87775450692803
+            ]
+          ]
+        },
+        {
+          "iteration": 8,
+          "program": [
+            "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+            107.73995195660062
+          ],
+          "parent": [
+            "",
+            "1b494428-654e-4e65-86d3-766b102daa3c",
+            107.18783392359887
+          ],
+          "context": [
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ],
+            [
+              "",
+              "19c7b4ee-8f8e-4263-babd-91800600097a",
+              107.49233391547598
+            ],
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ],
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ]
+          ]
+        },
+        {
+          "iteration": 9,
+          "program": [
+            "2203f024-2097-4f61-8e8c-9d283435768d",
+            152.15660688332144
+          ],
+          "parent": [
+            "## IMPORTANT: YOU MUST FOLLOW THE FOLLOWING IN YOUR GENERATION, OTHERWISE THE SOLUTION WILL BE REJECTED.\n\n### Goal\nYou should keep the same fundamental approach and algorithm structure.\nDO NOT switch to a different problem formulation.\nFocus on REFINING / EXPLOITING the current approach: better inputs, additional polish, etc.\nThink through what is needed to SQUEEZE the last few percent of performance.\nUse sufficient computational budget for refinement.\n\n**Tools Available:**\nYou have access to a list of libraries. Use these tools to your advantage.\n- Choose library functions appropriate to the problem's structure and constraints.\n- Feel free to break from the existing code entirely \u2014 focus on correct library usage for the problem, not on preserving the current code's structure.\n\n**CRITICAL: IF A LIBRARY EXISTS FOR AN ALGORITHM, USE IT. DO NOT REIMPLEMENT MANUALLY. SEE THE EXAMPLES BELOW FOR RELEVANT LIBRARIES.**\n\n### Examples\nEXAMPLES OF REFINEMENT strategies (NOT LIMITED TO, PROPOSE YOUR OWN):\n\n- **Libraries / tools for refinement**: `torch.bmm` with explicit pre-transposed weight tensors \u2194 `torch.compile(mode='max-autotune')` with `fullgraph=True` \u2194 Triton `triton.autotune` with expanded config grid (BLOCK_M, BLOCK_N, BLOCK_K, num_warps, num_stages) \u2194 `torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True` \u2194 `torch.cuda.amp.autocast(dtype=torch.bfloat16)`\n\n- **Triton kernel tuning (if using Triton)**: Expand `@triton.autotune` config list with more BLOCK_M/BLOCK_N/BLOCK_K combinations \u2194 increase `num_stages` (2\u21924) for better memory latency hiding \u2194 tune `num_warps` (4\u21928) for H100 warp occupancy \u2194 add `tl.constexpr` for dim sizes to enable compile-time unrolling \u2194 use `tl.dot` with `allow_tf32=True` for H100 tensor cores\n\n- **Memory traffic reduction**: Pre-transpose projection weight matrices once at init and store as contiguous tensors \u2194 ensure all intermediate tensors are contiguous before GEMM (`.contiguous()`) \u2194 use `torch.empty` + in-place ops instead of allocating new tensors per call \u2194 pin mask tensor and reuse across calls\n\n- **Precision tuning**: Force BF16 for all linear layers and layer norms \u2194 use `torch.set_float32_matmul_precision('high')` to enable TF32 on H100 \u2194 cast to BF16 immediately after LayerNorm to reduce bandwidth in outer product \u2194 keep only the final output in FP32 if correctness requires it\n\n- **Batched GEMM reshape polish**: After reshaping for `torch.bmm`, ensure the tensor is `(batch, seqlen_i, seqlen_j)` contiguous in memory \u2194 try `(batch*seqlen, k, d)` vs `(batch, seqlen*k, d)` reshape orderings to find the layout with best cache reuse \u2194 benchmark `torch.matmul` vs `torch.bmm` vs `torch.einsum` with `opt_einsum=True` for the specific shapes at each seqlen\n\n### Output\nYour solution MUST still be VALID / CORRECT for the same problem. A broken solution is worthless.\n\nFormat:\n1. REFINEMENT: Describe what you are refining.\n2. CODE: Implementation with refinement.\n",
+            "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+            107.9192668914697
+          ],
+          "context": [
+            [
+              "",
+              "6d88b9e7-bf9c-47d1-8783-e0fec9b615f2",
+              106.87775450692803
+            ],
+            [
+              "",
+              "1b494428-654e-4e65-86d3-766b102daa3c",
+              107.18783392359887
+            ],
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ],
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ]
+          ]
+        },
+        {
+          "iteration": 13,
+          "program": [
+            "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a",
+            152.38148644178105
+          ],
+          "parent": [
+            "",
+            "2203f024-2097-4f61-8e8c-9d283435768d",
+            152.15660688332144
+          ],
+          "context": [
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ],
+            [
+              "",
+              "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+              107.9192668914697
+            ],
+            [
+              "",
+              "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+              107.73995195660062
+            ],
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ]
+          ]
+        },
+        {
+          "iteration": 17,
+          "program": [
+            "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8",
+            157.4265915867766
+          ],
+          "parent": [
+            "",
+            "2203f024-2097-4f61-8e8c-9d283435768d",
+            152.15660688332144
+          ],
+          "context": [
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ],
+            [
+              "",
+              "19c7b4ee-8f8e-4263-babd-91800600097a",
+              107.49233391547598
+            ],
+            [
+              "",
+              "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+              107.9192668914697
+            ],
+            [
+              "",
+              "cce6aefe-2707-4ddc-9dc0-c774dee2d6df",
+              88.04160775949428
+            ]
+          ]
+        },
+        {
+          "iteration": 18,
+          "program": [
+            "986d9642-918f-428f-9976-1ba58b0db145",
+            154.29831913583067
+          ],
+          "parent": [
+            "",
+            "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8",
+            157.4265915867766
+          ],
+          "context": [
+            [
+              "",
+              "19c7b4ee-8f8e-4263-babd-91800600097a",
+              107.49233391547598
+            ],
+            [
+              "",
+              "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a",
+              152.38148644178105
+            ],
+            [
+              "",
+              "5277bb73-28df-42c1-b8b3-22dc8cc25198",
+              107.73995195660062
+            ],
+            [
+              "",
+              "f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12",
+              107.01761595572725
+            ]
+          ]
+        },
+        {
+          "iteration": 21,
+          "program": [
+            "da104b96-04b4-4095-8a99-eee79af49329",
+            155.56040558331185
+          ],
+          "parent": [
+            "",
+            "986d9642-918f-428f-9976-1ba58b0db145",
+            154.29831913583067
+          ],
+          "context": [
+            [
+              "",
+              "d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8",
+              157.4265915867766
+            ],
+            [
+              "",
+              "5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a",
+              152.38148644178105
+            ],
+            [
+              "",
+              "da75634c-3b7a-4e6e-b89f-6a8f0f11a05e",
+              107.62976651874749
+            ],
+            [
+              "",
+              "6a7f79a0-0f88-4637-bfde-e702a40fa340",
+              107.9192668914697
+            ]
+          ]
+        }
+      ],
+      "score_trajectory": [
+        88.04160775949428,
+        107.01761595572725,
+        106.87775450692803,
+        107.62976651874749,
+        107.18783392359887,
+        107.9192668914697,
+        107.49233391547598,
+        107.73995195660062,
+        152.15660688332144,
+        152.38148644178105,
+        157.4265915867766,
+        154.29831913583067,
+        155.56040558331185
+      ],
+      "parent_scores": [
+        null,
+        88.04160775949428,
+        88.04160775949428,
+        107.01761595572725,
+        106.87775450692803,
+        107.01761595572725,
+        88.04160775949428,
+        107.18783392359887,
+        107.9192668914697,
+        152.15660688332144,
+        152.15660688332144,
+        157.4265915867766,
+        154.29831913583067
+      ],
+      "iterations_without_improvement": 4,
+      "improvement_threshold": 0.1,
+      "most_reused_parent_ratio": 0.25,
+      "most_reused_parent_score": 88.04160775949428,
+      "most_reused_context_ratio": 0.6363636363636364,
+      "most_reused_context_score": 107.62976651874749
+    }
+  }
+}
