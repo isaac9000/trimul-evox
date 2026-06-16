@@ -188,6 +188,7 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
             torch.backends.cuda.matmul.allow_tf32 = old_matmul
             torch.backends.cudnn.allow_tf32 = old_cudnn
 
+    # matches skydiscover modal_eval.py _eval_triton_impl
     _os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
     def _clone(data):
@@ -248,11 +249,11 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
             "failure_stage": "import",
         })
 
-    # ── Correctness tests ────────────────────────────────────────────────────
+    # ── Correctness tests (no_grad to reduce autograd memory) ───────────────
 
     test_details = []
     tests_passed = 0
-    for tc in TEST_CASES:
+    for i, tc in enumerate(TEST_CASES):
         try:
             data = generate_input(**tc)
             data_copy = _clone(data)
@@ -268,19 +269,29 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
             gc.collect()
             torch.cuda.empty_cache()
             test_details.append({
-                "seqlen": tc["seqlen"], "bs": tc["bs"], "dim": tc["dim"],
-                "hiddendim": tc["hiddendim"], "nomask": tc["nomask"],
-                "distribution": tc["distribution"], "seed": tc["seed"],
-                "passed": passed, "error": "" if passed else msg,
+                "seqlen": tc["seqlen"],
+                "bs": tc["bs"],
+                "dim": tc["dim"],
+                "hiddendim": tc["hiddendim"],
+                "nomask": tc["nomask"],
+                "distribution": tc["distribution"],
+                "seed": tc["seed"],
+                "passed": passed,
+                "error": "" if passed else msg,
             })
             if passed:
                 tests_passed += 1
         except Exception:
             test_details.append({
-                "seqlen": tc["seqlen"], "bs": tc["bs"], "dim": tc["dim"],
-                "hiddendim": tc["hiddendim"], "nomask": tc["nomask"],
-                "distribution": tc["distribution"], "seed": tc["seed"],
-                "passed": False, "error": traceback.format_exc()[:600],
+                "seqlen": tc["seqlen"],
+                "bs": tc["bs"],
+                "dim": tc["dim"],
+                "hiddendim": tc["hiddendim"],
+                "nomask": tc["nomask"],
+                "distribution": tc["distribution"],
+                "seed": tc["seed"],
+                "passed": False,
+                "error": traceback.format_exc()[:600],
             })
 
     if tests_passed < len(TEST_CASES):
@@ -324,6 +335,7 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
         data = generate_input(**bench_args)
         data_copy = _clone(data)
 
+        # Correctness check, then free GPU memory before ref kernel runs
         with ctx:
             output = custom_kernel(data)
             torch.cuda.synchronize()
@@ -348,13 +360,15 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
                 "failure_stage": "benchmark",
             })
 
+        # Regenerate fresh data for timed runs
         data = generate_input(**bench_args)
+
         durations_ns = []
         bm_start = time.perf_counter_ns()
 
         with ctx:
             for t in range(BENCH_MAX_REPEATS):
-                torch.cuda.synchronize()
+                torch.cuda.synchronize()  # flush any pending work before timing
 
                 if BENCH_USE_CUDA_EVENTS:
                     s = torch.cuda.Event(enable_timing=True)
@@ -386,9 +400,12 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
         mean_us = st["mean"] / 1e3
         err_us = st["err"] / 1e3
         benchmark_details.append({
-            "seqlen": bench_args["seqlen"], "bs": bench_args["bs"],
-            "dim": bench_args["dim"], "hiddendim": bench_args["hiddendim"],
-            "nomask": bench_args["nomask"], "distribution": bench_args["distribution"],
+            "seqlen": bench_args["seqlen"],
+            "bs": bench_args["bs"],
+            "dim": bench_args["dim"],
+            "hiddendim": bench_args["hiddendim"],
+            "nomask": bench_args["nomask"],
+            "distribution": bench_args["distribution"],
             "seed": bench_args["seed"],
             "mean_us": round(mean_us, 3),
             "err_us": round(err_us, 3),

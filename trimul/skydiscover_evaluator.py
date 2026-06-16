@@ -17,7 +17,7 @@ REPO_ROOT = os.path.dirname(SCRIPT_DIR)
 PYTHON = os.path.join(REPO_ROOT, ".venv", "bin", "python")
 if not os.path.exists(PYTHON):
     import shutil
-    PYTHON = shutil.which("python3.13") or sys.executable
+    PYTHON = shutil.which("python3") or sys.executable
 
 
 def _run_eval(program_path: str):
