@@ -4,12 +4,11 @@ log_level: INFO
 
 llm:
   models:
-    - name: "claude-sonnet-4-6"
+    - name: "claude-opus-4-8"
       weight: 1.0
   # api_base auto-detected from "claude-" prefix → https://api.anthropic.com/v1/
   # api_key resolved from ANTHROPIC_API_KEY env var
-  temperature: 0.7
-  top_p: null  # Anthropic rejects requests that set both temperature and top_p
+  temperature: null
   max_tokens: 8000
   timeout: 180
   retries: 3
@@ -23,20 +22,18 @@ prompt:
     → sigmoid gating → masked outer product (einsum "... i k d, ... j k d -> ... i j d") →
     output LayerNorm → output gate → output projection. The kernel runs on an NVIDIA H100.
     Optimize for minimum geometric mean latency across varying sequence lengths (32–1024),
-    batch sizes, and feature dimensions. The outer product einsum is the primary bottleneck —
-    explore: cuBLAS batched matmul, fused Triton kernels, BF16/FP16 mixed precision, kernel
-    fusion to reduce memory traffic, and weight caching to avoid redundant object creation.
+    batch sizes, and feature dimensions.
     The function signature must remain: custom_kernel(data) where
     data = (input_tensor, mask, weights, config). Output ONLY Python code — no explanations.
 
 search:
   type: "evox"
-  share_llm: true
 
 evaluator:
   timeout: 700
   max_retries: 1
   cascade_evaluation: false
+  parallel_evaluations: 1
 
 diff_based_generation: true
 max_solution_length: 15000

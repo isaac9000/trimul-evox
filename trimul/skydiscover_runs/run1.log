@@ -1,153 +1,2343 @@
-23:52:29 [search.utils] Logging to trimul/skydiscover_runs/run1/logs/evox_20260612_235229.log
-23:52:29 [runner] Runner ready: search=evox, program=trimul/starting_point.py
-23:52:30 [llm] Anthropic LLM: claude-sonnet-4-6
-23:52:31 [evaluator] Initialized evaluator with trimul/skydiscover_evaluator.py
-23:52:31 [default_discovery_controller] DiscoveryController initialized: num_context_programs=4
-23:52:31 [builder] Initialized guide LLM inside EvoxContextBuilder: claude-sonnet-4-6
-23:52:31 [builder] Templates set: system=None, user=search_evolution_user_message
-23:52:31 [evaluator] Initialized evaluator with /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
-23:52:31 [default_discovery_controller] DiscoveryController initialized: num_context_programs=2
-23:52:31 [search.evox] ======================================================================
-23:52:31 [search.evox] [EVOX CO-EVOLUTION SETUP]
-23:52:31 [search.evox] ----------------------------------------------------------------------
-23:52:31 [search.evox]   [SOLUTION EVOLUTION]
-23:52:31 [search.evox]     Initial search strategy file : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
-23:52:31 [search.evox]     Solution database class      : EvolvedProgramDatabase
-23:52:31 [search.evox]   [META EVOLUTION OF SEARCH STRATEGY]
-23:52:31 [search.evox]     Search strategy database class: SearchStrategyDatabase
-23:52:31 [search.evox]     Search strategy evaluator     : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
-23:52:31 [search.evox]     Search strategy config        : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/config/search.yaml
-23:52:31 [search.evox] ======================================================================
-23:52:31 [runner] Adding initial program to database
-23:52:56 [evaluator] Evaluated program cce6aefe-2707-4ddc-9dc0-c774dee2d6df in 24.70s: combined_score=88.0416, geomean_us=11358.2660, pass_rate=1.0000
-23:52:56 [registry] Using search strategy from: /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
-23:52:56 [base_database] Database has 1 programs, best program score is combined_score=88.0416, geomean_us=11358.2660, pass_rate=1.0000
-23:52:56 [search.evox] Switch if 2 iterations of stagnation detected
-23:52:56 [search.evox] Label generation: using guide_model = [claude-sonnet-4-6]
-23:52:56 WARNING [search.evox] Could not read pyproject.toml (pyproject.toml not found at /workspace/trimul-evox/.venv/lib/python3.11/site-packages/pyproject.toml), falling back to uv pip list
-23:53:31 [search.evox] Generated variation operator labels (3628/2963 chars)
-23:54:23 [evaluator] Evaluated program 83cba30e-59da-4a5e-be57-b8038576548c in 12.67s: combined_score=0.0000, pass_rate=0.8889, error=correctness failed (16/18)
-23:54:23 WARNING [default_discovery_controller] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (16/18)
-23:54:23 [default_discovery_controller] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
-23:55:11 [evaluator] Evaluated program f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12 in 17.40s: combined_score=107.0176, geomean_us=9344.2560, pass_rate=1.0000
-23:55:11 [default_discovery_controller] Iteration 1: Program f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12 (parent: cce6aefe-2707-4ddc-9dc0-c774dee2d6df) completed in 99.18s (llm: 30.59s, eval: 17.41s)
-23:55:11 [default_discovery_controller] Metrics: combined_score=107.0176, geomean_us=9344.2560, pass_rate=1.0000
-23:55:11 [default_discovery_controller] 🌟 New best solution found at iteration 1
-23:55:56 [evaluator] Evaluated program 6d88b9e7-bf9c-47d1-8783-e0fec9b615f2 in 20.21s: combined_score=106.8778, geomean_us=9356.4840, pass_rate=1.0000
-23:55:56 [default_discovery_controller] Iteration 3: Program 6d88b9e7-bf9c-47d1-8783-e0fec9b615f2 (parent: cce6aefe-2707-4ddc-9dc0-c774dee2d6df) completed in 45.51s (llm: 25.29s, eval: 20.21s)
-23:55:56 [default_discovery_controller] Metrics: combined_score=106.8778, geomean_us=9356.4840, pass_rate=1.0000
-23:56:43 [evaluator] Evaluated program da75634c-3b7a-4e6e-b89f-6a8f0f11a05e in 18.78s: combined_score=107.6298, geomean_us=9291.1100, pass_rate=1.0000
-23:56:43 [default_discovery_controller] Iteration 4: Program da75634c-3b7a-4e6e-b89f-6a8f0f11a05e (parent: f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12) completed in 47.36s (llm: 28.57s, eval: 18.78s)
-23:56:43 [default_discovery_controller] Metrics: combined_score=107.6298, geomean_us=9291.1100, pass_rate=1.0000
-23:56:43 [default_discovery_controller] 🌟 New best solution found at iteration 4
-23:57:39 [evaluator] Evaluated program 1b494428-654e-4e65-86d3-766b102daa3c in 24.66s: combined_score=107.1878, geomean_us=9329.4170, pass_rate=1.0000
-23:57:39 [default_discovery_controller] Iteration 5: Program 1b494428-654e-4e65-86d3-766b102daa3c (parent: 6d88b9e7-bf9c-47d1-8783-e0fec9b615f2) completed in 55.91s (llm: 31.25s, eval: 24.66s)
-23:57:39 [default_discovery_controller] [CHECKPOINT] Checkpoint interval reached at iteration 5
-23:57:39 [base_database] Database has 5 programs, best program score is combined_score=107.6298, geomean_us=9291.1100, pass_rate=1.0000
-23:57:39 [search.utils] [CHECKPOINT] Saved database with 5 programs to trimul/skydiscover_runs/run1/checkpoints/checkpoint_5
-23:57:39 [runner] Checkpoint 5: best=combined_score=107.6298, geomean_us=9291.1100, pass_rate=1.0000
-23:57:39 [runner] Checkpoint saved to trimul/skydiscover_runs/run1/checkpoints/checkpoint_5
-23:57:39 [default_discovery_controller] Metrics: combined_score=107.1878, geomean_us=9329.4170, pass_rate=1.0000
-23:58:28 [evaluator] Evaluated program 6a7f79a0-0f88-4637-bfde-e702a40fa340 in 19.24s: combined_score=107.9193, geomean_us=9266.1860, pass_rate=1.0000
-23:58:28 [default_discovery_controller] Iteration 6: Program 6a7f79a0-0f88-4637-bfde-e702a40fa340 (parent: f7b0ff9a-3a8c-40f1-b43c-72233bc3bc12) completed in 48.38s (llm: 29.13s, eval: 19.24s)
-23:58:28 [default_discovery_controller] Metrics: combined_score=107.9193, geomean_us=9266.1860, pass_rate=1.0000
-23:58:28 [default_discovery_controller] 🌟 New best solution found at iteration 6
-23:59:13 [evaluator] Evaluated program 19c7b4ee-8f8e-4263-babd-91800600097a in 18.55s: combined_score=107.4923, geomean_us=9302.9890, pass_rate=1.0000
-23:59:13 [default_discovery_controller] Iteration 7: Program 19c7b4ee-8f8e-4263-babd-91800600097a (parent: cce6aefe-2707-4ddc-9dc0-c774dee2d6df) completed in 44.74s (llm: 26.19s, eval: 18.55s)
-23:59:13 [default_discovery_controller] Metrics: combined_score=107.4923, geomean_us=9302.9890, pass_rate=1.0000
-23:59:46 [evaluator] Evaluated program 5277bb73-28df-42c1-b8b3-22dc8cc25198 in 19.18s: combined_score=107.7400, geomean_us=9281.6080, pass_rate=1.0000
-23:59:46 [default_discovery_controller] Iteration 8: Program 5277bb73-28df-42c1-b8b3-22dc8cc25198 (parent: 1b494428-654e-4e65-86d3-766b102daa3c) completed in 33.05s (llm: 13.87s, eval: 19.18s)
-23:59:46 [default_discovery_controller] Metrics: combined_score=107.7400, geomean_us=9281.6080, pass_rate=1.0000
-23:59:46 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=8)
-23:59:46 [search.evox] Search strategy score: combined=77.152798, improvement=19.877659, start=88.041608, end=107.919267, horizon=2
-00:00:20 [evaluator] Evaluated program b6b66ae2-aa89-4487-8177-c6f387d5d616 in 0.01s: validity=1.0000, combined_score=0.0000
-00:00:20 [search.evox] Saved labels to trimul/skydiscover_runs/run1/search/iteration_1/labels.yaml (3628/2963 chars)
-00:00:20 [search.evox] New search algorithm generated (iteration 1) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run1/search/iteration_1 (score pending)
-00:00:20 [search.evox] Switched to search algorithm b6b66ae2-aa89-4487-8177-c6f387d5d616 (8 programs migrated)
-00:01:25 [evaluator] Evaluated program 2203f024-2097-4f61-8e8c-9d283435768d in 30.55s: combined_score=152.1566, geomean_us=6572.1760, pass_rate=1.0000
-00:01:25 [default_discovery_controller] Iteration 9: Program 2203f024-2097-4f61-8e8c-9d283435768d (parent: 6a7f79a0-0f88-4637-bfde-e702a40fa340) completed in 64.33s (llm: 33.78s, eval: 30.55s)
-00:01:25 [default_discovery_controller] Metrics: combined_score=152.1566, geomean_us=6572.1760, pass_rate=1.0000
-00:01:25 [default_discovery_controller] 🌟 New best solution found at iteration 9
-00:01:54 [evaluator] Evaluated program 88ded16d-6f71-431f-9cc5-7642194251d2 in 13.47s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
-00:01:54 WARNING [default_discovery_controller] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
-00:01:54 [default_discovery_controller] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
-00:02:41 [evaluator] Evaluated program a83b49d9-bdf4-4251-bc42-d462a1898fea in 11.78s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
-00:02:41 WARNING [default_discovery_controller] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
-00:02:41 [default_discovery_controller] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
-00:03:25 [evaluator] Evaluated program 27a97518-2b16-48ca-a6d9-99e10819ea71 in 11.14s: combined_score=0.0000, pass_rate=0.3889, error=correctness failed (7/18)
-00:03:25 WARNING [default_discovery_controller] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (7/18)
-00:03:25 ERROR [default_discovery_controller] All 3 retry attempts failed. Final error: correctness failed (7/18)
-00:03:25 WARNING [search.evox] Iteration 10 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (7/18)
-00:04:00 [evaluator] Evaluated program 5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a in 19.99s: combined_score=152.3815, geomean_us=6562.4770, pass_rate=1.0000
-00:04:00 [default_discovery_controller] Iteration 13: Program 5e157a7b-de4f-46e1-a9d8-ed9d0cdeab8a (parent: 2203f024-2097-4f61-8e8c-9d283435768d) completed in 35.08s (llm: 15.09s, eval: 19.99s)
-00:04:00 [default_discovery_controller] Metrics: combined_score=152.3815, geomean_us=6562.4770, pass_rate=1.0000
-00:04:00 [default_discovery_controller] 🌟 New best solution found at iteration 13
-00:04:48 [evaluator] Evaluated program 074c230a-71c0-4c7f-9ebc-663a462dbcce in 9.15s: combined_score=0.0000, pass_rate=0.8889, error=correctness failed (16/18)
-00:04:48 WARNING [default_discovery_controller] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (16/18)
-00:04:48 [default_discovery_controller] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
-00:05:26 [evaluator] Evaluated program d59a791b-8e1d-4d46-846d-cafb8fb832eb in 8.20s: combined_score=0.0000, pass_rate=0.6111, error=correctness failed (11/18)
-00:05:26 WARNING [default_discovery_controller] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (11/18)
-00:05:26 [default_discovery_controller] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
-00:05:59 [evaluator] Evaluated program 7fdb4060-26e1-4c6b-9219-97e25d1c9dc7 in 12.00s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
-00:05:59 WARNING [default_discovery_controller] Evaluation failed (attempt 3/3): validity=None, error=benchmark not available
-00:05:59 ERROR [default_discovery_controller] All 3 retry attempts failed. Final error: benchmark not available
-00:05:59 WARNING [search.evox] Iteration 14 failed (used 3 attempts): Evaluator failed after 3 attempts: benchmark not available
-00:06:56 [evaluator] Evaluated program d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8 in 18.18s: combined_score=157.4266, geomean_us=6352.1670, pass_rate=1.0000
-00:06:56 [default_discovery_controller] Iteration 17: Program d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8 (parent: 2203f024-2097-4f61-8e8c-9d283435768d) completed in 57.64s (llm: 39.45s, eval: 18.19s)
-00:06:56 [default_discovery_controller] Metrics: combined_score=157.4266, geomean_us=6352.1670, pass_rate=1.0000
-00:06:56 [default_discovery_controller] 🌟 New best solution found at iteration 17
-00:07:40 [evaluator] Evaluated program f0053ea0-bc1d-4cdc-9ff4-acd7800f4f21 in 10.54s: combined_score=0.0000, pass_rate=0.7778, error=correctness failed (14/18)
-00:07:40 WARNING [default_discovery_controller] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (14/18)
-00:07:40 [default_discovery_controller] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
-00:08:17 [evaluator] Evaluated program 6f8ff720-a6b5-4ce8-a77b-069c1301a555 in 7.44s: combined_score=0.0000, pass_rate=0.7778, error=correctness failed (14/18)
-00:08:17 WARNING [default_discovery_controller] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (14/18)
-00:08:17 [default_discovery_controller] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
-00:08:48 [evaluator] Evaluated program 986d9642-918f-428f-9976-1ba58b0db145 in 15.11s: combined_score=154.2983, geomean_us=6480.9520, pass_rate=1.0000
-00:08:48 [default_discovery_controller] Iteration 18: Program 986d9642-918f-428f-9976-1ba58b0db145 (parent: d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8) completed in 111.68s (llm: 15.93s, eval: 15.12s)
-00:08:48 [default_discovery_controller] Metrics: combined_score=154.2983, geomean_us=6480.9520, pass_rate=1.0000
-00:09:15 [evaluator] Evaluated program 2e299beb-ca13-466f-8257-ab5428d50a03 in 6.92s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
-00:09:15 WARNING [default_discovery_controller] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
-00:09:15 [default_discovery_controller] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
-00:09:42 [evaluator] Evaluated program da104b96-04b4-4095-8a99-eee79af49329 in 15.02s: combined_score=155.5604, geomean_us=6428.3710, pass_rate=1.0000
-00:09:42 [default_discovery_controller] Iteration 21: Program da104b96-04b4-4095-8a99-eee79af49329 (parent: 986d9642-918f-428f-9976-1ba58b0db145) completed in 54.59s (llm: 12.58s, eval: 15.02s)
-00:09:42 [default_discovery_controller] Metrics: combined_score=155.5604, geomean_us=6428.3710, pass_rate=1.0000
-00:09:42 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=21)
-00:09:42 [search.evox] Search strategy score: combined=199.210878, improvement=49.507325, start=107.919267, end=157.426592, horizon=2
-00:09:42 [search.evox] New best search score: 199.210878 (+122.058080)
-00:09:43 [base_database] Database has 2 programs, best program score is validity=1.0000, combined_score=199.2109, window_start_iteration=8.0000, search_window_start_score=107.9193, search_window_end_score=157.4266, search_horizon=2.0000
-00:10:15 [evaluator] Evaluated program 86f86176-ea08-464b-a6ab-785271ff5873 in 0.01s: validity=1.0000, combined_score=0.0000
-00:10:15 [search.evox] New search algorithm generated (iteration 2) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run1/search/iteration_2 (score pending)
-00:10:16 [search.evox] Switched to search algorithm 86f86176-ea08-464b-a6ab-785271ff5873 (13 programs migrated)
-00:11:04 [evaluator] Evaluated program 2d599274-12bf-4fc5-a7e9-80447120c19a in 13.13s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
-00:11:04 WARNING [default_discovery_controller] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
-00:11:04 [default_discovery_controller] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
-00:11:49 [evaluator] Evaluated program bf2acd8b-de03-41be-a280-d13df678dd8e in 8.02s: combined_score=0.0000, pass_rate=0.6111, error=correctness failed (11/18)
-00:11:49 WARNING [default_discovery_controller] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (11/18)
-00:11:49 [default_discovery_controller] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
-00:12:45 [evaluator] Evaluated program 77917278-25d7-48e8-88e5-892734904bca in 17.62s: combined_score=156.7974, geomean_us=6377.6580, pass_rate=1.0000
-00:12:45 [default_discovery_controller] Iteration 23: Program 77917278-25d7-48e8-88e5-892734904bca (parent: d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8) completed in 149.83s (llm: 38.77s, eval: 17.62s)
-00:12:45 [default_discovery_controller] Metrics: combined_score=156.7974, geomean_us=6377.6580, pass_rate=1.0000
-00:12:45 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=157.426592, end=157.426592, horizon=2
-00:12:45 [base_database] Database has 3 programs, best program score is validity=1.0000, combined_score=199.2109, window_start_iteration=8.0000, search_window_start_score=107.9193, search_window_end_score=157.4266, search_horizon=2.0000
-00:12:45 [search.evox] [SOLUTION EVOLUTION] Evolution completed: evox
-00:12:46 [search.utils] [CHECKPOINT] Saved database with 14 programs to trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
-00:12:46 [runner] Checkpoint 25: best=combined_score=157.4266, geomean_us=6352.1670, pass_rate=1.0000
-00:12:46 [runner] Checkpoint saved to trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
-00:13:02 [evaluator] Evaluated program d6e6eecc-0fbc-4d48-b94c-34e6f02d54a8 in 16.37s: combined_score=160.0481, geomean_us=6248.1200, pass_rate=1.0000
-00:13:02 [runner] Test evaluation for best program: combined_score=160.0481, geomean_us=6248.1200, pass_rate=1.0000
-00:13:02 [runner] Best program saved to trimul/skydiscover_runs/run1/best
-00:13:02 [runner] Discovery completed. Best: combined_score=157.4266, geomean_us=6352.1670, pass_rate=1.0000, test_combined_score=160.0481, test_geomean_us=6248.1200, test_pass_rate=1.0000
-00:13:02 [runner] Best program saved to trimul/skydiscover_runs/run1/best
+00:30:51 [search.utils] Logging to trimul/skydiscover_runs/run1/logs/evox_20260617_003051.log
+00:30:53 [main_controller] Set random seed to 42 for reproducibility
+00:30:53 [main_controller] Initialized discovery process with search strategy = evox and initial program = trimul/starting_point.py
+00:30:58 [llm] Initialized Anthropic LLM with model: claude-opus-4-8
+00:30:58 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+00:30:58 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+00:30:58 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+00:30:58 [prompt] Initialized default context builder
+00:30:59 [prompt] Set custom templates: system=evaluator_system_message, user=None
+00:30:59 [evaluator] Initialized evaluator with trimul/skydiscover_evaluator.py
+00:30:59 [default_discovery_manager] DiscoveryManager initialized: num_inspirations=4
+00:30:59 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+00:31:00 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+00:31:00 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+00:31:01 [prompt] Set custom templates: system=evaluator_system_message, user=None
+00:31:01 [evaluator] Initialized evaluator with /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+00:31:01 [default_discovery_manager] DiscoveryManager initialized: num_inspirations=4
+00:31:01 [search.evox] ======================================================================
+00:31:01 [search.evox] [EVOX CO-EVOLUTION SETUP]
+00:31:01 [search.evox] ----------------------------------------------------------------------
+00:31:01 [search.evox]   [SOLUTION EVOLUTION]
+00:31:01 [search.evox]     Initial search strategy file : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
+00:31:01 [search.evox]     Solution database class      : EvolvedProgramDatabase
+00:31:01 [search.evox]   [META EVOLUTION OF SEARCH STRATEGY]
+00:31:01 [search.evox]     Search strategy database class: TopKDatabase
+00:31:01 [search.evox]     Search strategy evaluator     : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+00:31:01 [search.evox]     Search strategy config        : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/config/search.yaml
+00:31:01 [search.evox] ======================================================================
+00:31:01 [main_controller] Adding initial program to database
+00:31:14 [evaluator] Evaluated program 347892bf-b8b1-4e18-9227-028269c74312 in 13.22s: combined_score=112.1509, geomean_us=8916.5610, pass_rate=1.0000
+00:31:14 [base_database] Database has 1 programs, best program score is 112.150862
+00:31:14 [search.evox] Switch if 2 iterations of stagnation detected
+00:31:14 [search.evox] Label generation: using guide_model = [claude-opus-4-8]
+00:31:21 WARNING [llm] Error on attempt 1/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:31:27 WARNING [llm] Error on attempt 2/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:31:32 WARNING [llm] Error on attempt 3/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:31:37 ERROR [llm] All 4 attempts failed with error: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:31:37 ERROR [search.evox] Label generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}, setting labels to empty strings
+00:32:10 [evaluator] Evaluated program 22c4677b-7c1f-469f-8003-62fa9c9b75c5 in 9.01s: combined_score=0.0000, pass_rate=0.8889, error=correctness failed (16/18)
+00:32:10 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (16/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: weight caching, fused projections, and batched matmul
+for the outer-product einsum via cuBLAS in BF16.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, dim, hidden_dim, device):
+    """Build and cache fused weight tensors keyed by id(weights)."""
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+
+    # Fuse the five input projections into one big linear:
+    # order: left_proj, right_proj, left_gate, right_gate, out_gate
+    fused = torch.cat([
+        weights['left_proj.weight'],
+        weights['right_proj.weight'],
+        weights['left_gate.weight'],
+        weights['right_gate.weight'],
+        weights['out_gate.weight'],
+    ], dim=0).to(torch.float32).contiguous()
+
+    to_out = weights['to_out.weight'].to(torch.float32).contiguous()
+
+    cached = (norm_w, norm_b, on_w, on_b, fused, to_out, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+    device = input_tensor.device
+
+    norm_w, norm_b, on_w, on_b, fused_w, to_out_w, h = _get_weights(
+        weights, dim, hidden_dim, device
+    )
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, d = x.shape
+
+    # Input LayerNorm
+    x = F.layer_norm(x, (d,), norm_w, norm_b)
+
+    # Fused projection: single matmul producing 5*h channels
+    proj = F.linear(x, fused_w)
+    left, right, left_gate, right_gate, out_gate = proj.split(h, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+    out_gate = torch.sigmoid(out_gate)
+
+    # einsum('... i k d, ... j k d -> ... i j d') as batched matmul.
+    # Move feature dim to batch: (bs, h, i, k) @ (bs, h, k, j) -> (bs, h, i, j)
+    lb = left.permute(0, 3, 1, 2).to(torch.bfloat16).contiguous()
+    rb = right.permute(0, 3, 1, 2).to(torch.bfloat16).contiguous()
+    ob = torch.matmul(lb, rb.transpose(-1, -2))  # (bs, h, i, j)
+    out = ob.permute(0, 2, 3, 1).to(torch.float32).contiguous()
+
+    out = F.layer_norm(out, (h,), on_w, on_b)
+    out = out * out_gate
+    return F.linear(out, to_out_w)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:32:10 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:32:46 [evaluator] Evaluated program 45d1b7d6-659c-4436-a0a0-e9e73fbcab5c in 7.47s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:32:46 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: caches fused projection weights, fuses the five input
+linear projections into one GEMM, and computes the outer-product einsum
+via a batched matmul in BF16. Weights are cached by id(weights) so the
+expensive object/parameter creation only happens once per weight set.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+
+    # Fuse all five input projections into one weight matrix.
+    # order: left_proj, right_proj, left_gate, right_gate, out_gate
+    fused = torch.cat([
+        weights['left_proj.weight'],
+        weights['right_proj.weight'],
+        weights['left_gate.weight'],
+        weights['right_gate.weight'],
+        weights['out_gate.weight'],
+    ], dim=0).to(torch.float32).contiguous()
+
+    to_out = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    cached = (norm_w, norm_b, on_w, on_b, fused, to_out)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """Compute the TriMul update using fused projections and batched bmm."""
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+
+    norm_w, norm_b, on_w, on_b, fused_w, to_out_w = _get_weights(weights)
+
+    x = input_tensor.to(torch.float32)
+    bs, n, _, _ = x.shape
+
+    # Input LayerNorm
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Fused projection: (bs, n, n, 5*hidden_dim)
+    proj = F.linear(x, fused_w)
+    h = hidden_dim
+    left, right, left_gate, right_gate, out_gate = proj.split(h, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+
+    # einsum '... i k d, ... j k d -> ... i j d' as batched matmul.
+    # Move feature dim into batch: (bs, n, n, h) -> (bs*h, n_i, n_k)
+    lb = left.permute(0, 3, 1, 2).reshape(bs * h, n, n).to(torch.bfloat16)
+    rb = right.permute(0, 3, 1, 2).reshape(bs * h, n, n).to(torch.bfloat16)
+    # out[i,j] = sum_k left[i,k]*right[j,k] = lb @ rb^T
+    outb = torch.bmm(lb, rb.transpose(1, 2))
+    out = outb.reshape(bs, h, n, n).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm + gate + projection
+    out = F.layer_norm(out, (hidden_dim,), on_w, on_b)
+    out = out * torch.sigmoid(out_gate)
+    out = torch.matmul(out, to_out_w)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:32:46 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:33:18 [evaluator] Evaluated program e6b1e17c-17d0-4f78-b229-05b0ef45e71a in 7.03s: combined_score=0.0000, pass_rate=0.8889, error=correctness failed (16/18)
+00:33:18 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (16/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: caches fused projection weights by id(weights) so the
+expensive parameter/object creation only happens once per weight set. The
+five input linear projections (left_proj, right_proj, left_gate, right_gate,
+out_gate) are fused into a single GEMM. The outer-product einsum is kept
+identical to the baseline (BF16) to preserve numerical correctness.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, hidden_dim):
+    """Build and cache fused/contiguous weight tensors keyed by id(weights)."""
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+
+    # Fuse the five input projections into one weight matrix (rows stacked).
+    fused = torch.cat([
+        weights['left_proj.weight'],
+        weights['right_proj.weight'],
+        weights['left_gate.weight'],
+        weights['right_gate.weight'],
+        weights['out_gate.weight'],
+    ], dim=0).to(torch.float32).contiguous()
+
+    to_out_w = weights['to_out.weight'].to(torch.float32).contiguous()
+
+    cached = (norm_w, norm_b, on_w, on_b, fused, to_out_w)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """TriMul update using fused input projection GEMM and cached weights."""
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    h = config["hidden_dim"]
+
+    norm_w, norm_b, on_w, on_b, fused_w, to_out_w = _get_weights(weights, h)
+
+    x = input_tensor.to(torch.float32)
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection -> split into 5 chunks.
+    proj = F.linear(x, fused_w)
+    left, right, left_gate, right_gate, out_gate = proj.split(h, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * left_gate.sigmoid()
+    right = right * m * right_gate.sigmoid()
+    out_gate = out_gate.sigmoid()
+
+    out = torch.einsum(
+        '... i k d, ... j k d -> ... i j d',
+        left.to(torch.bfloat16), right.to(torch.bfloat16),
+    ).to(torch.float32)
+
+    out = F.layer_norm(out, (h,), on_w, on_b)
+    out = out * out_gate
+    return F.linear(out, to_out_w)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:33:18 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (16/18)
+00:33:18 WARNING [search.evox] Iteration 1 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (16/18)
+00:33:58 [evaluator] Evaluated program 99c7a314-92b7-4fb9-a25a-063b4f1e7d7d in 12.03s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:33:58 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+"""
+Optimized TriMul: weight caching, fused projections, BF16 outer-product matmul.
+
+Key optimizations:
+- Cache prepared weights per (device, dtype, id) to avoid recreating modules/
+  re-uploading weights every call.
+- Fuse left/right/gate projections into a single concatenated matmul to reduce
+  kernel launches.
+- Use BF16 for the dominant outer-product einsum (bmm) which is the bottleneck.
+- Avoid redundant .to(float32) calls.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, device):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(device=device, dtype=torch.float32)
+    rp = weights['right_proj.weight'].to(device=device, dtype=torch.float32)
+    lg = weights['left_gate.weight'].to(device=device, dtype=torch.float32)
+    rg = weights['right_gate.weight'].to(device=device, dtype=torch.float32)
+    og = weights['out_gate.weight'].to(device=device, dtype=torch.float32)
+
+    # Concatenate all input projections: [5*hidden, dim] -> transposed for matmul
+    fused_w = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+    hidden = lp.shape[0]
+
+    out_norm_w = weights['to_out_norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+    to_out_w = weights['to_out.weight'].to(device=device, dtype=torch.float32).t().contiguous()
+
+    cached = (norm_w, norm_b, fused_w, hidden, out_norm_w, out_norm_b, to_out_w)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """Optimized TriMul forward with weight caching and fused matmuls."""
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+
+    norm_w, norm_b, fused_w, hidden, out_norm_w, out_norm_b, to_out_w = _get_weights(weights, device)
+
+    x = input_tensor.to(torch.float32)
+    dim = x.shape[-1]
+
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection: produces [.., 5*hidden]
+    proj = torch.matmul(x, fused_w)
+    left, right, lg, rg, og = proj.split(hidden, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * torch.sigmoid(lg) * m
+    right = right * torch.sigmoid(rg) * m
+    out_gate = torch.sigmoid(og)
+
+    # Outer product einsum '... i k d, ... j k d -> ... i j d' via bmm in BF16
+    bs, n, _, d = left.shape
+    # left: (bs, i, k, d) -> permute to (bs, d, i, k)
+    lp = left.permute(0, 3, 1, 2).reshape(bs * d, n, n).to(torch.bfloat16)
+    rp = right.permute(0, 3, 1, 2).reshape(bs * d, n, n).to(torch.bfloat16)
+    # out[i,j] = sum_k lp[i,k] * rp[j,k] = lp @ rp^T
+    out = torch.bmm(lp, rp.transpose(1, 2))
+    out = out.reshape(bs, d, n, n).permute(0, 2, 3, 1).to(torch.float32)
+
+    out = F.layer_norm(out, (hidden,), out_norm_w, out_norm_b)
+    out = out * out_gate
+    return torch.matmul(out, to_out_w)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:33:58 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:34:27 [evaluator] Evaluated program 33123fe8-4c36-415d-acb9-d3b615183ff1 in 12.70s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:34:27 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+import torch.nn.functional as F
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        batch_size, seq_len, _, dim = x.shape
+
+        x = self.norm(x)
+        x = x.to(torch.float32)
+
+        left = self.left_proj(x.to(torch.float32))
+        right = self.right_proj(x.to(torch.float32))
+
+        mask = mask.unsqueeze(-1)
+        left = left * mask
+        right = right * mask
+
+        left_gate = self.left_gate(x.to(torch.float32)).sigmoid()
+        right_gate = self.right_gate(x.to(torch.float32)).sigmoid()
+        out_gate = self.out_gate(x.to(torch.float32)).sigmoid()
+
+        left = left * left_gate
+        right = right * right_gate
+
+        out = einsum('... i k d, ... j k d -> ... i j d', left.to(torch.bfloat16), right.to(torch.bfloat16))
+
+        out = out.to(torch.float32)
+        out = self.to_out_norm(out)
+        out = out * out_gate
+        return self.to_out(out)
+
+
+_WCACHE = {}
+
+
+def _prep(weights, device):
+    """Cache prepared, contiguous fp32 weights keyed by weights dict id."""
+    key = id(weights)
+    c = _WCACHE.get(key)
+    if c is not None:
+        return c
+
+    norm_w = weights['norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+    lp = weights['left_proj.weight'].to(device=device, dtype=torch.float32).contiguous()
+    rp = weights['right_proj.weight'].to(device=device, dtype=torch.float32).contiguous()
+    lg = weights['left_gate.weight'].to(device=device, dtype=torch.float32).contiguous()
+    rg = weights['right_gate.weight'].to(device=device, dtype=torch.float32).contiguous()
+    og = weights['out_gate.weight'].to(device=device, dtype=torch.float32).contiguous()
+    hidden = lp.shape[0]
+    # Fuse all 5 input projections into one weight matrix [5*hidden, dim].t()
+    fused_t = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+    out_norm_w = weights['to_out_norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+    to_out_t = weights['to_out.weight'].to(device=device, dtype=torch.float32).t().contiguous()
+
+    c = (norm_w, norm_b, fused_t, hidden, out_norm_w, out_norm_b, to_out_t)
+    _WCACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    """Optimized TriMul with cached weights, fused projections, bf16 einsum."""
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+    dim = config["dim"]
+
+    norm_w, norm_b, fused_t, hidden, out_norm_w, out_norm_b, to_out_t = _prep(weights, device)
+
+    x = F.layer_norm(input_tensor.to(torch.float32), (dim,), norm_w, norm_b)
+
+    # Single fused matmul producing all projections
+    proj = torch.matmul(x, fused_t)
+    left, right, left_gate, right_gate, out_gate = proj.split(hidden, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+
+    out = einsum('... i k d, ... j k d -> ... i j d',
+                 left.to(torch.bfloat16), right.to(torch.bfloat16)).to(torch.float32)
+
+    out = F.layer_norm(out, (hidden,), out_norm_w, out_norm_b)
+    out = out * torch.sigmoid(out_gate)
+    return torch.matmul(out, to_out_t)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:34:27 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:35:05 [evaluator] Evaluated program f5148694-206e-4db8-8a3d-854b3384ddb9 in 11.92s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:35:05 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+"""
+Optimized TriMul:
+- Cache prepared weights keyed by id(weights) to avoid re-uploading / re-creating
+  modules and Parameters every call.
+- Fuse left_proj/right_proj/left_gate/right_gate/out_gate into a single matmul
+  to reduce kernel launches.
+- Use BF16 for the dominant outer-product einsum (bmm) which is the bottleneck,
+  reshaping to batched matmul for efficient cuBLAS dispatch.
+- Use functional layer_norm to avoid module overhead.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, device):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(device=device, dtype=torch.float32)
+    rp = weights['right_proj.weight'].to(device=device, dtype=torch.float32)
+    lg = weights['left_gate.weight'].to(device=device, dtype=torch.float32)
+    rg = weights['right_gate.weight'].to(device=device, dtype=torch.float32)
+    og = weights['out_gate.weight'].to(device=device, dtype=torch.float32)
+
+    hidden = lp.shape[0]
+    # fused weight: [dim, 5*hidden] so x @ fused_w gives all projections
+    fused_w = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+
+    out_norm_w = weights['to_out_norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+    to_out_w = weights['to_out.weight'].to(device=device, dtype=torch.float32).t().contiguous()
+
+    entry = (norm_w, norm_b, fused_w, hidden, out_norm_w, out_norm_b, to_out_w)
+    _CACHE[key] = entry
+    return entry
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+    dim = config["dim"]
+
+    norm_w, norm_b, fused_w, hidden, out_norm_w, out_norm_b, to_out_w = _get_weights(weights, device)
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, _ = x.shape
+
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # fused projection
+    proj = x @ fused_w  # [bs, seq, seq, 5*hidden]
+    left, right, left_gate, right_gate, out_gate = proj.split(hidden, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+    out_gate = torch.sigmoid(out_gate)
+
+    # outer product einsum: '... i k d, ... j k d -> ... i j d'
+    # left:[bs,i,k,d], right:[bs,j,k,d] -> contract over k for each d
+    # reshape to batched matmul over (bs*d): [bs,d,i,k] @ [bs,d,k,j] -> [bs,d,i,j]
+    lb = left.permute(0, 3, 1, 2).contiguous().to(torch.bfloat16)   # [bs,d,i,k]
+    rb = right.permute(0, 3, 2, 1).contiguous().to(torch.bfloat16)  # [bs,d,k,j]
+    ob = torch.matmul(lb, rb)  # [bs,d,i,j]
+    out = ob.permute(0, 2, 3, 1).to(torch.float32).contiguous()  # [bs,i,j,d]
+
+    out = F.layer_norm(out, (hidden,), out_norm_w, out_norm_b)
+    out = out * out_gate
+    out = out @ to_out_w
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:35:05 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (15/18)
+00:35:05 WARNING [search.evox] Iteration 4 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (15/18)
+00:35:44 [evaluator] Evaluated program 3a4a8c87-d460-44f1-807f-af0b47cc2f62 in 14.73s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+00:35:44 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+_CACHE = {}
+
+
+def _get_weights(weights, dim, hidden_dim, device):
+    """Cache concatenated/contiguous weights keyed by tensor identity to avoid
+    rebuilding parameters and fusing projection matrices on every call."""
+    key = id(weights['left_proj.weight'])
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+
+    # Fuse the five (dim->hidden) projections into a single weight for one matmul.
+    lp = weights['left_proj.weight'].to(torch.float32)
+    rp = weights['right_proj.weight'].to(torch.float32)
+    lg = weights['left_gate.weight'].to(torch.float32)
+    rg = weights['right_gate.weight'].to(torch.float32)
+    og = weights['out_gate.weight'].to(torch.float32)
+    fused = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+    out_w = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    cached = (norm_w, norm_b, fused, on_w, on_b, out_w, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """TriMul with cached/fused weights. LayerNorm -> single fused projection
+    matmul (left/right/gates) -> sigmoid gating -> masked outer-product via
+    batched matmul in bf16 -> output LayerNorm/gate -> output projection."""
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+    device = input_tensor.device
+
+    norm_w, norm_b, fused, on_w, on_b, out_w, h = _get_weights(
+        weights, dim, hidden_dim, device)
+
+    x = input_tensor.to(torch.float32)
+    bs, n, _, d = x.shape
+
+    x = torch.nn.functional.layer_norm(x, (dim,), norm_w, norm_b)
+
+    proj = x @ fused  # (bs, n, n, 5*h)
+    left, right, lg, rg, og = proj.split(h, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    lg = torch.sigmoid(lg)
+    rg = torch.sigmoid(rg)
+    og = torch.sigmoid(og)
+
+    left = left * m * lg
+    right = right * m * rg
+
+    # einsum '... i k d, ... j k d -> ... i j d' as batched matmul over d.
+    # Move d to batch dim: (bs*d, n, n) @ (bs*d, n, n)^T style.
+    lb = left.permute(0, 3, 1, 2).reshape(bs * h, n, n).to(torch.bfloat16)
+    rb = right.permute(0, 3, 1, 2).reshape(bs * h, n, n).to(torch.bfloat16)
+    out = torch.bmm(lb, rb.transpose(1, 2))  # (bs*h, n, n) over k
+    out = out.reshape(bs, h, n, n).permute(0, 2, 3, 1).to(torch.float32)
+
+    out = torch.nn.functional.layer_norm(out, (hidden_dim,), on_w, on_b)
+    out = out * og
+    output = out @ out_w
+    return output.to(torch.float32)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:35:44 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:36:11 [evaluator] Evaluated program db8ed0ea-c03c-40ec-b6da-d44f0bca7f30 in 4.25s: combined_score=0.0000, pass_rate=0.0000, error=correctness failed (0/18)
+00:36:11 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (0/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+_CACHE = {}
+
+
+def _get_weights(weights):
+    """Cache fused/contiguous fp32 weights keyed by tensor identity to avoid
+    rebuilding parameters and re-fusing projection matrices on every call."""
+    key = id(weights['left_proj.weight'])
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(torch.float32)
+    rp = weights['right_proj.weight'].to(torch.float32)
+    lg = weights['left_gate.weight'].to(torch.float32)
+    rg = weights['right_gate.weight'].to(torch.float32)
+    og = weights['out_gate.weight'].to(torch.float32)
+    hidden_dim = lp.shape[0]
+    # Single fused matmul for all five (dim->hidden) projections.
+    fused = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+    out_w = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    cached = (norm_w, norm_b, fused, on_w, on_b, out_w, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+class TriMul(nn.Module):
+=======
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        batch_size, seq_len, _, dim = x.shape
+
+        x = self.norm(x)
+        x = x.to(torch.float32)
+
+        left = self.left_proj(x.to(torch.float32))
+        right = self.right_proj(x.to(torch.float32))
+
+        mask = mask.unsqueeze(-1)
+        left = left * mask
+        right = right * mask
+
+        left_gate = self.left_gate(x.to(torch.float32)).sigmoid()
+        right_gate = self.right_gate(x.to(torch.float32)).sigmoid()
+        out_gate = self.out_gate(x.to(torch.float32)).sigmoid()
+
+        left = left * left_gate
+        right = right * right_gate
+
+        out = einsum('... i k d, ... j k d -> ... i j d', left.to(torch.bfloat16), right.to(torch.bfloat16))
+
+        out = out.to(torch.float32)
+        out = self.to_out_norm(out)
+        out = out * out_gate
+        return self.to_out(out)
+
+
+def custom_kernel(data):
+    """Fused TriMul: cache weights, single fused projection matmul, bf16 einsum
+    for the outer-product bottleneck, fp32 layernorms for accuracy."""
+    input_tensor, mask, weights, config = data
+
+    norm_w, norm_b, fused, on_w, on_b, out_w, hidden_dim = _get_weights(weights)
+
+    x = input_tensor.to(torch.float32)
+    dim = x.shape[-1]
+
+    # Input LayerNorm
+    x = torch.nn.functional.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection -> split
+    proj = torch.matmul(x, fused)
+    left, right, left_gate, right_gate, out_gate = proj.split(hidden_dim, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+
+    out = einsum('... i k d, ... j k d -> ... i j d',
+                 left.to(torch.bfloat16), right.to(torch.bfloat16)).to(torch.float32)
+
+    out = torch.nn.functional.layer_norm(out, (hidden_dim,), on_w, on_b)
+    out = out * torch.sigmoid(out_gate)
+    return torch.matmul(out, out_w)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:36:11 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:36:49 [evaluator] Evaluated program f2c02b22-512c-43fa-8f01-6f99ec691641 in 11.97s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+00:36:49 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+_CACHE = {}
+
+
+def _get_weights(weights):
+    """Cache fused/contiguous fp32 weights keyed by tensor identity.
+
+    Fuses the five (dim->hidden) projections into a single matmul weight and
+    pre-transposes all projection matrices so forward passes avoid rebuilding
+    modules/parameters and redundant casts on every invocation.
+    """
+    key = id(weights['left_proj.weight'])
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(torch.float32)
+    rp = weights['right_proj.weight'].to(torch.float32)
+    lg = weights['left_gate.weight'].to(torch.float32)
+    rg = weights['right_gate.weight'].to(torch.float32)
+    og = weights['out_gate.weight'].to(torch.float32)
+    hidden_dim = lp.shape[0]
+
+    # Single fused matmul for all five (dim->hidden) projections: (dim, 5*hidden)
+    fused = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+    out_w = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    cached = (norm_w, norm_b, fused, on_w, on_b, out_w, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """Optimized TriMul: cached fused projections, single matmul, bf16 einsum.
+
+    LayerNorm -> fused 5-way projection -> mask + sigmoid gating ->
+    masked outer-product einsum (bf16) -> output LayerNorm -> out gate -> proj.
+    """
+    input_tensor, mask, weights, config = data
+
+    norm_w, norm_b, fused, on_w, on_b, out_w, hidden_dim = _get_weights(weights)
+
+    x = input_tensor.to(torch.float32)
+    dim = x.shape[-1]
+
+    # Input LayerNorm
+    x = torch.nn.functional.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection -> split into the 5 components
+    proj = x @ fused
+    left, right, left_gate, right_gate, out_gate = proj.split(hidden_dim, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * left_gate.sigmoid()
+    right = right * m * right_gate.sigmoid()
+
+    out = einsum('... i k d, ... j k d -> ... i j d',
+                 left.to(torch.bfloat16), right.to(torch.bfloat16)).to(torch.float32)
+
+    out = torch.nn.functional.layer_norm(out, (hidden_dim,), on_w, on_b)
+    out = out * out_gate.sigmoid()
+
+    return (out @ out_w).to(torch.float32)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:36:49 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (17/18)
+00:36:49 WARNING [search.evox] Iteration 7 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (17/18)
+00:36:49 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=7)
+00:36:49 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=112.150862, end=112.150862, horizon=2
+00:36:49 WARNING [llm] Error on attempt 1/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:36:54 WARNING [llm] Error on attempt 2/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:36:59 WARNING [llm] Error on attempt 3/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:37:05 ERROR [llm] All 4 attempts failed with error: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:37:05 ERROR [default_discovery_manager] LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:37:05 WARNING [default_discovery_manager] Iteration 1 failed: LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:37:05 WARNING [search.evox] Failed to generate search algorithm: LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:37:43 [evaluator] Evaluated program 6b2e253d-c3bb-4500-92aa-8e6e477d52cd in 11.15s: combined_score=0.0000, pass_rate=0.7778, error=correctness failed (14/18)
+00:37:43 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (14/18)
+----- Generated Solution -----
+"""
+Optimized TriMul: weight caching, fused projections, and bf16 batched
+matmul for the outer-product einsum bottleneck on H100.
+
+Key optimizations:
+- Cache prepared weights keyed by tensor identity to avoid redundant
+  parameter/object creation across calls.
+- Fuse left_proj/left_gate and right_proj/right_gate into single matmuls.
+- Reshape the einsum into a batched bmm (most efficient cuBLAS path) using
+  bf16 inputs and fp32 accumulation.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _prep(weights, device):
+    key = id(weights)
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    def g(name):
+        return weights[name].to(device=device, dtype=torch.float32).contiguous()
+
+    # Concatenate proj+gate weights so each side is one matmul.
+    lp = g('left_proj.weight')
+    lg = g('left_gate.weight')
+    rp = g('right_proj.weight')
+    rg = g('right_gate.weight')
+    hidden = lp.shape[0]
+
+    c = {
+        'norm_w': g('norm.weight'),
+        'norm_b': g('norm.bias'),
+        'left_cat': torch.cat([lp, lg], dim=0).t().contiguous(),
+        'right_cat': torch.cat([rp, rg], dim=0).t().contiguous(),
+        'out_gate': g('out_gate.weight').t().contiguous(),
+        'on_w': g('to_out_norm.weight'),
+        'on_b': g('to_out_norm.bias'),
+        'to_out': g('to_out.weight').t().contiguous(),
+        'hidden': hidden,
+    }
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    """Run TriMul with cached weights and a batched bf16 matmul."""
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+    c = _prep(weights, device)
+    hidden = c['hidden']
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, dim = x.shape
+
+    x = F.layer_norm(x, (dim,), c['norm_w'], c['norm_b'])
+
+    m = mask.unsqueeze(-1)
+
+    left_all = x @ c['left_cat']
+    right_all = x @ c['right_cat']
+
+    left = (left_all[..., :hidden] * torch.sigmoid(left_all[..., hidden:])) * m
+    right = (right_all[..., :hidden] * torch.sigmoid(right_all[..., hidden:])) * m
+
+    out_gate = torch.sigmoid(x @ c['out_gate'])
+
+    # einsum '... i k d, ... j k d -> ... i j d'
+    # For each (batch, d) treat as matmul over k: left[i,k] @ right[j,k]^T
+    lb = left.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden, seq_len, seq_len)
+    rb = right.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden, seq_len, seq_len)
+    ob = torch.bmm(lb, rb.transpose(1, 2))
+    out = ob.reshape(bs, hidden, seq_len, seq_len).permute(0, 2, 3, 1).to(torch.float32)
+
+    out = F.layer_norm(out, (hidden,), c['on_w'], c['on_b'])
+    out = out * out_gate
+    return out @ c['to_out']
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:37:43 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:38:24 [evaluator] Evaluated program ecb28094-48f1-40d3-82ca-aef344a86b98 in 13.54s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+00:38:24 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul:
+- Cache prepared weights keyed by tensor identity to avoid rebuilding
+  the module and re-copying parameters on every call.
+- Fuse (left_proj, left_gate) and (right_proj, right_gate) into single
+  matmuls; combine all projections into one big matmul where possible.
+- Express the outer-product einsum as a batched bmm over (bs, dim) using
+  bf16 inputs with fp32 accumulation — the most efficient cuBLAS path on H100.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _prep(weights, device):
+    key = id(weights['left_proj.weight'])
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    def g(name):
+        return weights[name].to(device=device, dtype=torch.float32).contiguous()
+
+    lp = g('left_proj.weight')
+    lg = g('left_gate.weight')
+    rp = g('right_proj.weight')
+    rg = g('right_gate.weight')
+    hidden = lp.shape[0]
+
+    c = {
+        'norm_w': g('norm.weight'),
+        'norm_b': g('norm.bias'),
+        # Single fused matmul per side: outputs [proj | gate]
+        'left_cat': torch.cat([lp, lg], dim=0).t().contiguous(),
+        'right_cat': torch.cat([rp, rg], dim=0).t().contiguous(),
+        'out_gate': g('out_gate.weight').t().contiguous(),
+        'on_w': g('to_out_norm.weight'),
+        'on_b': g('to_out_norm.bias'),
+        'to_out': g('to_out.weight').t().contiguous(),
+        'hidden': hidden,
+    }
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    """Run TriMul using cached weights and a batched bf16 bmm for the einsum."""
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+    c = _prep(weights, device)
+
+    x = input_tensor.to(torch.float32)
+    bs, seq, _, dim = x.shape
+    hidden = c['hidden']
+
+    # Input LayerNorm
+    x = F.layer_norm(x, (dim,), c['norm_w'], c['norm_b'])
+
+    # Fused projections + gates
+    lc = x @ c['left_cat']               # (bs, seq, seq, 2*hidden)
+    rc = x @ c['right_cat']
+    left = lc[..., :hidden]
+    left_gate = lc[..., hidden:]
+    right = rc[..., :hidden]
+    right_gate = rc[..., hidden:]
+    out_gate = (x @ c['out_gate']).sigmoid()
+
+    m = mask.unsqueeze(-1).to(torch.float32)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+
+    # einsum '... i k d, ... j k d -> ... i j d' as batched bmm over (bs, d)
+    # left:  (bs, seq, seq, hidden) -> (bs, hidden, seq_i, seq_k)
+    # right: (bs, seq, seq, hidden) -> (bs, hidden, seq_j, seq_k)
+    lb = left.permute(0, 3, 1, 2).reshape(bs * hidden, seq, seq).to(torch.bfloat16)
+    rb = right.permute(0, 3, 1, 2).reshape(bs * hidden, seq, seq).to(torch.bfloat16)
+    ob = torch.bmm(lb, rb.transpose(1, 2))  # (bs*hidden, seq_i, seq_j)
+    out = ob.reshape(bs, hidden, seq, seq).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm + gate + projection
+    out = F.layer_norm(out, (hidden,), c['on_w'], c['on_b'])
+    out = out * out_gate
+    out = out @ c['to_out']
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:38:24 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:39:03 [evaluator] Evaluated program b9a0d396-1254-4dbb-9b0e-85cc822116cc in 11.26s: combined_score=0.0000, pass_rate=0.7222, error=correctness failed (13/18)
+00:39:03 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (13/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul.
+
+Key optimizations:
+- Cache prepared (transposed, fused) weights keyed by tensor identity to
+  avoid rebuilding modules / re-copying parameters every call.
+- Fuse left_proj+left_gate and right_proj+right_gate into single matmuls
+  using torch.addmm-style F.linear on flattened tensors.
+- Run the outer-product einsum as a batched bmm in bf16 with fp32 accum,
+  which maps to the most efficient cuBLAS path on H100, while keeping all
+  pre/post normalization and gating in fp32 for correctness.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _prep(weights):
+    key = weights['left_proj.weight'].data_ptr()
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    def g(name):
+        return weights[name].to(torch.float32).contiguous()
+
+    lp = g('left_proj.weight')
+    lg = g('left_gate.weight')
+    rp = g('right_proj.weight')
+    rg = g('right_gate.weight')
+    hidden = lp.shape[0]
+
+    c = {
+        'norm_w': g('norm.weight'),
+        'norm_b': g('norm.bias'),
+        'left_cat': torch.cat([lp, lg], dim=0),   # [2H, D]
+        'right_cat': torch.cat([rp, rg], dim=0),  # [2H, D]
+        'out_gate': g('out_gate.weight'),         # [H, D]
+        'on_w': g('to_out_norm.weight'),
+        'on_b': g('to_out_norm.bias'),
+        'to_out': g('to_out.weight'),             # [D, H]
+        'hidden': hidden,
+    }
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    """Run TriMul using cached fused weights and a batched bf16 matmul
+    for the outer-product einsum bottleneck."""
+    input_tensor, mask, weights, config = data
+    c = _prep(weights)
+    H = c['hidden']
+
+    x = input_tensor.to(torch.float32)
+    bs, seq, _, dim = x.shape
+
+    # Pre-LayerNorm over last dim.
+    x = F.layer_norm(x, (dim,), c['norm_w'], c['norm_b'])
+
+    # Fused projection+gate for each side.
+    lcat = F.linear(x, c['left_cat'])   # [bs, seq, seq, 2H]
+    rcat = F.linear(x, c['right_cat'])
+
+    m = mask.unsqueeze(-1)
+
+    left = lcat[..., :H] * m * torch.sigmoid(lcat[..., H:])
+    right = rcat[..., :H] * m * torch.sigmoid(rcat[..., H:])
+
+    # einsum '... i k d, ... j k d -> ... i j d'
+    # Move dim (d=H) to a batch axis and contract over k.
+    # left:  [bs, i, k, H] -> [bs, H, i, k]
+    # right: [bs, j, k, H] -> [bs, H, k, j]
+    lt = left.permute(0, 3, 1, 2).reshape(bs * H, seq, seq).to(torch.bfloat16)
+    rt = right.permute(0, 3, 2, 1).reshape(bs * H, seq, seq).to(torch.bfloat16)
+    out = torch.bmm(lt, rt)  # [bs*H, i, j]
+    out = out.reshape(bs, H, seq, seq).permute(0, 2, 3, 1).to(torch.float32)
+
+    out_gate = torch.sigmoid(F.linear(x, c['out_gate']))
+
+    out = F.layer_norm(out, (H,), c['on_w'], c['on_b'])
+    out = out * out_gate
+    return F.linear(out, c['to_out'])
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:39:03 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (13/18)
+00:39:03 WARNING [search.evox] Iteration 10 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (13/18)
+00:39:38 [evaluator] Evaluated program a14963db-2435-47c9-b5c9-5c8e9c076fb7 in 12.29s: combined_score=0.0000, pass_rate=0.8889, error=correctness failed (16/18)
+00:39:38 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (16/18)
+----- Generated Solution -----
+"""
+Optimized TriMul: caches fused weights keyed by weight id to avoid
+redundant Parameter/module creation, fuses left/right proj+gate into
+single matmuls, uses BF16 for the outer-product einsum (the bottleneck),
+and minimizes redundant dtype casts.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, dim, hidden_dim, device):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+
+    # Fuse left_proj & left_gate -> single weight; same for right.
+    lp = weights['left_proj.weight'].to(torch.float32)
+    lg = weights['left_gate.weight'].to(torch.float32)
+    rp = weights['right_proj.weight'].to(torch.float32)
+    rg = weights['right_gate.weight'].to(torch.float32)
+    og = weights['out_gate.weight'].to(torch.float32)
+
+    left_fused = torch.cat([lp, lg], dim=0).contiguous()    # (2H, D)
+    right_fused = torch.cat([rp, rg], dim=0).contiguous()   # (2H, D)
+    out_gate_w = og.contiguous()
+
+    on_w = weights['to_out_norm.weight'].to(torch.float32)
+    on_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight'].to(torch.float32)
+
+    cached = (norm_w, norm_b, left_fused, right_fused, out_gate_w,
+              on_w, on_b, to_out_w, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+    device = input_tensor.device
+
+    (norm_w, norm_b, left_fused, right_fused, out_gate_w,
+     on_w, on_b, to_out_w, H) = _get_weights(weights, dim, hidden_dim, device)
+
+    x = input_tensor.to(torch.float32)
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    m = mask.unsqueeze(-1)
+
+    lf = F.linear(x, left_fused)
+    left = lf[..., :H]
+    left_gate = lf[..., H:]
+    left = left * m * torch.sigmoid(left_gate)
+
+    rf = F.linear(x, right_fused)
+    right = rf[..., :H]
+    right_gate = rf[..., H:]
+    right = right * m * torch.sigmoid(right_gate)
+
+    out_gate = torch.sigmoid(F.linear(x, out_gate_w))
+
+    out = torch.einsum('... i k d, ... j k d -> ... i j d',
+                       left.to(torch.bfloat16), right.to(torch.bfloat16))
+    out = out.to(torch.float32)
+
+    out = F.layer_norm(out, (H,), on_w, on_b)
+    out = out * out_gate
+    return F.linear(out, to_out_w)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:39:38 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:40:18 [evaluator] Evaluated program c716f8a5-f591-44e3-9797-3710f188855c in 12.34s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+00:40:18 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: caches prepared weights keyed by id(weights) to avoid
+rebuilding modules/Parameters every call. Fuses left_proj+left_gate and
+right_proj+right_gate into single matmuls to cut GEMM launches and reuse
+input. Uses BF16 for the outer-product einsum (the bottleneck) via a
+batched bmm. Keeps numerics identical to the reference order.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _prep(weights, dim, hidden_dim):
+    key = id(weights)
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    f32 = torch.float32
+    norm_w = weights['norm.weight'].to(f32).contiguous()
+    norm_b = weights['norm.bias'].to(f32).contiguous()
+
+    lp = weights['left_proj.weight'].to(f32)
+    lg = weights['left_gate.weight'].to(f32)
+    rp = weights['right_proj.weight'].to(f32)
+    rg = weights['right_gate.weight'].to(f32)
+
+    # Fuse proj+gate: rows [0:H] -> proj, [H:2H] -> gate
+    left_w = torch.cat([lp, lg], dim=0).contiguous()   # (2H, D)
+    right_w = torch.cat([rp, rg], dim=0).contiguous()  # (2H, D)
+
+    out_gate_w = weights['out_gate.weight'].to(f32).contiguous()
+    on_w = weights['to_out_norm.weight'].to(f32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(f32).contiguous()
+    to_out_w = weights['to_out.weight'].to(f32).contiguous()
+
+    c = (norm_w, norm_b, left_w, right_w, out_gate_w,
+         on_w, on_b, to_out_w, hidden_dim, dim)
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+
+    (norm_w, norm_b, left_w, right_w, out_gate_w,
+     on_w, on_b, to_out_w, H, D) = _prep(weights, dim, hidden_dim)
+
+    bs, n, _, _ = input_tensor.shape
+
+    x = input_tensor.to(torch.float32)
+    x = F.layer_norm(x, (D,), norm_w, norm_b)
+
+    m = mask.unsqueeze(-1)
+
+    # Fused projections: (..., 2H)
+    left_cat = F.linear(x, left_w)
+    right_cat = F.linear(x, right_w)
+
+    left = left_cat[..., :H]
+    left_gate = left_cat[..., H:].sigmoid()
+    right = right_cat[..., :H]
+    right_gate = right_cat[..., H:].sigmoid()
+
+    out_gate = F.linear(x, out_gate_w).sigmoid()
+
+    left = left * m * left_gate
+    right = right * m * right_gate
+
+    # einsum '... i k d, ... j k d -> ... i j d' via batched bmm in bf16
+    lb = left.to(torch.bfloat16)
+    rb = right.to(torch.bfloat16)
+    # reshape to (bs*H, n, k) where k is seq dim
+    lp = lb.permute(0, 3, 1, 2).reshape(bs * H, n, n)
+    rp = rb.permute(0, 3, 1, 2).reshape(bs * H, n, n)
+    ob = torch.bmm(lp, rp.transpose(1, 2))  # (bs*H, n_i, n_j)
+    out = ob.reshape(bs, H, n, n).permute(0, 2, 3, 1).to(torch.float32)
+
+    out = F.layer_norm(out, (H,), on_w, on_b)
+    out = out * out_gate
+    return F.linear(out, to_out_w)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:40:18 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:41:02 [evaluator] Evaluated program 6567f23a-c3e1-4350-9750-661e57f683ad in 15.49s: combined_score=0.0000, pass_rate=0.8889, error=correctness failed (16/18)
+00:41:02 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (16/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul.
+
+Approach:
+  - Cache prepared weights keyed by id(weights) to avoid rebuilding any
+    nn.Module/Parameter objects on every call (the baseline rebuilt a full
+    module + 10 Parameters each invocation, pure Python overhead).
+  - Fuse the input-projection GEMMs: left_proj, left_gate, right_proj,
+    right_gate, and out_gate all consume the SAME normalized input x, so we
+    concatenate their weights into one (5*H, D) matrix and do a single
+    F.linear, then split. This cuts 5 GEMM launches into 1 and maximizes
+    reuse of x.
+  - The bottleneck einsum is done in BF16 via a batched bmm for speed,
+    matching the reference's bf16 contraction numerics.
+  - Everything else (layernorm order, sigmoid gates, masking) is kept
+    numerically identical to the reference forward pass.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _prep(weights, dim, hidden_dim):
+    key = id(weights)
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    f32 = torch.float32
+    norm_w = weights['norm.weight'].to(f32).contiguous()
+    norm_b = weights['norm.bias'].to(f32).contiguous()
+
+    lp = weights['left_proj.weight'].to(f32)
+    rp = weights['right_proj.weight'].to(f32)
+    lg = weights['left_gate.weight'].to(f32)
+    rg = weights['right_gate.weight'].to(f32)
+    og = weights['out_gate.weight'].to(f32)
+
+    # Single fused projection: order [left_proj, right_proj, left_gate,
+    # right_gate, out_gate], each (H, D) -> (5H, D)
+    fused_w = torch.cat([lp, rp, lg, rg, og], dim=0).contiguous()
+
+    on_w = weights['to_out_norm.weight'].to(f32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(f32).contiguous()
+    to_out_w = weights['to_out.weight'].to(f32).contiguous()
+
+    c = (norm_w, norm_b, fused_w, on_w, on_b, to_out_w, hidden_dim)
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+
+    (norm_w, norm_b, fused_w, on_w, on_b,
+     to_out_w, H) = _prep(weights, dim, hidden_dim)
+
+    x = input_tensor.to(torch.float32)
+
+    # Input LayerNorm
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection -> (..., 5H)
+    proj = F.linear(x, fused_w)
+    left, right, lg, rg, og = proj.split(H, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(lg)
+    right = right * m * torch.sigmoid(rg)
+    out_gate = torch.sigmoid(og)
+
+    # Outer-product contraction in BF16 (bottleneck).
+    # einsum('... i k d, ... j k d -> ... i j d')
+    out = torch.einsum(
+        '... i k d, ... j k d -> ... i j d',
+        left.to(torch.bfloat16), right.to(torch.bfloat16)
+    ).to(torch.float32)
+
+    # Output LayerNorm + gate + projection
+    out = F.layer_norm(out, (H,), on_w, on_b)
+    out = out * out_gate
+    out = F.linear(out, to_out_w)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:41:02 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (16/18)
+00:41:02 WARNING [search.evox] Iteration 13 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (16/18)
+00:41:02 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=13)
+00:41:03 WARNING [llm] Error on attempt 1/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:41:08 WARNING [llm] Error on attempt 2/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:41:13 WARNING [llm] Error on attempt 3/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:41:18 ERROR [llm] All 4 attempts failed with error: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:41:18 ERROR [default_discovery_manager] LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:41:18 WARNING [default_discovery_manager] Iteration 2 failed: LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:41:18 WARNING [search.evox] Failed to generate search algorithm: LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:42:08 [evaluator] Evaluated program 79d51ef6-44d6-48a8-aa17-6abaae94f8d7 in 19.28s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+00:42:08 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+"""
+Optimized TriMul: caches fused weights keyed by tensor identity to avoid
+redundant Parameter/module creation. Fuses left/right projections and gates
+into single matmuls, uses BF16 for the heavy einsum (batched matmul), and
+minimizes redundant casts. The outer-product einsum is reformulated as a
+batched matmul which dispatches to cuBLAS efficiently.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_cached(weights, config, device):
+    key = id(weights['left_proj.weight'])
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    dim = config["dim"]
+    hidden = config["hidden_dim"]
+
+    norm_w = weights['norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_w = weights['to_out_norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(device=device, dtype=torch.float32)
+    rp = weights['right_proj.weight'].to(device=device, dtype=torch.float32)
+    lg = weights['left_gate.weight'].to(device=device, dtype=torch.float32)
+    rg = weights['right_gate.weight'].to(device=device, dtype=torch.float32)
+    og = weights['out_gate.weight'].to(device=device, dtype=torch.float32)
+
+    # Fused input projection weight: [proj_l, proj_r, gate_l, gate_r, gate_out] -> (5*hidden, dim)
+    fused_in = torch.cat([lp, rp, lg, rg, og], dim=0).contiguous()
+    # Transpose for matmul: (dim, 5*hidden)
+    fused_in_t = fused_in.t().contiguous()
+
+    to_out = weights['to_out.weight'].to(device=device, dtype=torch.float32)
+    to_out_t = to_out.t().contiguous()
+
+    c = {
+        'norm_w': norm_w, 'norm_b': norm_b,
+        'out_norm_w': out_norm_w, 'out_norm_b': out_norm_b,
+        'fused_in_t': fused_in_t,
+        'to_out_t': to_out_t,
+        'dim': dim, 'hidden': hidden,
+        'norm_shape': (dim,), 'out_norm_shape': (hidden,),
+    }
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    """Run optimized TriMul forward with weight caching and fused matmuls."""
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+    c = _get_cached(weights, config, device)
+
+    hidden = c['hidden']
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, dim = x.shape
+
+    # Input LayerNorm
+    x = F.layer_norm(x, c['norm_shape'], c['norm_w'], c['norm_b'])
+
+    # Fused projection: single matmul produces 5*hidden features
+    proj = torch.matmul(x, c['fused_in_t'])  # (bs, s, s, 5*hidden)
+    left, right, lg, rg, og = proj.split(hidden, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(lg)
+    right = right * m * torch.sigmoid(rg)
+    out_gate = torch.sigmoid(og)
+
+    # Outer-product einsum '... i k d, ... j k d -> ... i j d'
+    # Reformulate as batched matmul over d:
+    #   permute to (bs, d, i, k) and (bs, d, k, j) -> (bs, d, i, j) -> (bs, i, j, d)
+    lb = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous()  # (bs, d, i, k)
+    rb = right.to(torch.bfloat16).permute(0, 3, 2, 1).contiguous()  # (bs, d, k, j)
+    out = torch.matmul(lb, rb)  # (bs, d, i, j)
+    out = out.permute(0, 2, 3, 1).to(torch.float32)  # (bs, i, j, d)
+
+    # Output LayerNorm + gate + projection
+    out = F.layer_norm(out, c['out_norm_shape'], c['out_norm_w'], c['out_norm_b'])
+    out = out * out_gate
+    out = torch.matmul(out, c['to_out_t'])
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:42:08 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:42:56 [evaluator] Evaluated program bac15216-0ae2-47b5-bb8a-3f7a031f6c2f in 17.35s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+00:42:56 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+"""
+Optimized TriMul.
+
+Key optimizations:
+  - Cache fused weights keyed by the identity of the left_proj weight tensor,
+    avoiding repeated nn.Module / nn.Parameter object creation on every call.
+  - Fuse left_proj, right_proj, left_gate, right_gate, out_gate into a single
+    (5*hidden, dim) matmul so the input projections dispatch as one GEMM.
+  - Apply mask & sigmoid gating directly with elementwise ops.
+  - Reformulate the outer-product einsum
+        '... i k d, ... j k d -> ... i j d'
+    as a batched matmul (bmm) over the feature dimension d, which maps onto
+    highly tuned cuBLAS batched GEMM. Computed in BF16 for throughput then
+    accumulated back to FP32.
+  - Minimize redundant float32 casts.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_cached(weights, config, device):
+    key = id(weights['left_proj.weight'])
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    norm_w = weights['norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_w = weights['to_out_norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(device=device, dtype=torch.float32)
+    rp = weights['right_proj.weight'].to(device=device, dtype=torch.float32)
+    lg = weights['left_gate.weight'].to(device=device, dtype=torch.float32)
+    rg = weights['right_gate.weight'].to(device=device, dtype=torch.float32)
+    og = weights['out_gate.weight'].to(device=device, dtype=torch.float32)
+
+    # Fused (5*hidden, dim) weight -> single GEMM produces all projections+gates.
+    fused_in = torch.cat([lp, rp, lg, rg, og], dim=0).contiguous()
+    # transpose for x @ W^T
+    fused_in_t = fused_in.t().contiguous()
+
+    to_out_t = weights['to_out.weight'].to(device=device, dtype=torch.float32).t().contiguous()
+
+    hidden = lp.shape[0]
+    dim = lp.shape[1]
+
+    c = {
+        'norm_w': norm_w, 'norm_b': norm_b,
+        'out_norm_w': out_norm_w, 'out_norm_b': out_norm_b,
+        'fused_in_t': fused_in_t,
+        'to_out_t': to_out_t,
+        'hidden': hidden, 'dim': dim,
+    }
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    """Run the fused/cached TriMul forward pass."""
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+    c = _get_cached(weights, config, device)
+
+    dim = c['dim']
+    hidden = c['hidden']
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, _ = x.shape
+
+    # LayerNorm over last dim
+    x = F.layer_norm(x, (dim,), c['norm_w'], c['norm_b'])
+
+    # Fused input projection -> (bs, s, s, 5*hidden)
+    proj = torch.matmul(x, c['fused_in_t'])
+    left, right, lg, rg, og = proj.split(hidden, dim=-1)
+
+    m = mask.unsqueeze(-1).to(torch.float32)
+    left = left * torch.sigmoid(lg) * m
+    right = right * torch.sigmoid(rg) * m
+    out_gate = torch.sigmoid(og)
+
+    # Outer product einsum '... i k d, ... j k d -> ... i j d'
+    # Reformulate as batched matmul over d: for each d, out[b,i,j] = sum_k left[b,i,k]*right[b,j,k]
+    # left:  (bs, s, s, h) -> permute to (bs, h, i=s, k=s)
+    # right: (bs, s, s, h) -> permute to (bs, h, j=s, k=s) -> transpose k,j -> (bs,h,k,s)
+    lb = left.permute(0, 3, 1, 2).contiguous().to(torch.bfloat16)   # (bs, h, i, k)
+    rb = right.permute(0, 3, 2, 1).contiguous().to(torch.bfloat16)  # (bs, h, k, j)
+    ob = torch.matmul(lb, rb)  # (bs, h, i, j) bf16
+    out = ob.permute(0, 2, 3, 1).to(torch.float32).contiguous()  # (bs, i, j, h)
+
+    out = F.layer_norm(out, (hidden,), c['out_norm_w'], c['out_norm_b'])
+    out = out * out_gate
+
+    out = torch.matmul(out, c['to_out_t'])
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:42:56 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:43:39 WARNING [evaluator] Evaluation attempt 1/2 failed for program 326c2138-099e-40a4-9ca6-5341bb910dbf: Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+  File "/workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/evaluation/evaluator.py", line 160, in evaluate_program
+    result = await self._direct_evaluate(temp_file_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/evaluation/evaluator.py", line 255, in _direct_evaluate
+    return await asyncio.wait_for(run_evaluation(), timeout=self.config.timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/tasks.py", line 489, in wait_for
+    return fut.result()
+           ^^^^^^^^^^^^
+  File "/workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/evaluation/evaluator.py", line 253, in run_evaluation
+    return await loop.run_in_executor(None, self.evaluate_function, program_path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/trimul-evox/trimul/skydiscover_evaluator.py", line 53, in evaluate
+    md, rc, stderr = _run_eval(program_path)
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/trimul-evox/trimul/skydiscover_evaluator.py", line 39, in _run_eval
+    md = json.load(f)
+         ^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+00:43:52 [evaluator] Evaluated program 326c2138-099e-40a4-9ca6-5341bb910dbf in 26.19s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:43:52 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+"""
+Optimized TriMul.
+
+Approach:
+  - Cache fused weights keyed by identity of left_proj.weight to avoid
+    recreating Parameters/modules every call.
+  - Fuse left_proj, right_proj, left_gate, right_gate into a single
+    (4*hidden, dim) matmul so input projections dispatch as one GEMM.
+  - Apply mask + sigmoid gating elementwise.
+  - Compute the outer-product einsum '...ikd,...jkd->...ijd' in BF16 via
+    a batched matmul (per feature channel d) which maps onto cuBLAS, then
+    accumulate in FP32.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_cached(weights, config, device):
+    key = id(weights['left_proj.weight'])
+    c = _CACHE.get(key)
+    if c is not None:
+        return c
+
+    norm_w = weights['norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_w = weights['to_out_norm.weight'].to(device=device, dtype=torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(device=device, dtype=torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(device=device, dtype=torch.float32)
+    rp = weights['right_proj.weight'].to(device=device, dtype=torch.float32)
+    lg = weights['left_gate.weight'].to(device=device, dtype=torch.float32)
+    rg = weights['right_gate.weight'].to(device=device, dtype=torch.float32)
+    og = weights['out_gate.weight'].to(device=device, dtype=torch.float32)
+
+    # Fused input projection: stack [lp, rp, lg, rg] -> (4*hidden, dim)
+    fused_in = torch.cat([lp, rp, lg, rg], dim=0).contiguous()
+    out_w = weights['to_out.weight'].to(device=device, dtype=torch.float32).contiguous()
+
+    hidden = lp.shape[0]
+    c = {
+        'norm_w': norm_w, 'norm_b': norm_b,
+        'out_norm_w': out_norm_w, 'out_norm_b': out_norm_b,
+        'fused_in': fused_in.t().contiguous(),
+        'og': og.t().contiguous(),
+        'out_w': out_w.t().contiguous(),
+        'hidden': hidden,
+        'dim': lp.shape[1],
+    }
+    _CACHE[key] = c
+    return c
+
+
+def custom_kernel(data):
+    """Fused, cached TriMul forward matching the reference semantics."""
+    input_tensor, mask, weights, config = data
+    device = input_tensor.device
+    c = _get_cached(weights, config, device)
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, dim = x.shape
+    hidden = c['hidden']
+
+    # LayerNorm over last dim
+    x = F.layer_norm(x, (dim,), c['norm_w'], c['norm_b'])
+
+    # Fused input projection -> (bs, S, S, 4*hidden)
+    proj = torch.matmul(x, c['fused_in'])
+    left, right, left_gate, right_gate = torch.split(
+        proj, [hidden, hidden, hidden, hidden], dim=-1)
+
+    out_gate = torch.sigmoid(torch.matmul(x, c['og']))
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+
+    # einsum '... i k d, ... j k d -> ... i j d' via bmm in bf16
+    # left/right: (bs, i/j, k, d). permute to (bs*d, i, k) x (bs*d, k, j)
+    lb = left.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden, seq_len, seq_len)
+    rb = right.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden, seq_len, seq_len)
+    out = torch.bmm(lb, rb.transpose(1, 2))  # (bs*d, i, j)
+    out = out.reshape(bs, hidden, seq_len, seq_len).permute(0, 2, 3, 1).contiguous()
+    out = out.to(torch.float32)
+
+    out = F.layer_norm(out, (hidden,), c['out_norm_w'], c['out_norm_b'])
+    out = out * out_gate
+    out = torch.matmul(out, c['out_w'])
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:43:52 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (15/18)
+00:43:52 WARNING [search.evox] Iteration 16 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (15/18)
+00:44:28 [evaluator] Evaluated program 53e11e52-5df3-4bff-bf30-dac2755b5b59 in 9.59s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:44:28 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+"""
+Optimized TriMul: caches preprocessed weights per-config to avoid redundant
+Parameter creation, fuses the 5 input linear projections into a single matmul,
+applies LayerNorm via F.layer_norm, and runs the heavy outer-product einsum
+in bf16 (matmul over batched i/j) for H100 tensor-core throughput.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, dim, hidden_dim, device):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    on_w = weights['to_out_norm.weight'].to(torch.float32)
+    on_b = weights['to_out_norm.bias'].to(torch.float32)
+
+    # Fuse the 5 input projections: [left_proj, right_proj, left_gate, right_gate, out_gate]
+    # Each is (hidden_dim, dim). Stack into (5*hidden_dim, dim) -> transposed (dim, 5*hidden_dim)
+    lp = weights['left_proj.weight'].to(torch.float32)
+    rp = weights['right_proj.weight'].to(torch.float32)
+    lg = weights['left_gate.weight'].to(torch.float32)
+    rg = weights['right_gate.weight'].to(torch.float32)
+    og = weights['out_gate.weight'].to(torch.float32)
+    fused = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()  # (dim, 5*hidden_dim)
+
+    to_out = weights['to_out.weight'].to(torch.float32).t().contiguous()  # (hidden_dim, dim)
+
+    cached = (norm_w, norm_b, on_w, on_b, fused, to_out, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+    device = input_tensor.device
+
+    norm_w, norm_b, on_w, on_b, fused, to_out, hd = _get_weights(
+        weights, dim, hidden_dim, device
+    )
+
+    x = input_tensor.to(torch.float32)
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection
+    proj = torch.matmul(x, fused)  # (..., 5*hidden_dim)
+    left, right, left_gate, right_gate, out_gate = proj.split(hd, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * left_gate.sigmoid()
+    right = right * m * right_gate.sigmoid()
+    out_gate = out_gate.sigmoid()
+
+    out = torch.einsum(
+        '... i k d, ... j k d -> ... i j d',
+        left.to(torch.bfloat16), right.to(torch.bfloat16)
+    ).to(torch.float32)
+
+    out = F.layer_norm(out, (hd,), on_w, on_b)
+    out = out * out_gate
+    return torch.matmul(out, to_out)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:44:28 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:45:09 [evaluator] Evaluated program a181eb47-aaca-4214-be16-acac7b61d477 in 11.50s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+00:45:09 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+"""
+Optimized TriMul (functional, weight-cached).
+
+Approach:
+  * Cache preprocessed weights keyed by id(weights) so we never re-create
+    nn.Module / nn.Parameter objects on each call.
+  * Fuse the 5 input linear projections (left_proj, right_proj, left_gate,
+    right_gate, out_gate) into a single (dim, 5*hidden) matmul to reduce
+    kernel launches and memory traffic.
+  * LayerNorm via F.layer_norm (fused, fast).
+  * The heavy outer-product einsum is done as a batched matmul in bf16
+    (transpose so contraction dim k is contiguous) for H100 tensor cores,
+    then accumulate back in fp32. Output LayerNorm + gate + projection.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(torch.float32)
+    rp = weights['right_proj.weight'].to(torch.float32)
+    lg = weights['left_gate.weight'].to(torch.float32)
+    rg = weights['right_gate.weight'].to(torch.float32)
+    og = weights['out_gate.weight'].to(torch.float32)
+    hidden = lp.shape[0]
+    # Fused weight: (dim, 5*hidden)
+    fused = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+
+    to_out = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    cached = (norm_w, norm_b, on_w, on_b, fused, to_out, hidden)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """TriMul forward using cached/fused weights and bf16 batched matmul."""
+    input_tensor, mask, weights, config = data
+    norm_w, norm_b, on_w, on_b, fused, to_out, hidden = _get_weights(weights)
+
+    dim = input_tensor.shape[-1]
+    x = input_tensor.to(torch.float32)
+
+    # Input LayerNorm
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Fused projections: (bs, n, n, 5*hidden)
+    proj = x @ fused
+    left, right, left_gate, right_gate, out_gate = proj.split(hidden, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+
+    # einsum '... i k d, ... j k d -> ... i j d'
+    # = for each batch b and feature d: out[i,j] = sum_k L[i,k] * R[j,k]
+    # Rearrange to batched matmul over (b*d) with matrices (i,k)x(k,j)
+    bs, n, _, h = left.shape
+    lb = left.permute(0, 3, 1, 2).reshape(bs * h, n, n).to(torch.bfloat16)
+    rb = right.permute(0, 3, 1, 2).reshape(bs * h, n, n).to(torch.bfloat16)
+    # out[b,d,i,j] = sum_k lb[i,k] * rb[j,k] = lb @ rb^T
+    ob = torch.bmm(lb, rb.transpose(1, 2))
+    out = ob.reshape(bs, h, n, n).permute(0, 2, 3, 1).to(torch.float32).contiguous()
+
+    # Output LayerNorm + gate + projection
+    out = F.layer_norm(out, (hidden,), on_w, on_b)
+    out = out * torch.sigmoid(out_gate)
+    return out @ to_out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:45:09 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:45:44 [evaluator] Evaluated program fe136c63-edd1-47ee-962c-5b8dff62212c in 10.27s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:45:44 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: weight caching + fused input projections + bf16 batched
+matmul for the outer-product einsum.
+
+Approach:
+  * Cache preprocessed weights keyed by id(weights) so Parameters/Modules
+    aren't recreated each call.
+  * Fuse the 5 input linear projections into a single (dim, 5*hidden) matmul
+    to cut kernel launches and memory traffic.
+  * LayerNorm via F.layer_norm. Projections kept in fp32 for accuracy.
+  * The heavy einsum '... i k d, ... j k d -> ... i j d' is reshaped to a
+    batched matmul over feature dim d: for each d, (i,k)@(k,j)->(i,j). Run
+    in bf16 on H100 tensor cores, accumulate result back to fp32.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+    on_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    on_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+
+    lp = weights['left_proj.weight'].to(torch.float32)
+    rp = weights['right_proj.weight'].to(torch.float32)
+    lg = weights['left_gate.weight'].to(torch.float32)
+    rg = weights['right_gate.weight'].to(torch.float32)
+    og = weights['out_gate.weight'].to(torch.float32)
+    hidden = lp.shape[0]
+    # Fused weight (dim, 5*hidden) for x @ fused
+    fused = torch.cat([lp, rp, lg, rg, og], dim=0).t().contiguous()
+
+    to_out = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    cached = (norm_w, norm_b, on_w, on_b, fused, to_out, hidden)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    norm_w, norm_b, on_w, on_b, fused, to_out, hidden = _get_weights(weights)
+
+    x = input_tensor.to(torch.float32)
+    bs, sl, _, _ = x.shape
+
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection
+    proj = torch.matmul(x, fused)  # (bs, sl, sl, 5*hidden)
+    left, right, lg, rg, og = torch.split(proj, hidden, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(lg)
+    right = right * m * torch.sigmoid(rg)
+    out_gate = torch.sigmoid(og)
+
+    # einsum '... i k d, ... j k d -> ... i j d' as batched matmul over d.
+    # left: (bs, i, k, d) -> (bs, d, i, k); right -> (bs, d, j, k) -> (bs, d, k, j)
+    lb = left.permute(0, 3, 1, 2).contiguous().to(torch.bfloat16)   # (bs, d, i, k)
+    rb = right.permute(0, 3, 2, 1).contiguous().to(torch.bfloat16)  # (bs, d, k, j)
+    ob = torch.matmul(lb, rb)  # (bs, d, i, j)
+    out = ob.permute(0, 2, 3, 1).to(torch.float32)  # (bs, i, j, d)
+
+    out = F.layer_norm(out, (hidden,), on_w, on_b)
+    out = out * out_gate
+    return torch.matmul(out, to_out)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:45:44 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (15/18)
+00:45:44 WARNING [search.evox] Iteration 19 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (15/18)
+00:45:44 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=19)
+00:45:44 WARNING [llm] Error on attempt 1/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:45:50 WARNING [llm] Error on attempt 2/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:45:55 WARNING [llm] Error on attempt 3/4: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}. Retrying...
+00:46:00 ERROR [llm] All 4 attempts failed with error: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:46:00 ERROR [default_discovery_manager] LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:46:00 WARNING [default_discovery_manager] Iteration 3 failed: LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:46:00 WARNING [search.evox] Failed to generate search algorithm: LLM generation failed: Error code: 400 - {'error': {'code': 'invalid_request_error', 'message': '`top_p` is deprecated for this model.', 'type': 'invalid_request_error', 'param': None}}
+00:46:52 [evaluator] Evaluated program 2de70ae6-28f2-42d6-9c43-dcf6d3ef4a74 in 25.45s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+00:46:52 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: weight caching to avoid module re-creation, fused
+projection matmul (left/right/left_gate/right_gate/out_gate combined into a
+single GEMM), BF16 batched matmul for the outer-product einsum, and minimal
+memory traffic. Weights are cached per-call-signature so projection tensors
+are pre-concatenated only once.
+"""
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, dim, hidden_dim, device):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+
+    # Concatenate the five [hidden_dim, dim] projection weights so that all
+    # projections are computed in one GEMM: out = x @ W_cat.T
+    w_cat = torch.cat([
+        weights['left_proj.weight'].to(torch.float32),
+        weights['right_proj.weight'].to(torch.float32),
+        weights['left_gate.weight'].to(torch.float32),
+        weights['right_gate.weight'].to(torch.float32),
+        weights['out_gate.weight'].to(torch.float32),
+    ], dim=0).contiguous()  # [5*hidden_dim, dim]
+
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+    to_out_w = weights['to_out.weight'].to(torch.float32).t().contiguous()  # [hidden_dim, dim]
+
+    cached = (norm_w, norm_b, w_cat, out_norm_w, out_norm_b, to_out_w)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+    device = input_tensor.device
+
+    norm_w, norm_b, w_cat, out_norm_w, out_norm_b, to_out_w = _get_weights(
+        weights, dim, hidden_dim, device)
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, _ = x.shape
+
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Single fused projection GEMM -> split into 5 chunks
+    proj = F.linear(x, w_cat)  # [bs, s, s, 5*hidden_dim]
+    left, right, left_gate, right_gate, out_gate = proj.split(hidden_dim, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * left_gate.sigmoid()
+    right = right * m * right_gate.sigmoid()
+    out_gate = out_gate.sigmoid()
+
+    # einsum '... i k d, ... j k d -> ... i j d'
+    # For each d: out[i,j] = sum_k left[i,k] * right[j,k]
+    # Rearrange to batched matmul over (bs*d):
+    # left:  [bs, i, k, d] -> [bs, d, i, k]
+    # right: [bs, j, k, d] -> [bs, d, k, j]
+    lb = left.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len).to(torch.bfloat16)
+    rb = right.permute(0, 3, 2, 1).reshape(bs * hidden_dim, seq_len, seq_len).to(torch.bfloat16)
+    ob = torch.bmm(lb, rb)  # [bs*d, i, j]
+    out = ob.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).to(torch.float32)
+
+    out = F.layer_norm(out, (hidden_dim,), out_norm_w, out_norm_b)
+    out = out * out_gate
+    out = torch.matmul(out, to_out_w)
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:46:52 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+00:47:35 [evaluator] Evaluated program 789a4236-54ef-4a74-82ce-43b3717b958d in 15.47s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+00:47:35 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: weight caching (avoid module/parameter recreation each call),
+single fused GEMM for all 5 projections, BF16 batched matmul for the
+outer-product einsum bottleneck, and reduced fp32 conversions.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights, device):
+    """Cache pre-concatenated projection weights keyed by the weights dict id."""
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+
+    # Concatenate the five [hidden_dim, dim] projection weights -> one GEMM.
+    w_cat = torch.cat([
+        weights['left_proj.weight'].to(torch.float32),
+        weights['right_proj.weight'].to(torch.float32),
+        weights['left_gate.weight'].to(torch.float32),
+        weights['right_gate.weight'].to(torch.float32),
+        weights['out_gate.weight'].to(torch.float32),
+    ], dim=0).t().contiguous()  # [dim, 5*hidden_dim]
+
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+    to_out_w = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    cached = (norm_w, norm_b, w_cat, out_norm_w, out_norm_b, to_out_w, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """Run TriMul with cached weights, fused projection GEMM, BF16 einsum."""
+    input_tensor, mask, weights, config = data
+    x = input_tensor
+
+    (norm_w, norm_b, w_cat, out_norm_w, out_norm_b,
+     to_out_w, hidden_dim) = _get_weights(weights, x.device)
+
+    dim = x.shape[-1]
+
+    # Input LayerNorm
+    x = F.layer_norm(x.to(torch.float32), (dim,), norm_w, norm_b)
+
+    # Fused projections: one GEMM produces all 5 projections.
+    proj = x @ w_cat  # [..., 5*hidden_dim]
+    left, right, left_gate, right_gate, out_gate = proj.split(hidden_dim, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+
+    # Outer-product einsum in BF16 (the bottleneck).
+    out = torch.einsum('... i k d, ... j k d -> ... i j d',
+                       left.to(torch.bfloat16), right.to(torch.bfloat16))
+    out = out.to(torch.float32)
+
+    # Output LayerNorm + gate + projection
+    out = F.layer_norm(out, (hidden_dim,), out_norm_w, out_norm_b)
+    out = out * torch.sigmoid(out_gate)
+    return out @ to_out_w
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:47:35 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+00:48:14 [evaluator] Evaluated program c7e0cfa7-3592-4666-a856-8c68be1afb71 in 14.89s: combined_score=0.0000, pass_rate=0.7778, error=correctness failed (14/18)
+00:48:14 WARNING [default_discovery_manager] Evaluation failed (attempt 3/3): validity=None, error=correctness failed (14/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: weight caching to avoid module recreation each call,
+a single fused GEMM for all 5 projections, and a BF16 batched matmul for the
+outer-product einsum bottleneck. Weights are cached per weights-dict id so the
+concatenated projection weight is built only once.
+"""
+
+import torch
+import torch.nn.functional as F
+
+_CACHE = {}
+
+
+def _get_weights(weights):
+    key = id(weights)
+    cached = _CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    norm_w = weights['norm.weight'].to(torch.float32).contiguous()
+    norm_b = weights['norm.bias'].to(torch.float32).contiguous()
+
+    # Concatenate the five [hidden_dim, dim] projection weights -> one GEMM.
+    w_cat = torch.cat([
+        weights['left_proj.weight'].to(torch.float32),
+        weights['right_proj.weight'].to(torch.float32),
+        weights['left_gate.weight'].to(torch.float32),
+        weights['right_gate.weight'].to(torch.float32),
+        weights['out_gate.weight'].to(torch.float32),
+    ], dim=0).t().contiguous()  # [dim, 5*hidden_dim]
+
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32).contiguous()
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32).contiguous()
+    to_out_w = weights['to_out.weight'].to(torch.float32).t().contiguous()
+
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    cached = (norm_w, norm_b, w_cat, out_norm_w, out_norm_b, to_out_w, hidden_dim)
+    _CACHE[key] = cached
+    return cached
+
+
+def custom_kernel(data):
+    """Run the TriMul forward pass using cached/fused weights."""
+    input_tensor, mask, weights, config = data
+    (norm_w, norm_b, w_cat, out_norm_w, out_norm_b,
+     to_out_w, hidden_dim) = _get_weights(weights)
+
+    x = input_tensor.to(torch.float32)
+    bs, seq_len, _, dim = x.shape
+
+    # LayerNorm over last dim.
+    x = F.layer_norm(x, (dim,), norm_w, norm_b)
+
+    # Fused projection: [bs, s, s, 5*hidden_dim].
+    proj = torch.matmul(x, w_cat)
+    left, right, left_gate, right_gate, out_gate = torch.split(
+        proj, hidden_dim, dim=-1)
+
+    m = mask.unsqueeze(-1)
+    left = left * m * torch.sigmoid(left_gate)
+    right = right * m * torch.sigmoid(right_gate)
+    out_gate = torch.sigmoid(out_gate)
+
+    # einsum '... i k d, ... j k d -> ... i j d' via batched matmul in bf16.
+    # Reorder to [bs, d, i, k] and [bs, d, k, j].
+    lb = left.permute(0, 3, 1, 2).to(torch.bfloat16).contiguous()
+    rb = right.permute(0, 3, 2, 1).to(torch.bfloat16).contiguous()
+    out = torch.matmul(lb, rb)  # [bs, d, i, j]
+    out = out.permute(0, 2, 3, 1).to(torch.float32).contiguous()
+
+    out = F.layer_norm(out, (hidden_dim,), out_norm_w, out_norm_b)
+    out = out * out_gate
+    return torch.matmul(out, to_out_w)
+# EVOLVE-BLOCK-END
+
+--------------------------
+00:48:14 ERROR [default_discovery_manager] All 3 retry attempts failed. Final error: correctness failed (14/18)
+00:48:14 WARNING [search.evox] Iteration 22 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (14/18)
+00:49:42 [evaluator] Evaluated program 348a140e-0766-4060-b8e6-7c35d1be9903 in 62.35s: combined_score=109.1648, geomean_us=9160.4630, pass_rate=1.0000
+00:49:42 [default_discovery_manager] Iteration 25: Program 348a140e-0766-4060-b8e6-7c35d1be9903 (parent: 347892bf-b8b1-4e18-9227-028269c74312) completed in 87.97s
+00:49:42 [default_discovery_manager] [CHECKPOINT] Checkpoint interval reached at iteration 25
+00:49:42 [base_database] Database has 2 programs, best program score is 112.150862
+00:49:42 [search.utils] [CHECKPOINT] Saved database with 2 programs to trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
+00:49:42 [main_controller] [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=112.1509, geomean_us=8916.5610, pass_rate=1.0000
+00:49:42 [main_controller] Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
+00:49:42 [default_discovery_manager] Metrics: combined_score=109.1648, geomean_us=9160.4630, pass_rate=1.0000
+00:49:42 [search.evox] [SOLUTION EVOLUTION] Evolution completed: evox
+00:49:42 [search.utils] [CHECKPOINT] Saved database with 2 programs to trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
+00:49:42 [main_controller] [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=112.1509, geomean_us=8916.5610, pass_rate=1.0000
+00:49:42 [main_controller] Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
+00:49:42 [main_controller] Using tracked best program: 347892bf-b8b1-4e18-9227-028269c74312
+00:49:42 [main_controller] Discovery process complete. Best program has metrics: combined_score=112.1509, geomean_us=8916.5610, pass_rate=1.0000
+00:49:42 [main_controller] Saved best program to trimul/skydiscover_runs/run1/best/best_program.py with program info to trimul/skydiscover_runs/run1/best/best_program_info.json
 Using search algorithm: evox
+Warning: Could not read pyproject.toml (pyproject.toml not found at /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/pyproject.toml), falling back to uv pip list
 
-Discovery complete!
+Discovery process complete!
 Best program metrics:
-  combined_score: 157.4266
-  geomean_us: 6352.1670
+  combined_score: 112.1509
+  geomean_us: 8916.5610
   pass_rate: 1.0000
-  test_combined_score: 160.0481
-  test_geomean_us: 6248.1200
-  test_pass_rate: 1.0000
 
-Latest checkpoint: trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
-To resume: --checkpoint trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
+Latest checkpoint saved at: trimul/skydiscover_runs/run1/checkpoints/checkpoint_25
+To resume, use: --checkpoint trimul/skydiscover_runs/run1/checkpoints/checkpoint_25

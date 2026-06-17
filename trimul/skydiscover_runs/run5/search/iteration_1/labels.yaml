@@ -1,0 +1,69 @@
+iteration: 1
+diverge_label_length: 2753
+refine_label_length: 2432
+
+diverge_label: |
+  ## IMPORTANT: YOU MUST FOLLOW THE FOLLOWING IN YOUR GENERATION, OTHERWISE THE SOLUTION WILL BE REJECTED.
+  
+  ### Goal
+  You MUST USE a FUNDAMENTALLY DIFFERENT APPROACH to the following code, NOT JUST parameter tweaks or local changes.
+  This may mean using different solver, function, or library, a different algorithm, or a different method entirely; or adding new components that have never been used before.
+  You can replace partial or the entire code if needed (i.e., rewrite a simpler solution from scratch), or build upon / complement it.
+  Think through what is needed to achieve a BREAKTHROUGH SCORE.
+  
+  **Tools Available:**
+  You have access to a list of libraries. Use these tools to your advantage.
+  - Choose library functions appropriate to the problem's structure and constraints.
+  - Feel free to break from the existing code entirely — focus on correct library usage for the problem, not on preserving the current code's structure.
+  - **Prioritize libraries and functions not already used by the parent program.** Adding new components or changing how existing ones are combined is fine, but prefer approaches that introduce something the parent has never tried.
+  
+  **CRITICAL: IF A LIBRARY EXISTS FOR AN ALGORITHM, USE IT. DO NOT REIMPLEMENT MANUALLY. SEE THE EXAMPLES BELOW FOR RELEVANT LIBRARIES.**
+  
+  ### Examples
+  EXAMPLES OF DIFFERENT approaches (NOT LIMITED TO, PROPOSE YOUR OWN):
+  - **PyTorch fusion / compilation**: torch.compile(mode='max-autotune') ↔ torch.jit.script ↔ manual op fusion ↔ torch.nn.functional fused LayerNorm/sigmoid ↔ CUDA graphs capture for fixed shapes.
+  - **Einsum/matmul restructuring**: replace einsum with batched bmm/matmul ↔ reshape (i,k,d)→matmul over k ↔ collapse batch+dim dims ↔ einsum_path optimization ↔ contiguous-layout reordering before contraction.
+  - **Custom Triton kernels (if available)**: fused LayerNorm+linear ↔ fused sigmoid-gate+outer-product ↔ tiled masked einsum kernel ↔ fused output LayerNorm+gate+projection ↔ block-wise streaming over seqlen.
+  - **Precision / dtype strategy**: fp16/bf16 compute with fp32 accumulate ↔ TF32 matmul ↔ mixed-precision LayerNorm ↔ autocast regions ↔ keep gates in fp32.
+  - **Memory layout / masking**: apply mask before vs after outer product ↔ pre-multiply mask into projections ↔ channels-last layout ↔ fuse mask into gating ↔ avoid materializing large (i,j,k,d) intermediates.
+  - **Pipeline decomposition**: split per-shape specialized paths (small vs large seqlen) ↔ precompute reusable LayerNorm stats ↔ batch small sequences together ↔ chunk seqlen to fit cache/SRAM.
+  
+  ### Output
+  Your solution MUST still be VALID / CORRECT for the same problem. A broken "creative" solution is worthless.
+  
+  Format:
+  1. APPROACH: Describe your different approach.
+  2. CODE: Implementation.
+
+refine_label: |
+  ## IMPORTANT: YOU MUST FOLLOW THE FOLLOWING IN YOUR GENERATION, OTHERWISE THE SOLUTION WILL BE REJECTED.
+  
+  ### Goal
+  You should keep the same fundamental approach and algorithm structure.
+  DO NOT switch to a different problem formulation.
+  Focus on REFINING / EXPLOITING the current approach: better inputs, additional polish, etc.
+  Think through what is needed to SQUEEZE the last few percent of performance.
+  Use sufficient computational budget for refinement.
+  
+  **Tools Available:**
+  You have access to a list of libraries. Use these tools to your advantage.
+  - Choose library functions appropriate to the problem's structure and constraints.
+  - Feel free to break from the existing code entirely — focus on correct library usage for the problem, not on preserving the current code's structure.
+  
+  **CRITICAL: IF A LIBRARY EXISTS FOR AN ALGORITHM, USE IT. DO NOT REIMPLEMENT MANUALLY. SEE THE EXAMPLES BELOW FOR RELEVANT LIBRARIES.**
+  
+  ### Examples
+  EXAMPLES OF REFINEMENT strategies (NOT LIMITED TO, PROPOSE YOUR OWN):
+  - **Libraries / tools for refinement**: torch.compile(mode='max-autotune' / 'reduce-overhead') ↔ CUDA graph capture for repeated shapes ↔ torch.backends.cuda.matmul.allow_tf32=True ↔ torch.backends.cudnn.benchmark=True ↔ fused F.layer_norm.
+  - **Compile / autotune knobs**: try fullgraph=True, dynamic=False per-shape specialization ↔ warmup runs to trigger autotuning ↔ cache compiled artifacts across shapes ↔ enable epilogue fusion.
+  - **Precision tuning**: cast inputs to bf16/fp16 while keeping LayerNorm/gate accumulation in fp32 to stay within correctness tolerance ↔ TF32 for matmuls ↔ minimize redundant casts.
+  - **Memory / intermediate reduction**: fuse mask multiply into projections ↔ reuse buffers in-place ↔ ensure contiguous/channels-last before matmul ↔ avoid large transposes ↔ collapse batch dims for fewer kernel launches.
+  - **Launch-overhead reduction**: merge elementwise ops (sigmoid-gate, mask, residual) into single fused passes ↔ minimize host-device syncs ↔ pre-allocate output tensors ↔ batch tiny sequences to amortize overhead.
+  - **Tiling / block sizes (if Triton path)**: tune BLOCK_K/BLOCK_D, num_warps, num_stages over seqlen ranges ↔ pick best per-shape config via autotune decorator.
+  
+  ### Output
+  Your solution MUST still be VALID / CORRECT for the same problem. A broken solution is worthless.
+  
+  Format:
+  1. REFINEMENT: Describe what you are refining.
+  2. CODE: Implementation with refinement.

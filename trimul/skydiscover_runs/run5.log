@@ -1,0 +1,875 @@
+07:31:11 [search.utils] Logging to trimul/skydiscover_runs/run5/logs/evox_20260617_073111.log
+07:31:14 [main_controller] Set random seed to 42 for reproducibility
+07:31:14 [main_controller] Initialized discovery process with search strategy = evox and initial program = trimul/starting_point.py
+07:31:16 [llm] Initialized Anthropic LLM with model: claude-opus-4-8
+07:31:16 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+07:31:16 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+07:31:16 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+07:31:16 [prompt] Initialized default context builder
+07:31:16 [prompt] Set custom templates: system=evaluator_system_message, user=None
+07:31:16 [evaluator] Initialized evaluator with trimul/skydiscover_evaluator.py
+07:31:16 [default_discovery_manager] DiscoveryManager initialized: num_inspirations=4
+07:31:17 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+07:31:17 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+07:31:17 [llm] Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+07:31:17 [prompt] Set custom templates: system=evaluator_system_message, user=None
+07:31:17 [evaluator] Initialized evaluator with /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+07:31:17 [default_discovery_manager] DiscoveryManager initialized: num_inspirations=4
+07:31:17 [search.evox] ======================================================================
+07:31:17 [search.evox] [EVOX CO-EVOLUTION SETUP]
+07:31:17 [search.evox] ----------------------------------------------------------------------
+07:31:17 [search.evox]   [SOLUTION EVOLUTION]
+07:31:17 [search.evox]     Initial search strategy file : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
+07:31:17 [search.evox]     Solution database class      : EvolvedProgramDatabase
+07:31:17 [search.evox]   [META EVOLUTION OF SEARCH STRATEGY]
+07:31:17 [search.evox]     Search strategy database class: TopKDatabase
+07:31:17 [search.evox]     Search strategy evaluator     : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+07:31:17 [search.evox]     Search strategy config        : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/config/search.yaml
+07:31:17 [search.evox] ======================================================================
+07:31:17 [main_controller] Adding initial program to database
+07:31:31 [evaluator] Evaluated program a8ab27a6-00ac-4bf6-82b9-a90860cc19c7 in 14.10s: combined_score=91.5701, geomean_us=10920.5980, pass_rate=1.0000
+07:31:31 [base_database] Database has 1 programs, best program score is 91.570077
+07:31:31 [search.evox] Switch if 2 iterations of stagnation detected
+07:31:31 [search.evox] Label generation: using guide_model = [claude-opus-4-8]
+07:32:00 [search.evox] Generated variation operator labels (2753/2432 chars)
+07:32:24 [evaluator] Evaluated program 2de33dfe-002f-4e26-99f9-882fb854f87f in 4.89s: combined_score=0.0000, pass_rate=0.0000, error=correctness failed (0/18)
+07:32:24 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (0/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        batch_size, seq_len, _, dim = x.shape
+
+        x = self.norm(x)
+
+        # Fuse all five input projections into a single matmul for better GPU utilization
+        # combined weight: [5*hidden_dim, dim]
+        combined = torch.nn.functional.linear(x, self._fused_w)
+        hd = self.left_proj.weight.shape[0]
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1)
+
+        left = left * mask * torch.sigmoid(left_gate)
+        right = right * mask * torch.sigmoid(right_gate)
+
+        # einsum '... i k d, ... j k d -> ... i j d'
+        # = for each d (channel): out[i,j] = sum_k left[i,k] * right[j,k]
+        # reshape to batched matmul: move d to batch dimension
+        # left: (b, i, k, d) -> (b, d, i, k); right: (b, j, k, d) -> (b, d, k, j)
+        lb = left.permute(0, 3, 1, 2).to(torch.bfloat16).contiguous()
+        rb = right.permute(0, 3, 2, 1).to(torch.bfloat16).contiguous()
+        out = torch.matmul(lb, rb)  # (b, d, i, j)
+        out = out.permute(0, 2, 3, 1).to(torch.float32)  # (b, i, j, d)
+
+
+=======
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    # Pre-fuse the five input projection weights into one matrix to reduce kernel launches.
+    # Order must match the split in forward: left, right, left_gate, right_gate, out_gate
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+07:32:24 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+07:32:50 [evaluator] Evaluated program 9def499c-c19d-4071-9af9-e05d3656f8c0 in 11.85s: combined_score=91.5151, geomean_us=10927.1560, pass_rate=1.0000
+07:32:50 [default_discovery_manager] Iteration 1: Program 9def499c-c19d-4071-9af9-e05d3656f8c0 (parent: a8ab27a6-00ac-4bf6-82b9-a90860cc19c7) completed in 50.96s
+07:32:50 [default_discovery_manager] Metrics: combined_score=91.5151, geomean_us=10927.1560, pass_rate=1.0000
+07:33:13 [evaluator] Evaluated program 6fe4f629-81ba-41d1-924c-bbff2b07c120 in 12.02s: combined_score=90.3611, geomean_us=11066.7050, pass_rate=1.0000
+07:33:13 [default_discovery_manager] Iteration 3: Program 6fe4f629-81ba-41d1-924c-bbff2b07c120 (parent: 9def499c-c19d-4071-9af9-e05d3656f8c0) completed in 22.79s
+07:33:13 [default_discovery_manager] Metrics: combined_score=90.3611, geomean_us=11066.7050, pass_rate=1.0000
+07:33:37 [evaluator] Evaluated program 61e7ee64-81a0-4e00-a8a4-42fd9357afed in 12.06s: combined_score=89.9181, geomean_us=11121.2330, pass_rate=1.0000
+07:33:37 [default_discovery_manager] Iteration 4: Program 61e7ee64-81a0-4e00-a8a4-42fd9357afed (parent: a8ab27a6-00ac-4bf6-82b9-a90860cc19c7) completed in 24.03s
+07:33:37 [default_discovery_manager] Metrics: combined_score=89.9181, geomean_us=11121.2330, pass_rate=1.0000
+07:33:37 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=4)
+07:33:37 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=91.570077, end=91.570077, horizon=2
+07:34:01 [evaluator] Evaluated program f4da8b0a-c4d2-48fc-b815-d277f7124fc6 in 0.02s: validity=1.0000, combined_score=0.0000
+07:34:01 [search.evox] Saved labels to trimul/skydiscover_runs/run5/search/iteration_1/labels.yaml (2753/2432 chars)
+07:34:01 [search.evox] New search algorithm generated (iteration 1) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_1 (score pending)
+07:34:01 [search.evox] Switched to search algorithm f4da8b0a-c4d2-48fc-b815-d277f7124fc6 (4 programs migrated)
+07:34:28 [evaluator] Evaluated program fb6581ec-97ad-4a9d-abb6-b21c3a8c1532 in 11.66s: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+07:34:28 [default_discovery_manager] Iteration 5: Program fb6581ec-97ad-4a9d-abb6-b21c3a8c1532 (parent: a8ab27a6-00ac-4bf6-82b9-a90860cc19c7) completed in 26.14s
+07:34:28 [default_discovery_manager] [CHECKPOINT] Checkpoint interval reached at iteration 5
+07:34:28 [base_database] Database has 5 programs, best program score is 116.189482
+07:34:28 [search.utils] [CHECKPOINT] Saved database with 5 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_5
+07:34:28 [main_controller] [CHECKPOINT] Saved best program at checkpoint 5 with metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+07:34:28 [main_controller] Saved checkpoint at iteration 5 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_5
+07:34:28 [default_discovery_manager] Metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+07:34:28 [default_discovery_manager] 🌟 New best solution found at iteration 5
+07:34:51 [evaluator] Evaluated program f9a2fddd-734d-4a14-aa69-5d73e557e5c8 in 8.08s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+07:34:51 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: fp32 LayerNorm, bf16 combined projection matmul for all
+        5 projections, fused mask+sigmoid gating in bf16, bf16 outer-product
+        einsum, fp32 output norm + gate, bf16 output projection."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+        xb = x.to(torch.bfloat16)
+
+        combined = torch.nn.functional.linear(xb, self._fused_w_bf16)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        m = mask.unsqueeze(-1).to(torch.bfloat16)
+        left = (left * m).mul_(torch.sigmoid(left_gate))
+        right = (right * m).mul_(torch.sigmoid(right_gate))
+
+        out = einsum('... i k d, ... j k d -> ... i j d',
+                     left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate.to(torch.float32)))
+        return torch.nn.functional.linear(out.to(torch.bfloat16),
+                                          self._to_out_w_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_w_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+07:34:51 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+07:35:14 [evaluator] Evaluated program 37f4ab45-5f38-4ee7-b38e-4f0486dfc287 in 7.43s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+07:35:14 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: fp32 LayerNorm, bf16 combined projection matmul for all
+        5 projections (tensor-core fp32 accumulation), fused mask+sigmoid gating,
+        bf16 outer-product einsum, fp32 output norm + gate, fp32 output proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+
+        # Heavy projection in bf16 (scales with seqlen^2 * dim * 5*hidden).
+        combined = torch.nn.functional.linear(x.to(torch.bfloat16), self._fused_w_bf16)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1).to(torch.bfloat16)
+        left = (left * mask).mul_(torch.sigmoid(left_gate.float()).to(torch.bfloat16))
+        right = (right * mask).mul_(torch.sigmoid(right_gate.float()).to(torch.bfloat16))
+
+        out = einsum('... i k d, ... j k d -> ... i j d', left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate.float()))
+        return self.to_out(out)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+07:35:14 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+07:35:43 [evaluator] Evaluated program 40c15d64-fe76-4da3-ae5b-bb127454098c in 12.11s: combined_score=104.1944, geomean_us=9597.4470, pass_rate=1.0000
+07:35:43 [default_discovery_manager] Iteration 6: Program 40c15d64-fe76-4da3-ae5b-bb127454098c (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 75.56s
+07:35:43 [default_discovery_manager] Metrics: combined_score=104.1944, geomean_us=9597.4470, pass_rate=1.0000
+07:36:14 [evaluator] Evaluated program c3039a94-aa12-43c9-9a50-78f4bf79a8cc in 13.51s: combined_score=107.1595, geomean_us=9331.8800, pass_rate=1.0000
+07:36:14 [default_discovery_manager] Iteration 9: Program c3039a94-aa12-43c9-9a50-78f4bf79a8cc (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 30.40s
+07:36:14 [default_discovery_manager] Metrics: combined_score=107.1595, geomean_us=9331.8800, pass_rate=1.0000
+07:36:14 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=9)
+07:36:14 [search.evox] Search strategy score: combined=96.233863, improvement=24.619405, start=91.570077, end=116.189482, horizon=2
+07:36:14 [search.evox] New best search score: 96.233863 (+96.233863)
+07:36:37 [evaluator] Evaluated program ea5c420c-d3d5-4014-b07d-62cac51982ba in 0.01s: validity=1.0000, combined_score=0.0000
+07:36:37 [search.evox] New search algorithm generated (iteration 2) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_2 (score pending)
+07:36:37 [search.evox] Switched to search algorithm ea5c420c-d3d5-4014-b07d-62cac51982ba (7 programs migrated)
+07:37:01 [evaluator] Evaluated program 488112a7-876c-44f9-8c8c-82d16703a795 in 9.22s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+07:37:01 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: fp32 LayerNorm, bf16 combined projection (tensor cores,
+        fp32 accum), fused mask+sigmoid gating in fp32, bf16 outer-product
+        einsum, fp32 out norm/gate, bf16 output projection."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+        xb = x.to(torch.bfloat16)
+
+        combined = torch.nn.functional.linear(xb, self._fused_w_bf16).to(torch.float32)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        out = einsum('... i k d, ... j k d -> ... i j d',
+                     left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+07:37:01 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+07:37:21 [evaluator] Evaluated program b31508b7-8fc7-4144-9da6-b993923a54a7 in 7.72s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+07:37:21 WARNING [default_discovery_manager] Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: single combined matmul for all 5 projections,
+        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+        xb = x.to(torch.bfloat16)
+
+        combined = torch.nn.functional.linear(xb, self._fused_w_bf16).to(torch.float32)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        out = einsum('... i k d, ... j k d -> ... i j d',
+                     left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+07:37:21 [default_discovery_manager] Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+07:37:42 [evaluator] Evaluated program 8b303654-4c88-4cf9-a525-0b13fdae051c in 11.15s: combined_score=112.1483, geomean_us=8916.7680, pass_rate=1.0000
+07:37:42 [default_discovery_manager] Iteration 10: Program 8b303654-4c88-4cf9-a525-0b13fdae051c (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 65.00s
+07:37:42 [default_discovery_manager] [CHECKPOINT] Checkpoint interval reached at iteration 10
+07:37:42 [base_database] Database has 8 programs, best program score is 116.189482
+07:37:42 [search.utils] [CHECKPOINT] Saved database with 8 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_10
+07:37:42 [main_controller] [CHECKPOINT] Saved best program at checkpoint 10 with metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+07:37:42 [main_controller] Saved checkpoint at iteration 10 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_10
+07:37:42 [default_discovery_manager] Metrics: combined_score=112.1483, geomean_us=8916.7680, pass_rate=1.0000
+07:38:04 [evaluator] Evaluated program 16210204-8abb-4fbd-8e22-6b0e402efd0e in 11.94s: combined_score=113.0434, geomean_us=8846.1590, pass_rate=1.0000
+07:38:04 [default_discovery_manager] Iteration 13: Program 16210204-8abb-4fbd-8e22-6b0e402efd0e (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 22.19s
+07:38:04 [default_discovery_manager] Metrics: combined_score=113.0434, geomean_us=8846.1590, pass_rate=1.0000
+07:38:04 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=13)
+07:38:04 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=116.189482, end=116.189482, horizon=2
+07:38:23 [evaluator] Evaluated program f719ba4a-604b-45d4-b56b-0f1e1d0a6890 in 0.01s: validity=1.0000, combined_score=0.0000
+07:38:23 [search.evox] New search algorithm generated (iteration 3) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_3 (score pending)
+07:38:23 [search.evox] Switched to search algorithm f719ba4a-604b-45d4-b56b-0f1e1d0a6890 (9 programs migrated)
+07:38:50 [evaluator] Evaluated program ab3fbe53-fd33-4a69-b7b2-005d1510d008 in 11.16s: combined_score=112.3146, geomean_us=8903.5620, pass_rate=1.0000
+07:38:50 [default_discovery_manager] Iteration 14: Program ab3fbe53-fd33-4a69-b7b2-005d1510d008 (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 26.93s
+07:38:50 [default_discovery_manager] Metrics: combined_score=112.3146, geomean_us=8903.5620, pass_rate=1.0000
+07:39:13 [evaluator] Evaluated program 76b6be7d-f562-4774-a878-726535110060 in 12.83s: combined_score=112.6245, geomean_us=8879.0630, pass_rate=1.0000
+07:39:13 [default_discovery_manager] Iteration 15: Program 76b6be7d-f562-4774-a878-726535110060 (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 22.88s
+07:39:13 [default_discovery_manager] [CHECKPOINT] Checkpoint interval reached at iteration 15
+07:39:13 [base_database] Database has 11 programs, best program score is 116.189482
+07:39:13 [search.utils] [CHECKPOINT] Saved database with 11 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_15
+07:39:13 [main_controller] [CHECKPOINT] Saved best program at checkpoint 15 with metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+07:39:13 [main_controller] Saved checkpoint at iteration 15 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_15
+07:39:13 [default_discovery_manager] Metrics: combined_score=112.6245, geomean_us=8879.0630, pass_rate=1.0000
+07:39:13 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=15)
+07:39:13 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=116.189482, end=116.189482, horizon=2
+07:39:33 [evaluator] Evaluated program f90838ec-0727-41ec-8a05-76925e208559 in 0.01s: validity=1.0000, combined_score=0.0000
+07:39:33 [search.evox] New search algorithm generated (iteration 4) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_4 (score pending)
+07:39:33 [search.evox] Switched to search algorithm f90838ec-0727-41ec-8a05-76925e208559 (11 programs migrated)
+07:39:51 [evaluator] Evaluated program 1285b3be-c029-4e5d-962f-5a61d79bb2bf in 10.97s: combined_score=111.9992, geomean_us=8928.6350, pass_rate=1.0000
+07:39:51 [default_discovery_manager] Iteration 16: Program 1285b3be-c029-4e5d-962f-5a61d79bb2bf (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 18.68s
+07:39:51 [default_discovery_manager] Metrics: combined_score=111.9992, geomean_us=8928.6350, pass_rate=1.0000
+07:40:14 [evaluator] Evaluated program be13c24e-7919-4ee1-ab18-5abf1bbfbf06 in 12.24s: combined_score=112.2559, geomean_us=8908.2180, pass_rate=1.0000
+07:40:14 [default_discovery_manager] Iteration 17: Program be13c24e-7919-4ee1-ab18-5abf1bbfbf06 (parent: 16210204-8abb-4fbd-8e22-6b0e402efd0e) completed in 22.21s
+07:40:14 [default_discovery_manager] Metrics: combined_score=112.2559, geomean_us=8908.2180, pass_rate=1.0000
+07:40:14 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=17)
+07:40:14 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=116.189482, end=116.189482, horizon=2
+07:40:31 [evaluator] Evaluated program 63275b40-274f-4c8d-ac90-f64b2eb4ada5 in 0.01s: validity=1.0000, combined_score=0.0000
+07:40:31 [search.evox] New search algorithm generated (iteration 5) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_5 (score pending)
+07:40:31 [search.evox] Switched to search algorithm 63275b40-274f-4c8d-ac90-f64b2eb4ada5 (13 programs migrated)
+07:40:51 [evaluator] Evaluated program e4101376-6b69-4303-9d4a-a30bc342eb5a in 10.65s: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+07:40:51 [default_discovery_manager] Iteration 18: Program e4101376-6b69-4303-9d4a-a30bc342eb5a (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 19.77s
+07:40:51 [default_discovery_manager] Metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+07:40:51 [default_discovery_manager] 🌟 New best solution found at iteration 18
+07:41:16 [evaluator] Evaluated program 1016e9c0-2b1e-4694-bc6d-0e4352c8f8f5 in 12.87s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+07:41:16 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: single combined matmul for all 5 projections,
+        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+
+        combined = torch.nn.functional.linear(x, self._fused_w)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        b, n, _, _ = x.shape
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        out = einsum('b i k d, b j k d -> b i j d', left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+07:41:16 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+07:41:41 [evaluator] Evaluated program 92931c54-8faf-4d9b-bc50-bd759e0a4fb4 in 12.55s: combined_score=112.4947, geomean_us=8889.3060, pass_rate=1.0000
+07:41:41 [default_discovery_manager] Iteration 19: Program 92931c54-8faf-4d9b-bc50-bd759e0a4fb4 (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 50.25s
+07:41:41 [default_discovery_manager] Metrics: combined_score=112.4947, geomean_us=8889.3060, pass_rate=1.0000
+07:41:59 [evaluator] Evaluated program 5f414ea8-8cba-4fca-9b49-18a60f7d0416 in 10.50s: combined_score=112.1581, geomean_us=8915.9850, pass_rate=1.0000
+07:41:59 [default_discovery_manager] Iteration 21: Program 5f414ea8-8cba-4fca-9b49-18a60f7d0416 (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 17.74s
+07:41:59 [default_discovery_manager] Metrics: combined_score=112.1581, geomean_us=8915.9850, pass_rate=1.0000
+07:41:59 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=21)
+07:41:59 [search.evox] Search strategy score: combined=2.497624, improvement=0.612821, start=116.189482, end=116.802303, horizon=2
+07:41:59 [base_database] Database has 6 programs, best program score is 96.233863
+07:42:18 [evaluator] Evaluated program 80777ce7-34b9-46ee-9487-6e1a3f719004 in 0.01s: validity=1.0000, combined_score=0.0000
+07:42:18 [search.evox] New search algorithm generated (iteration 6) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_6 (score pending)
+07:42:18 [search.evox] Switched to search algorithm 80777ce7-34b9-46ee-9487-6e1a3f719004 (16 programs migrated)
+07:42:43 [evaluator] Evaluated program b2eed676-b231-4d56-9cff-2efc0c76a24b in 9.49s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+07:42:43 WARNING [default_discovery_manager] Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: single combined matmul for all 5 projections,
+        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+
+        combined = torch.nn.functional.linear(x.to(torch.bfloat16), self._fused_w_bf16).float()
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        b, n, _, _ = x.shape
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        d = left.shape[-1]
+        lb = left.permute(0, 3, 1, 2).reshape(b * d, n, n)
+        rb = right.permute(0, 3, 2, 1).reshape(b * d, n, n)
+        out = torch.bmm(lb, rb).reshape(b, d, n, n).permute(0, 2, 3, 1).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+07:42:43 [default_discovery_manager] Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+07:43:08 [evaluator] Evaluated program 94b6c22b-05cd-4a85-ba1d-575d496814ac in 12.44s: combined_score=115.8024, geomean_us=8635.3990, pass_rate=1.0000
+07:43:08 [default_discovery_manager] Iteration 22: Program 94b6c22b-05cd-4a85-ba1d-575d496814ac (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 50.06s
+07:43:08 [default_discovery_manager] Metrics: combined_score=115.8024, geomean_us=8635.3990, pass_rate=1.0000
+07:43:35 [evaluator] Evaluated program dce1cafa-b643-4915-8139-2cd25ac556ad in 14.25s: combined_score=110.2688, geomean_us=9068.7510, pass_rate=1.0000
+07:43:35 [default_discovery_manager] Iteration 24: Program dce1cafa-b643-4915-8139-2cd25ac556ad (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 26.28s
+07:43:35 [default_discovery_manager] Metrics: combined_score=110.2688, geomean_us=9068.7510, pass_rate=1.0000
+07:43:35 [search.evox] Stagnation detected -> evolving search strategy (solution_iter=24)
+07:43:35 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=116.802303, end=116.802303, horizon=2
+07:43:57 [evaluator] Evaluated program bbbf6e10-04dd-49d6-85e4-9ace15d6db29 in 0.01s: validity=1.0000, combined_score=0.0000
+07:43:57 [search.evox] New search algorithm generated (iteration 7) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_7 (score pending)
+07:43:57 [search.evox] Switched to search algorithm bbbf6e10-04dd-49d6-85e4-9ace15d6db29 (18 programs migrated)
+07:44:21 [evaluator] Evaluated program 21e9f77c-b2f3-4511-ac69-84bfffcd2171 in 11.72s: combined_score=112.0833, geomean_us=8921.9330, pass_rate=1.0000
+07:44:21 [default_discovery_manager] Iteration 25: Program 21e9f77c-b2f3-4511-ac69-84bfffcd2171 (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 24.41s
+07:44:21 [default_discovery_manager] [CHECKPOINT] Checkpoint interval reached at iteration 25
+07:44:21 [base_database] Database has 19 programs, best program score is 116.802303
+07:44:22 [search.utils] [CHECKPOINT] Saved database with 19 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+07:44:22 [main_controller] [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+07:44:22 [main_controller] Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+07:44:22 [default_discovery_manager] Metrics: combined_score=112.0833, geomean_us=8921.9330, pass_rate=1.0000
+07:44:22 [search.evox] Search strategy score: combined=0.000000, improvement=0.000000, start=116.802303, end=116.802303, horizon=2
+07:44:22 [search.evox] [SOLUTION EVOLUTION] Evolution completed: evox
+07:44:23 [search.utils] [CHECKPOINT] Saved database with 19 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+07:44:23 [main_controller] [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+07:44:23 [main_controller] Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+07:44:23 [main_controller] Using tracked best program: e4101376-6b69-4303-9d4a-a30bc342eb5a
+07:44:23 [main_controller] Discovery process complete. Best program has metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+07:44:23 [main_controller] Saved best program to trimul/skydiscover_runs/run5/best/best_program.py with program info to trimul/skydiscover_runs/run5/best/best_program_info.json
+Using search algorithm: evox
+Warning: Could not read pyproject.toml (pyproject.toml not found at /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/pyproject.toml), falling back to uv pip list
+
+Discovery process complete!
+Best program metrics:
+  combined_score: 116.8023
+  geomean_us: 8561.4750
+  pass_rate: 1.0000
+
+Latest checkpoint saved at: trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+To resume, use: --checkpoint trimul/skydiscover_runs/run5/checkpoints/checkpoint_25

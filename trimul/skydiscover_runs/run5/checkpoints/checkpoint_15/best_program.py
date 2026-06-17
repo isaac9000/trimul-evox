@@ -9,6 +9,10 @@ import triton
 import triton.language as tl
 
 
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
 @triton.jit
 def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
     pid = tl.program_id(0)
@@ -36,30 +40,24 @@ class TriMul(nn.Module):
         self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
 
     def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-        batch_size, seq_len, _, dim = x.shape
+        """Fused TriMul: single combined matmul for all 5 projections,
+        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
+        hd = self.left_proj.weight.shape[0]
 
         x = self.norm(x)
-        x = x.to(torch.float32)
 
-        left = self.left_proj(x.to(torch.float32))
-        right = self.right_proj(x.to(torch.float32))
+        combined = torch.nn.functional.linear(x, self._fused_w)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
 
         mask = mask.unsqueeze(-1)
-        left = left * mask
-        right = right * mask
+        left = (left * mask).mul_(torch.sigmoid(left_gate))
+        right = (right * mask).mul_(torch.sigmoid(right_gate))
 
-        left_gate = self.left_gate(x.to(torch.float32)).sigmoid()
-        right_gate = self.right_gate(x.to(torch.float32)).sigmoid()
-        out_gate = self.out_gate(x.to(torch.float32)).sigmoid()
+        out = einsum('... i k d, ... j k d -> ... i j d',
+                     left.to(torch.bfloat16), right.to(torch.bfloat16)).to(torch.float32)
 
-        left = left * left_gate
-        right = right * right_gate
-
-        out = einsum('... i k d, ... j k d -> ... i j d', left.to(torch.bfloat16), right.to(torch.bfloat16))
-
-        out = out.to(torch.float32)
         out = self.to_out_norm(out)
-        out = out * out_gate
+        out = out.mul_(torch.sigmoid(out_gate))
         return self.to_out(out)
 
 
@@ -78,7 +76,16 @@ def custom_kernel(data):
     trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
     trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
 
-    output = trimul(input_tensor, mask).to(torch.float32)
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
 
     return output
 # EVOLVE-BLOCK-END

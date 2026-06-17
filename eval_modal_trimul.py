@@ -318,13 +318,6 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
             "platform": "modal-h100",
         })
 
-    # ── Warmup: 3 kernel calls to trigger compilation ────────────────────────
-
-    wdata = generate_input(**BENCHMARK_CASES[0])
-    for _ in range(3):
-        custom_kernel(wdata)
-        torch.cuda.synchronize()
-
     # ── Benchmarks ───────────────────────────────────────────────────────────
 
     ctx = torch.no_grad() if BENCH_NO_GRAD else contextlib.nullcontext()
@@ -362,6 +355,12 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
 
         # Regenerate fresh data for timed runs
         data = generate_input(**bench_args)
+
+        # Per-shape warmup: ensures torch.compile/Triton is fully warm
+        # for this specific shape with these exact tensor addresses before timing
+        for _ in range(3):
+            custom_kernel(data)
+            torch.cuda.synchronize()
 
         durations_ns = []
         bm_start = time.perf_counter_ns()

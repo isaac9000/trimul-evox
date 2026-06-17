@@ -1,0 +1,931 @@
+2026-06-17 07:31:11,198 - skydiscover.search.utils.logging_utils - INFO - Logging to trimul/skydiscover_runs/run5/logs/evox_20260617_073111.log
+2026-06-17 07:31:14,584 - skydiscover.search.main_controller - INFO - Set random seed to 42 for reproducibility
+2026-06-17 07:31:14,669 - skydiscover.search.main_controller - INFO - Initialized discovery process with search strategy = evox and initial program = trimul/starting_point.py
+2026-06-17 07:31:16,653 - skydiscover.llm - INFO - Initialized Anthropic LLM with model: claude-opus-4-8
+2026-06-17 07:31:16,655 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+2026-06-17 07:31:16,678 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+2026-06-17 07:31:16,697 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+2026-06-17 07:31:16,797 - skydiscover.prompt.default.prompt - INFO - Initialized default context builder
+2026-06-17 07:31:16,971 - skydiscover.prompt.default.prompt - INFO - Set custom templates: system=evaluator_system_message, user=None
+2026-06-17 07:31:16,997 - skydiscover.evaluation.evaluator - INFO - Initialized evaluator with trimul/skydiscover_evaluator.py
+2026-06-17 07:31:16,999 - skydiscover.search.default_discovery_manager - INFO - DiscoveryManager initialized: num_inspirations=4
+2026-06-17 07:31:17,074 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+2026-06-17 07:31:17,094 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+2026-06-17 07:31:17,127 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-opus-4-8 (weight: 1.00)
+2026-06-17 07:31:17,284 - skydiscover.prompt.default.prompt - INFO - Set custom templates: system=evaluator_system_message, user=None
+2026-06-17 07:31:17,329 - skydiscover.evaluation.evaluator - INFO - Initialized evaluator with /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+2026-06-17 07:31:17,336 - skydiscover.search.default_discovery_manager - INFO - DiscoveryManager initialized: num_inspirations=4
+2026-06-17 07:31:17,340 - skydiscover.search.evox.coevolve_manager - INFO - ======================================================================
+2026-06-17 07:31:17,343 - skydiscover.search.evox.coevolve_manager - INFO - [EVOX CO-EVOLUTION SETUP]
+2026-06-17 07:31:17,347 - skydiscover.search.evox.coevolve_manager - INFO - ----------------------------------------------------------------------
+2026-06-17 07:31:17,348 - skydiscover.search.evox.coevolve_manager - INFO -   [SOLUTION EVOLUTION]
+2026-06-17 07:31:17,349 - skydiscover.search.evox.coevolve_manager - INFO -     Initial search strategy file : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
+2026-06-17 07:31:17,350 - skydiscover.search.evox.coevolve_manager - INFO -     Solution database class      : EvolvedProgramDatabase
+2026-06-17 07:31:17,352 - skydiscover.search.evox.coevolve_manager - INFO -   [META EVOLUTION OF SEARCH STRATEGY]
+2026-06-17 07:31:17,354 - skydiscover.search.evox.coevolve_manager - INFO -     Search strategy database class: TopKDatabase
+2026-06-17 07:31:17,355 - skydiscover.search.evox.coevolve_manager - INFO -     Search strategy evaluator     : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+2026-06-17 07:31:17,357 - skydiscover.search.evox.coevolve_manager - INFO -     Search strategy config        : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/config/search.yaml
+2026-06-17 07:31:17,358 - skydiscover.search.evox.coevolve_manager - INFO - ======================================================================
+2026-06-17 07:31:17,365 - skydiscover.search.main_controller - INFO - Adding initial program to database
+2026-06-17 07:31:17,367 - root - INFO - Evaluating program a8ab27a6-00ac-4bf6-82b9-a90860cc19c7
+2026-06-17 07:31:31,467 - skydiscover.evaluation.evaluator - INFO - Evaluated program a8ab27a6-00ac-4bf6-82b9-a90860cc19c7 in 14.10s: combined_score=91.5701, geomean_us=10920.5980, pass_rate=1.0000
+2026-06-17 07:31:31,470 - skydiscover.search.route - INFO - Using search strategy from: /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
+2026-06-17 07:31:31,487 - skydiscover.search.base_database - INFO - Database has 1 programs, best program score is 91.570077
+2026-06-17 07:31:31,489 - skydiscover.search.evox.coevolve_manager - INFO - Switch if 2 iterations of stagnation detected
+2026-06-17 07:31:31,534 - skydiscover.search.evox.coevolve_manager - INFO - Label generation: using guide_model = [claude-opus-4-8]
+2026-06-17 07:31:59,995 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:32:00,014 - skydiscover.search.evox.coevolve_manager - INFO - Generated variation operator labels (2753/2432 chars)
+2026-06-17 07:32:19,183 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:32:19,193 - root - INFO - Evaluating program 2de33dfe-002f-4e26-99f9-882fb854f87f
+2026-06-17 07:32:24,081 - skydiscover.evaluation.evaluator - INFO - Evaluated program 2de33dfe-002f-4e26-99f9-882fb854f87f in 4.89s: combined_score=0.0000, pass_rate=0.0000, error=correctness failed (0/18)
+2026-06-17 07:32:24,082 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (0/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        batch_size, seq_len, _, dim = x.shape
+
+        x = self.norm(x)
+
+        # Fuse all five input projections into a single matmul for better GPU utilization
+        # combined weight: [5*hidden_dim, dim]
+        combined = torch.nn.functional.linear(x, self._fused_w)
+        hd = self.left_proj.weight.shape[0]
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1)
+
+        left = left * mask * torch.sigmoid(left_gate)
+        right = right * mask * torch.sigmoid(right_gate)
+
+        # einsum '... i k d, ... j k d -> ... i j d'
+        # = for each d (channel): out[i,j] = sum_k left[i,k] * right[j,k]
+        # reshape to batched matmul: move d to batch dimension
+        # left: (b, i, k, d) -> (b, d, i, k); right: (b, j, k, d) -> (b, d, k, j)
+        lb = left.permute(0, 3, 1, 2).to(torch.bfloat16).contiguous()
+        rb = right.permute(0, 3, 2, 1).to(torch.bfloat16).contiguous()
+        out = torch.matmul(lb, rb)  # (b, d, i, j)
+        out = out.permute(0, 2, 3, 1).to(torch.float32)  # (b, i, j, d)
+
+
+=======
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    # Pre-fuse the five input projection weights into one matrix to reduce kernel launches.
+    # Order must match the split in forward: left, right, left_gate, right_gate, out_gate
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-17 07:32:24,085 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-17 07:32:39,127 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:32:39,133 - root - INFO - Evaluating program 9def499c-c19d-4071-9af9-e05d3656f8c0
+2026-06-17 07:32:50,987 - skydiscover.evaluation.evaluator - INFO - Evaluated program 9def499c-c19d-4071-9af9-e05d3656f8c0 in 11.85s: combined_score=91.5151, geomean_us=10927.1560, pass_rate=1.0000
+2026-06-17 07:32:50,989 - skydiscover.search.default_discovery_manager - INFO - Iteration 1: Program 9def499c-c19d-4071-9af9-e05d3656f8c0 (parent: a8ab27a6-00ac-4bf6-82b9-a90860cc19c7) completed in 50.96s
+2026-06-17 07:32:50,989 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=91.5151, geomean_us=10927.1560, pass_rate=1.0000
+2026-06-17 07:33:01,757 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:33:01,760 - root - INFO - Evaluating program 6fe4f629-81ba-41d1-924c-bbff2b07c120
+2026-06-17 07:33:13,782 - skydiscover.evaluation.evaluator - INFO - Evaluated program 6fe4f629-81ba-41d1-924c-bbff2b07c120 in 12.02s: combined_score=90.3611, geomean_us=11066.7050, pass_rate=1.0000
+2026-06-17 07:33:13,784 - skydiscover.search.default_discovery_manager - INFO - Iteration 3: Program 6fe4f629-81ba-41d1-924c-bbff2b07c120 (parent: 9def499c-c19d-4071-9af9-e05d3656f8c0) completed in 22.79s
+2026-06-17 07:33:13,786 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=90.3611, geomean_us=11066.7050, pass_rate=1.0000
+2026-06-17 07:33:25,752 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:33:25,755 - root - INFO - Evaluating program 61e7ee64-81a0-4e00-a8a4-42fd9357afed
+2026-06-17 07:33:37,818 - skydiscover.evaluation.evaluator - INFO - Evaluated program 61e7ee64-81a0-4e00-a8a4-42fd9357afed in 12.06s: combined_score=89.9181, geomean_us=11121.2330, pass_rate=1.0000
+2026-06-17 07:33:37,822 - skydiscover.search.default_discovery_manager - INFO - Iteration 4: Program 61e7ee64-81a0-4e00-a8a4-42fd9357afed (parent: a8ab27a6-00ac-4bf6-82b9-a90860cc19c7) completed in 24.03s
+2026-06-17 07:33:37,824 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=89.9181, geomean_us=11121.2330, pass_rate=1.0000
+2026-06-17 07:33:37,825 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=4)
+2026-06-17 07:33:37,826 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=0.000000, improvement=0.000000, start=91.570077, end=91.570077, horizon=2
+2026-06-17 07:34:01,795 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:34:01,800 - root - INFO - Evaluating program f4da8b0a-c4d2-48fc-b815-d277f7124fc6
+2026-06-17 07:34:01,825 - skydiscover.evaluation.evaluator - INFO - Evaluated program f4da8b0a-c4d2-48fc-b815-d277f7124fc6 in 0.02s: validity=1.0000, combined_score=0.0000
+2026-06-17 07:34:01,873 - skydiscover.search.evox.utils.coevolve_logging - INFO - Saved labels to trimul/skydiscover_runs/run5/search/iteration_1/labels.yaml (2753/2432 chars)
+2026-06-17 07:34:01,874 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 1) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_1 (score pending)
+2026-06-17 07:34:01,882 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm f4da8b0a-c4d2-48fc-b815-d277f7124fc6 (4 programs migrated)
+2026-06-17 07:34:16,342 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:34:16,357 - root - INFO - Evaluating program fb6581ec-97ad-4a9d-abb6-b21c3a8c1532
+2026-06-17 07:34:28,017 - skydiscover.evaluation.evaluator - INFO - Evaluated program fb6581ec-97ad-4a9d-abb6-b21c3a8c1532 in 11.66s: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+2026-06-17 07:34:28,021 - skydiscover.search.default_discovery_manager - INFO - Iteration 5: Program fb6581ec-97ad-4a9d-abb6-b21c3a8c1532 (parent: a8ab27a6-00ac-4bf6-82b9-a90860cc19c7) completed in 26.14s
+2026-06-17 07:34:28,025 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 5
+2026-06-17 07:34:28,027 - skydiscover.search.base_database - INFO - Database has 5 programs, best program score is 116.189482
+2026-06-17 07:34:28,152 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 5 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_5
+2026-06-17 07:34:28,177 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 5 with metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+2026-06-17 07:34:28,178 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 5 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_5
+2026-06-17 07:34:28,180 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+2026-06-17 07:34:28,182 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 5
+2026-06-17 07:34:43,865 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:34:43,870 - root - INFO - Evaluating program f9a2fddd-734d-4a14-aa69-5d73e557e5c8
+2026-06-17 07:34:51,953 - skydiscover.evaluation.evaluator - INFO - Evaluated program f9a2fddd-734d-4a14-aa69-5d73e557e5c8 in 8.08s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+2026-06-17 07:34:51,954 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: fp32 LayerNorm, bf16 combined projection matmul for all
+        5 projections, fused mask+sigmoid gating in bf16, bf16 outer-product
+        einsum, fp32 output norm + gate, bf16 output projection."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+        xb = x.to(torch.bfloat16)
+
+        combined = torch.nn.functional.linear(xb, self._fused_w_bf16)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        m = mask.unsqueeze(-1).to(torch.bfloat16)
+        left = (left * m).mul_(torch.sigmoid(left_gate))
+        right = (right * m).mul_(torch.sigmoid(right_gate))
+
+        out = einsum('... i k d, ... j k d -> ... i j d',
+                     left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate.to(torch.float32)))
+        return torch.nn.functional.linear(out.to(torch.bfloat16),
+                                          self._to_out_w_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_w_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-17 07:34:51,957 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-17 07:35:07,031 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:35:07,035 - root - INFO - Evaluating program 37f4ab45-5f38-4ee7-b38e-4f0486dfc287
+2026-06-17 07:35:14,462 - skydiscover.evaluation.evaluator - INFO - Evaluated program 37f4ab45-5f38-4ee7-b38e-4f0486dfc287 in 7.43s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+2026-06-17 07:35:14,464 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: fp32 LayerNorm, bf16 combined projection matmul for all
+        5 projections (tensor-core fp32 accumulation), fused mask+sigmoid gating,
+        bf16 outer-product einsum, fp32 output norm + gate, fp32 output proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+
+        # Heavy projection in bf16 (scales with seqlen^2 * dim * 5*hidden).
+        combined = torch.nn.functional.linear(x.to(torch.bfloat16), self._fused_w_bf16)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1).to(torch.bfloat16)
+        left = (left * mask).mul_(torch.sigmoid(left_gate.float()).to(torch.bfloat16))
+        right = (right * mask).mul_(torch.sigmoid(right_gate.float()).to(torch.bfloat16))
+
+        out = einsum('... i k d, ... j k d -> ... i j d', left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate.float()))
+        return self.to_out(out)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-17 07:35:14,468 - skydiscover.search.default_discovery_manager - INFO - Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+2026-06-17 07:35:31,629 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:35:31,634 - root - INFO - Evaluating program 40c15d64-fe76-4da3-ae5b-bb127454098c
+2026-06-17 07:35:43,743 - skydiscover.evaluation.evaluator - INFO - Evaluated program 40c15d64-fe76-4da3-ae5b-bb127454098c in 12.11s: combined_score=104.1944, geomean_us=9597.4470, pass_rate=1.0000
+2026-06-17 07:35:43,745 - skydiscover.search.default_discovery_manager - INFO - Iteration 6: Program 40c15d64-fe76-4da3-ae5b-bb127454098c (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 75.56s
+2026-06-17 07:35:43,748 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=104.1944, geomean_us=9597.4470, pass_rate=1.0000
+2026-06-17 07:36:00,641 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:36:00,646 - root - INFO - Evaluating program c3039a94-aa12-43c9-9a50-78f4bf79a8cc
+2026-06-17 07:36:14,152 - skydiscover.evaluation.evaluator - INFO - Evaluated program c3039a94-aa12-43c9-9a50-78f4bf79a8cc in 13.51s: combined_score=107.1595, geomean_us=9331.8800, pass_rate=1.0000
+2026-06-17 07:36:14,153 - skydiscover.search.default_discovery_manager - INFO - Iteration 9: Program c3039a94-aa12-43c9-9a50-78f4bf79a8cc (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 30.40s
+2026-06-17 07:36:14,154 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=107.1595, geomean_us=9331.8800, pass_rate=1.0000
+2026-06-17 07:36:14,157 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=9)
+2026-06-17 07:36:14,158 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=96.233863, improvement=24.619405, start=91.570077, end=116.189482, horizon=2
+2026-06-17 07:36:14,160 - skydiscover.search.evox.coevolve_manager - INFO - New best search score: 96.233863 (+96.233863)
+2026-06-17 07:36:37,238 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:36:37,247 - root - INFO - Evaluating program ea5c420c-d3d5-4014-b07d-62cac51982ba
+2026-06-17 07:36:37,256 - skydiscover.evaluation.evaluator - INFO - Evaluated program ea5c420c-d3d5-4014-b07d-62cac51982ba in 0.01s: validity=1.0000, combined_score=0.0000
+2026-06-17 07:36:37,299 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 2) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_2 (score pending)
+2026-06-17 07:36:37,324 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm ea5c420c-d3d5-4014-b07d-62cac51982ba (7 programs migrated)
+2026-06-17 07:36:52,370 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:36:52,375 - root - INFO - Evaluating program 488112a7-876c-44f9-8c8c-82d16703a795
+2026-06-17 07:37:01,598 - skydiscover.evaluation.evaluator - INFO - Evaluated program 488112a7-876c-44f9-8c8c-82d16703a795 in 9.22s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+2026-06-17 07:37:01,599 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: fp32 LayerNorm, bf16 combined projection (tensor cores,
+        fp32 accum), fused mask+sigmoid gating in fp32, bf16 outer-product
+        einsum, fp32 out norm/gate, bf16 output projection."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+        xb = x.to(torch.bfloat16)
+
+        combined = torch.nn.functional.linear(xb, self._fused_w_bf16).to(torch.float32)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        out = einsum('... i k d, ... j k d -> ... i j d',
+                     left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-17 07:37:01,619 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-17 07:37:14,198 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:37:14,221 - root - INFO - Evaluating program b31508b7-8fc7-4144-9da6-b993923a54a7
+2026-06-17 07:37:21,942 - skydiscover.evaluation.evaluator - INFO - Evaluated program b31508b7-8fc7-4144-9da6-b993923a54a7 in 7.72s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+2026-06-17 07:37:21,943 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: single combined matmul for all 5 projections,
+        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+        xb = x.to(torch.bfloat16)
+
+        combined = torch.nn.functional.linear(xb, self._fused_w_bf16).to(torch.float32)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        out = einsum('... i k d, ... j k d -> ... i j d',
+                     left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-17 07:37:21,947 - skydiscover.search.default_discovery_manager - INFO - Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+2026-06-17 07:37:31,173 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:37:31,177 - root - INFO - Evaluating program 8b303654-4c88-4cf9-a525-0b13fdae051c
+2026-06-17 07:37:42,325 - skydiscover.evaluation.evaluator - INFO - Evaluated program 8b303654-4c88-4cf9-a525-0b13fdae051c in 11.15s: combined_score=112.1483, geomean_us=8916.7680, pass_rate=1.0000
+2026-06-17 07:37:42,329 - skydiscover.search.default_discovery_manager - INFO - Iteration 10: Program 8b303654-4c88-4cf9-a525-0b13fdae051c (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 65.00s
+2026-06-17 07:37:42,330 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 10
+2026-06-17 07:37:42,332 - skydiscover.search.base_database - INFO - Database has 8 programs, best program score is 116.189482
+2026-06-17 07:37:42,484 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 8 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_10
+2026-06-17 07:37:42,527 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 10 with metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+2026-06-17 07:37:42,529 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 10 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_10
+2026-06-17 07:37:42,530 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=112.1483, geomean_us=8916.7680, pass_rate=1.0000
+2026-06-17 07:37:52,765 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:37:52,771 - root - INFO - Evaluating program 16210204-8abb-4fbd-8e22-6b0e402efd0e
+2026-06-17 07:38:04,715 - skydiscover.evaluation.evaluator - INFO - Evaluated program 16210204-8abb-4fbd-8e22-6b0e402efd0e in 11.94s: combined_score=113.0434, geomean_us=8846.1590, pass_rate=1.0000
+2026-06-17 07:38:04,717 - skydiscover.search.default_discovery_manager - INFO - Iteration 13: Program 16210204-8abb-4fbd-8e22-6b0e402efd0e (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 22.19s
+2026-06-17 07:38:04,722 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=113.0434, geomean_us=8846.1590, pass_rate=1.0000
+2026-06-17 07:38:04,723 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=13)
+2026-06-17 07:38:04,724 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=0.000000, improvement=0.000000, start=116.189482, end=116.189482, horizon=2
+2026-06-17 07:38:23,578 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:38:23,584 - root - INFO - Evaluating program f719ba4a-604b-45d4-b56b-0f1e1d0a6890
+2026-06-17 07:38:23,592 - skydiscover.evaluation.evaluator - INFO - Evaluated program f719ba4a-604b-45d4-b56b-0f1e1d0a6890 in 0.01s: validity=1.0000, combined_score=0.0000
+2026-06-17 07:38:23,642 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 3) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_3 (score pending)
+2026-06-17 07:38:23,648 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm f719ba4a-604b-45d4-b56b-0f1e1d0a6890 (9 programs migrated)
+2026-06-17 07:38:39,391 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:38:39,397 - root - INFO - Evaluating program ab3fbe53-fd33-4a69-b7b2-005d1510d008
+2026-06-17 07:38:50,555 - skydiscover.evaluation.evaluator - INFO - Evaluated program ab3fbe53-fd33-4a69-b7b2-005d1510d008 in 11.16s: combined_score=112.3146, geomean_us=8903.5620, pass_rate=1.0000
+2026-06-17 07:38:50,583 - skydiscover.search.default_discovery_manager - INFO - Iteration 14: Program ab3fbe53-fd33-4a69-b7b2-005d1510d008 (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 26.93s
+2026-06-17 07:38:50,593 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=112.3146, geomean_us=8903.5620, pass_rate=1.0000
+2026-06-17 07:39:00,635 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:39:00,641 - root - INFO - Evaluating program 76b6be7d-f562-4774-a878-726535110060
+2026-06-17 07:39:13,469 - skydiscover.evaluation.evaluator - INFO - Evaluated program 76b6be7d-f562-4774-a878-726535110060 in 12.83s: combined_score=112.6245, geomean_us=8879.0630, pass_rate=1.0000
+2026-06-17 07:39:13,472 - skydiscover.search.default_discovery_manager - INFO - Iteration 15: Program 76b6be7d-f562-4774-a878-726535110060 (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 22.88s
+2026-06-17 07:39:13,473 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 15
+2026-06-17 07:39:13,475 - skydiscover.search.base_database - INFO - Database has 11 programs, best program score is 116.189482
+2026-06-17 07:39:13,743 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 11 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_15
+2026-06-17 07:39:13,778 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 15 with metrics: combined_score=116.1895, geomean_us=8606.6310, pass_rate=1.0000
+2026-06-17 07:39:13,779 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 15 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_15
+2026-06-17 07:39:13,782 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=112.6245, geomean_us=8879.0630, pass_rate=1.0000
+2026-06-17 07:39:13,784 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=15)
+2026-06-17 07:39:13,785 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=0.000000, improvement=0.000000, start=116.189482, end=116.189482, horizon=2
+2026-06-17 07:39:33,042 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:39:33,051 - root - INFO - Evaluating program f90838ec-0727-41ec-8a05-76925e208559
+2026-06-17 07:39:33,059 - skydiscover.evaluation.evaluator - INFO - Evaluated program f90838ec-0727-41ec-8a05-76925e208559 in 0.01s: validity=1.0000, combined_score=0.0000
+2026-06-17 07:39:33,142 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 4) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_4 (score pending)
+2026-06-17 07:39:33,151 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm f90838ec-0727-41ec-8a05-76925e208559 (11 programs migrated)
+2026-06-17 07:39:40,849 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:39:40,855 - root - INFO - Evaluating program 1285b3be-c029-4e5d-962f-5a61d79bb2bf
+2026-06-17 07:39:51,827 - skydiscover.evaluation.evaluator - INFO - Evaluated program 1285b3be-c029-4e5d-962f-5a61d79bb2bf in 10.97s: combined_score=111.9992, geomean_us=8928.6350, pass_rate=1.0000
+2026-06-17 07:39:51,829 - skydiscover.search.default_discovery_manager - INFO - Iteration 16: Program 1285b3be-c029-4e5d-962f-5a61d79bb2bf (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 18.68s
+2026-06-17 07:39:51,830 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=111.9992, geomean_us=8928.6350, pass_rate=1.0000
+2026-06-17 07:40:01,795 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:40:01,801 - root - INFO - Evaluating program be13c24e-7919-4ee1-ab18-5abf1bbfbf06
+2026-06-17 07:40:14,036 - skydiscover.evaluation.evaluator - INFO - Evaluated program be13c24e-7919-4ee1-ab18-5abf1bbfbf06 in 12.24s: combined_score=112.2559, geomean_us=8908.2180, pass_rate=1.0000
+2026-06-17 07:40:14,039 - skydiscover.search.default_discovery_manager - INFO - Iteration 17: Program be13c24e-7919-4ee1-ab18-5abf1bbfbf06 (parent: 16210204-8abb-4fbd-8e22-6b0e402efd0e) completed in 22.21s
+2026-06-17 07:40:14,039 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=112.2559, geomean_us=8908.2180, pass_rate=1.0000
+2026-06-17 07:40:14,042 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=17)
+2026-06-17 07:40:14,043 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=0.000000, improvement=0.000000, start=116.189482, end=116.189482, horizon=2
+2026-06-17 07:40:31,872 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:40:31,877 - root - INFO - Evaluating program 63275b40-274f-4c8d-ac90-f64b2eb4ada5
+2026-06-17 07:40:31,886 - skydiscover.evaluation.evaluator - INFO - Evaluated program 63275b40-274f-4c8d-ac90-f64b2eb4ada5 in 0.01s: validity=1.0000, combined_score=0.0000
+2026-06-17 07:40:31,945 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 5) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_5 (score pending)
+2026-06-17 07:40:31,955 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm 63275b40-274f-4c8d-ac90-f64b2eb4ada5 (13 programs migrated)
+2026-06-17 07:40:41,078 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:40:41,082 - root - INFO - Evaluating program e4101376-6b69-4303-9d4a-a30bc342eb5a
+2026-06-17 07:40:51,727 - skydiscover.evaluation.evaluator - INFO - Evaluated program e4101376-6b69-4303-9d4a-a30bc342eb5a in 10.65s: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+2026-06-17 07:40:51,731 - skydiscover.search.default_discovery_manager - INFO - Iteration 18: Program e4101376-6b69-4303-9d4a-a30bc342eb5a (parent: fb6581ec-97ad-4a9d-abb6-b21c3a8c1532) completed in 19.77s
+2026-06-17 07:40:51,733 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+2026-06-17 07:40:51,735 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 18
+2026-06-17 07:41:03,510 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:41:03,524 - root - INFO - Evaluating program 1016e9c0-2b1e-4694-bc6d-0e4352c8f8f5
+2026-06-17 07:41:16,397 - skydiscover.evaluation.evaluator - INFO - Evaluated program 1016e9c0-2b1e-4694-bc6d-0e4352c8f8f5 in 12.87s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+2026-06-17 07:41:16,400 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: single combined matmul for all 5 projections,
+        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+
+        combined = torch.nn.functional.linear(x, self._fused_w)
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        b, n, _, _ = x.shape
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        out = einsum('b i k d, b j k d -> b i j d', left, right).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-17 07:41:16,432 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-17 07:41:29,425 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:41:29,434 - root - INFO - Evaluating program 92931c54-8faf-4d9b-bc50-bd759e0a4fb4
+2026-06-17 07:41:41,984 - skydiscover.evaluation.evaluator - INFO - Evaluated program 92931c54-8faf-4d9b-bc50-bd759e0a4fb4 in 12.55s: combined_score=112.4947, geomean_us=8889.3060, pass_rate=1.0000
+2026-06-17 07:41:41,987 - skydiscover.search.default_discovery_manager - INFO - Iteration 19: Program 92931c54-8faf-4d9b-bc50-bd759e0a4fb4 (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 50.25s
+2026-06-17 07:41:41,989 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=112.4947, geomean_us=8889.3060, pass_rate=1.0000
+2026-06-17 07:41:49,225 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:41:49,229 - root - INFO - Evaluating program 5f414ea8-8cba-4fca-9b49-18a60f7d0416
+2026-06-17 07:41:59,727 - skydiscover.evaluation.evaluator - INFO - Evaluated program 5f414ea8-8cba-4fca-9b49-18a60f7d0416 in 10.50s: combined_score=112.1581, geomean_us=8915.9850, pass_rate=1.0000
+2026-06-17 07:41:59,729 - skydiscover.search.default_discovery_manager - INFO - Iteration 21: Program 5f414ea8-8cba-4fca-9b49-18a60f7d0416 (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 17.74s
+2026-06-17 07:41:59,732 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=112.1581, geomean_us=8915.9850, pass_rate=1.0000
+2026-06-17 07:41:59,732 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=21)
+2026-06-17 07:41:59,733 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=2.497624, improvement=0.612821, start=116.189482, end=116.802303, horizon=2
+2026-06-17 07:41:59,789 - skydiscover.search.base_database - INFO - Database has 6 programs, best program score is 96.233863
+2026-06-17 07:42:18,819 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:42:18,825 - root - INFO - Evaluating program 80777ce7-34b9-46ee-9487-6e1a3f719004
+2026-06-17 07:42:18,834 - skydiscover.evaluation.evaluator - INFO - Evaluated program 80777ce7-34b9-46ee-9487-6e1a3f719004 in 0.01s: validity=1.0000, combined_score=0.0000
+2026-06-17 07:42:18,876 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 6) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_6 (score pending)
+2026-06-17 07:42:18,884 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm 80777ce7-34b9-46ee-9487-6e1a3f719004 (16 programs migrated)
+2026-06-17 07:42:34,449 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:42:34,455 - root - INFO - Evaluating program b2eed676-b231-4d56-9cff-2efc0c76a24b
+2026-06-17 07:42:43,946 - skydiscover.evaluation.evaluator - INFO - Evaluated program b2eed676-b231-4d56-9cff-2efc0c76a24b in 9.49s: combined_score=0.0000, pass_rate=1.0000, error=benchmark not available
+2026-06-17 07:42:43,948 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=benchmark not available
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+"""
+
+import torch
+from torch import nn, einsum
+import triton
+import triton.language as tl
+
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
+
+@triton.jit
+def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    pass
+
+
+class TriMul(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+    ):
+        super().__init__()
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
+
+        self.to_out_norm = nn.LayerNorm(hidden_dim)
+        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Fused TriMul: single combined matmul for all 5 projections,
+        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
+        hd = self.left_proj.weight.shape[0]
+
+        x = self.norm(x)
+
+        combined = torch.nn.functional.linear(x.to(torch.bfloat16), self._fused_w_bf16).float()
+        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
+
+        b, n, _, _ = x.shape
+        mask = mask.unsqueeze(-1)
+        left = (left * mask).mul_(torch.sigmoid(left_gate)).to(torch.bfloat16)
+        right = (right * mask).mul_(torch.sigmoid(right_gate)).to(torch.bfloat16)
+
+        d = left.shape[-1]
+        lb = left.permute(0, 3, 1, 2).reshape(b * d, n, n)
+        rb = right.permute(0, 3, 2, 1).reshape(b * d, n, n)
+        out = torch.bmm(lb, rb).reshape(b, d, n, n).permute(0, 2, 3, 1).to(torch.float32)
+
+        out = self.to_out_norm(out)
+        out = out.mul_(torch.sigmoid(out_gate))
+        return torch.nn.functional.linear(
+            out.to(torch.bfloat16), self._to_out_bf16).to(torch.float32)
+
+
+def custom_kernel(data):
+    input_tensor, mask, weights, config = data
+    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
+
+    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
+    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
+    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
+    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
+    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
+    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
+    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
+    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
+    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
+    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+
+    trimul._fused_w = torch.cat([
+        trimul.left_proj.weight,
+        trimul.right_proj.weight,
+        trimul.left_gate.weight,
+        trimul.right_gate.weight,
+        trimul.out_gate.weight,
+    ], dim=0).contiguous()
+    trimul._fused_w_bf16 = trimul._fused_w.to(torch.bfloat16).contiguous()
+    trimul._to_out_bf16 = trimul.to_out.weight.to(torch.bfloat16).contiguous()
+
+    with torch.no_grad():
+        output = trimul(input_tensor, mask).to(torch.float32)
+
+    return output
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-17 07:42:43,951 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-17 07:42:56,494 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:42:56,500 - root - INFO - Evaluating program 94b6c22b-05cd-4a85-ba1d-575d496814ac
+2026-06-17 07:43:08,938 - skydiscover.evaluation.evaluator - INFO - Evaluated program 94b6c22b-05cd-4a85-ba1d-575d496814ac in 12.44s: combined_score=115.8024, geomean_us=8635.3990, pass_rate=1.0000
+2026-06-17 07:43:08,944 - skydiscover.search.default_discovery_manager - INFO - Iteration 22: Program 94b6c22b-05cd-4a85-ba1d-575d496814ac (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 50.06s
+2026-06-17 07:43:08,945 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=115.8024, geomean_us=8635.3990, pass_rate=1.0000
+2026-06-17 07:43:20,966 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:43:20,970 - root - INFO - Evaluating program dce1cafa-b643-4915-8139-2cd25ac556ad
+2026-06-17 07:43:35,219 - skydiscover.evaluation.evaluator - INFO - Evaluated program dce1cafa-b643-4915-8139-2cd25ac556ad in 14.25s: combined_score=110.2688, geomean_us=9068.7510, pass_rate=1.0000
+2026-06-17 07:43:35,223 - skydiscover.search.default_discovery_manager - INFO - Iteration 24: Program dce1cafa-b643-4915-8139-2cd25ac556ad (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 26.28s
+2026-06-17 07:43:35,225 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=110.2688, geomean_us=9068.7510, pass_rate=1.0000
+2026-06-17 07:43:35,228 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=24)
+2026-06-17 07:43:35,229 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=0.000000, improvement=0.000000, start=116.802303, end=116.802303, horizon=2
+2026-06-17 07:43:57,105 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:43:57,125 - root - INFO - Evaluating program bbbf6e10-04dd-49d6-85e4-9ace15d6db29
+2026-06-17 07:43:57,134 - skydiscover.evaluation.evaluator - INFO - Evaluated program bbbf6e10-04dd-49d6-85e4-9ace15d6db29 in 0.01s: validity=1.0000, combined_score=0.0000
+2026-06-17 07:43:57,172 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 7) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_7 (score pending)
+2026-06-17 07:43:57,180 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm bbbf6e10-04dd-49d6-85e4-9ace15d6db29 (18 programs migrated)
+2026-06-17 07:44:09,863 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-17 07:44:09,867 - root - INFO - Evaluating program 21e9f77c-b2f3-4511-ac69-84bfffcd2171
+2026-06-17 07:44:21,591 - skydiscover.evaluation.evaluator - INFO - Evaluated program 21e9f77c-b2f3-4511-ac69-84bfffcd2171 in 11.72s: combined_score=112.0833, geomean_us=8921.9330, pass_rate=1.0000
+2026-06-17 07:44:21,593 - skydiscover.search.default_discovery_manager - INFO - Iteration 25: Program 21e9f77c-b2f3-4511-ac69-84bfffcd2171 (parent: e4101376-6b69-4303-9d4a-a30bc342eb5a) completed in 24.41s
+2026-06-17 07:44:21,594 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 25
+2026-06-17 07:44:21,597 - skydiscover.search.base_database - INFO - Database has 19 programs, best program score is 116.802303
+2026-06-17 07:44:22,222 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 19 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-17 07:44:22,288 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+2026-06-17 07:44:22,289 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-17 07:44:22,290 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=112.0833, geomean_us=8921.9330, pass_rate=1.0000
+2026-06-17 07:44:22,292 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=0.000000, improvement=0.000000, start=116.802303, end=116.802303, horizon=2
+2026-06-17 07:44:22,365 - skydiscover.search.evox.coevolve_manager - INFO - [SOLUTION EVOLUTION] Evolution completed: evox
+2026-06-17 07:44:23,430 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 19 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-17 07:44:23,468 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+2026-06-17 07:44:23,469 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-17 07:44:23,477 - skydiscover.search.main_controller - INFO - Using tracked best program: e4101376-6b69-4303-9d4a-a30bc342eb5a
+2026-06-17 07:44:23,478 - skydiscover.search.main_controller - INFO - Discovery process complete. Best program has metrics: combined_score=116.8023, geomean_us=8561.4750, pass_rate=1.0000
+2026-06-17 07:44:23,540 - skydiscover.search.main_controller - INFO - Saved best program to trimul/skydiscover_runs/run5/best/best_program.py with program info to trimul/skydiscover_runs/run5/best/best_program_info.json
