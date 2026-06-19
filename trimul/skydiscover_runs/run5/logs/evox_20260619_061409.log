@@ -1,0 +1,1685 @@
+2026-06-19 06:14:09,503 - skydiscover.search.utils.logging_utils - INFO - Logging to trimul/skydiscover_runs/run5/logs/evox_20260619_061409.log
+2026-06-19 06:14:09,579 - skydiscover.search.main_controller - INFO - Set random seed to 42 for reproducibility
+2026-06-19 06:14:09,580 - skydiscover.search.main_controller - INFO - Initialized discovery process with search strategy = evox and initial program = trimul/starting_point.py
+2026-06-19 06:14:09,607 - skydiscover.llm - INFO - Initialized Anthropic LLM with model: claude-sonnet-4-6
+2026-06-19 06:14:09,607 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-sonnet-4-6 (weight: 1.00)
+2026-06-19 06:14:09,610 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-sonnet-4-6 (weight: 1.00)
+2026-06-19 06:14:09,613 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-sonnet-4-6 (weight: 1.00)
+2026-06-19 06:14:09,614 - skydiscover.prompt.default.prompt - INFO - Initialized default context builder
+2026-06-19 06:14:09,614 - skydiscover.prompt.default.prompt - INFO - Set custom templates: system=evaluator_system_message, user=None
+2026-06-19 06:14:09,614 - skydiscover.evaluation.evaluator - INFO - Initialized evaluator with trimul/skydiscover_evaluator.py
+2026-06-19 06:14:09,614 - skydiscover.search.default_discovery_manager - INFO - DiscoveryManager initialized: num_inspirations=4
+2026-06-19 06:14:09,618 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-sonnet-4-6 (weight: 1.00)
+2026-06-19 06:14:09,620 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-sonnet-4-6 (weight: 1.00)
+2026-06-19 06:14:09,623 - skydiscover.llm - INFO - Initialized LLM pool with models: claude-sonnet-4-6 (weight: 1.00)
+2026-06-19 06:14:09,624 - skydiscover.prompt.default.prompt - INFO - Set custom templates: system=evaluator_system_message, user=None
+2026-06-19 06:14:09,627 - skydiscover.evaluation.evaluator - INFO - Initialized evaluator with /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+2026-06-19 06:14:09,627 - skydiscover.search.default_discovery_manager - INFO - DiscoveryManager initialized: num_inspirations=4
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO - ======================================================================
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO - [EVOX CO-EVOLUTION SETUP]
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO - ----------------------------------------------------------------------
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO -   [SOLUTION EVOLUTION]
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO -     Initial search strategy file : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO -     Solution database class      : EvolvedProgramDatabase
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO -   [META EVOLUTION OF SEARCH STRATEGY]
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO -     Search strategy database class: TopKDatabase
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO -     Search strategy evaluator     : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/search_strategy_evaluator.py
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO -     Search strategy config        : /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/config/search.yaml
+2026-06-19 06:14:09,627 - skydiscover.search.evox.coevolve_manager - INFO - ======================================================================
+2026-06-19 06:14:09,627 - skydiscover.search.main_controller - INFO - Adding initial program to database
+2026-06-19 06:14:09,627 - root - INFO - Evaluating program 7a5add33-fb55-470c-9ca4-a2fe3e633220
+2026-06-19 06:14:18,218 - skydiscover.evaluation.evaluator - INFO - Evaluated program 7a5add33-fb55-470c-9ca4-a2fe3e633220 in 8.59s: combined_score=88.8556, geomean_us=11254.2110, pass_rate=1.0000
+2026-06-19 06:14:18,218 - skydiscover.search.route - INFO - Using search strategy from: /workspace/trimul-evox/.venv/lib/python3.11/site-packages/skydiscover/search/evox/database/initial_search_strategy.py
+2026-06-19 06:14:18,218 - skydiscover.search.base_database - INFO - Database has 1 programs, best program score is 88.855629
+2026-06-19 06:14:18,218 - skydiscover.search.evox.coevolve_manager - INFO - Switch if 2 iterations of stagnation detected
+2026-06-19 06:14:18,219 - skydiscover.search.evox.coevolve_manager - INFO - Label generation: using guide_model = [claude-sonnet-4-6]
+2026-06-19 06:14:43,454 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:14:43,458 - skydiscover.search.evox.coevolve_manager - INFO - Generated variation operator labels (3247/2725 chars)
+2026-06-19 06:15:21,900 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:15:21,901 - root - INFO - Evaluating program a7c8d461-e939-45d4-b566-22a5e72014a1
+2026-06-19 06:15:27,109 - skydiscover.evaluation.evaluator - INFO - Evaluated program a7c8d461-e939-45d4-b566-22a5e72014a1 in 5.21s: combined_score=0.0000, pass_rate=0.7222, error=correctness failed (13/18)
+2026-06-19 06:15:27,109 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (13/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul kernel using fused projections, bfloat16 compute,
+and efficient batched matmul for the outer product step.
+Fuses left/gate projections into single matmuls to reduce kernel launches.
+"""
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+
+def trimul_forward(
+    x: torch.Tensor,
+    mask: torch.Tensor,
+    norm_w: torch.Tensor,
+    norm_b: torch.Tensor,
+    # Fused weight: [2*hidden_dim, dim] for left_proj + left_gate
+    left_fused_w: torch.Tensor,
+    # Fused weight: [2*hidden_dim, dim] for right_proj + right_gate
+    right_fused_w: torch.Tensor,
+    out_gate_w: torch.Tensor,
+    to_out_norm_w: torch.Tensor,
+    to_out_norm_b: torch.Tensor,
+    to_out_w: torch.Tensor,
+    dim: int,
+    hidden_dim: int,
+) -> torch.Tensor:
+    """
+    Forward pass for TriMul:
+    1. LayerNorm input
+    2. Fused linear for left (proj+gate) and right (proj+gate)
+    3. Apply mask, sigmoid gates
+    4. Outer product via batched matmul (reshape trick)
+    5. Output LayerNorm, gate, projection
+    """
+    bs, seq_len, seq_len2, _ = x.shape
+
+    # LayerNorm
+    x_norm = F.layer_norm(x, [dim], norm_w, norm_b)
+
+    # Reshape for batched linear: (bs*seq*seq, dim)
+    x_flat = x_norm.reshape(-1, dim)
+
+    # Fused left projection + gate: (bs*seq*seq, 2*hidden_dim)
+    left_fused = F.linear(x_flat, left_fused_w)
+    left_proj = left_fused[:, :hidden_dim]
+    left_gate = left_fused[:, hidden_dim:].sigmoid()
+
+    # Fused right projection + gate: (bs*seq*seq, 2*hidden_dim)
+    right_fused = F.linear(x_flat, right_fused_w)
+    right_proj = right_fused[:, :hidden_dim]
+    right_gate = right_fused[:, hidden_dim:].sigmoid()
+
+    # Out gate
+    out_gate = F.linear(x_flat, out_gate_w).sigmoid()
+
+    # Apply mask: mask is (bs, seq, seq) -> (bs*seq*seq, 1)
+    mask_flat = mask.reshape(-1, 1).float()
+
+    left = (left_proj * mask_flat * left_gate).reshape(bs, seq_len, seq_len2, hidden_dim)
+    right = (right_proj * mask_flat * right_gate).reshape(bs, seq_len, seq_len2, hidden_dim)
+    out_gate = out_gate.reshape(bs, seq_len, seq_len2, hidden_dim)
+
+    # Outer product: left[b,i,k,d] * right[b,j,k,d] -> out[b,i,j,d]
+    # Reshape: left -> (bs*d, i, k), right -> (bs*d, j, k)
+    # Then batched matmul: (bs*d, i, k) x (bs*d, k, j) -> (bs*d, i, j)
+    # Use bf16 for speed
+    left_bf16 = left.to(torch.bfloat16)
+    right_bf16 = right.to(torch.bfloat16)
+
+    # Permute: (bs, i, k, d) -> (bs, d, i, k)
+    left_t = left_bf16.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seq_len, seq_len2)
+    right_t = right_bf16.permute(0, 3, 2, 1).reshape(bs * hidden_dim, seq_len2, seq_len)
+
+    # (bs*d, i, k) @ (bs*d, k, j) -> (bs*d, i, j)
+    out_raw = torch.bmm(left_t, right_t)  # (bs*hidden_dim, seq_len, seq_len)
+
+    # Reshape back: (bs, hidden_dim, i, j) -> (bs, i, j, hidden_dim)
+    out = out_raw.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output norm + gate + projection
+    out = F.layer_norm(out, [hidden_dim], to_out_norm_w, to_out_norm_b)
+    out = out * out_gate
+    out = F.linear(out, to_out_w)
+
+    return out
+
+
+# Cache for pre-processed weights
+_weight_cache = {}
+
+
+def custom_kernel(data):
+    """
+    TriMul forward with fused projections and efficient outer product.
+    Caches fused weight tensors to avoid recomputation across calls.
+    """
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+    device = input_tensor.device
+
+    # Build a cache key from weight data pointer (stable across calls with same weights)
+    cache_key = (
+        weights['left_proj.weight'].data_ptr(),
+        weights['right_proj.weight'].data_ptr(),
+        dim,
+        hidden_dim,
+    )
+
+    if cache_key not in _weight_cache:
+        # Fuse left_proj + left_gate into single weight matrix
+        left_fused_w = torch.cat([
+            weights['left_proj.weight'].to(torch.float32),
+            weights['left_gate.weight'].to(torch.float32),
+        ], dim=0).to(device)
+
+        right_fused_w = torch.cat([
+            weights['right_proj.weight'].to(torch.float32),
+            weights['right_gate.weight'].to(torch.float32),
+        ], dim=0).to(device)
+
+        _weight_cache[cache_key] = {
+            'norm_w': weights['norm.weight'].to(torch.float32).to(device),
+            'norm_b': weights['norm.bias'].to(torch.float32).to(device),
+            'left_fused_w': left_fused_w,
+            'right_fused_w': right_fused_w,
+            'out_gate_w': weights['out_gate.weight'].to(torch.float32).to(device),
+            'to_out_norm_w': weights['to_out_norm.weight'].to(torch.float32).to(device),
+            'to_out_norm_b': weights['to_out_norm.bias'].to(torch.float32).to(device),
+            'to_out_w': weights['to_out.weight'].to(torch.float32).to(device),
+        }
+
+    w = _weight_cache[cache_key]
+
+    output = trimul_forward(
+        input_tensor.to(torch.float32),
+        mask,
+        w['norm_w'], w['norm_b'],
+        w['left_fused_w'],
+        w['right_fused_w'],
+        w['out_gate_w'],
+        w['to_out_norm_w'], w['to_out_norm_b'],
+        w['to_out_w'],
+        dim, hidden_dim,
+    )
+
+    return output.to(torch.float32)
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:15:27,110 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:16:05,023 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:16:05,024 - root - INFO - Evaluating program b4200dfb-ef2c-470d-ae5a-7ff7a8c15457
+2026-06-19 06:16:06,332 - skydiscover.evaluation.evaluator - INFO - Evaluated program b4200dfb-ef2c-470d-ae5a-7ff7a8c15457 in 1.31s: combined_score=0.0000, pass_rate=0.0000, error=correctness failed (0/18)
+2026-06-19 06:16:06,332 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 2/3): validity=None, error=correctness failed (0/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul using fused projections and efficient batched matmul for outer product.
+Key optimizations:
+1. Fuse left_proj+left_gate and right_proj+right_gate into single matmuls
+2. Use bfloat16 for compute-heavy ops
+3. Outer product via permute+reshape+bmm: reshape (bs,s,s,d) to (bs*d, s, k) and use bmm
+4. Minimize memory allocations and kernel launches
+"""
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+
+def trimul_forward_functional(
+    x: torch.Tensor,
+    mask: torch.Tensor,
+    norm_w: torch.Tensor,
+    norm_b: torch.Tensor,
+    left_fused_w: torch.Tensor,   # [2*hidden_dim, dim]
+    right_fused_w: torch.Tensor,  # [2*hidden_dim, dim]
+    out_gate_w: torch.Tensor,     # [hidden_dim, dim]
+    to_out_norm_w: torch.Tensor,
+    to_out_norm_b: torch.Tensor,
+    to_out_w: torch.Tensor,       # [dim, hidden_dim]
+    dim: int,
+    hidden_dim: int,
+) -> torch.Tensor:
+    """
+    Functional TriMul forward:
+    1. LayerNorm input (float32)
+    2. Fused linear for left (proj+gate) and right (proj+gate) via single matmul each
+    3. Apply mask and sigmoid gates
+    4. Outer product via permute+reshape+bmm: (bs,i,k,d)->(bs*d,i,k) bmm (bs*d,k,j)
+    5. Output LayerNorm, gate, projection
+    """
+    bs, seq_len, seq_len2, _ = x.shape
+
+    # LayerNorm in float32
+    x_norm = F.layer_norm(x, [dim], norm_w, norm_b)
+
+    # Reshape for matmul: (bs*s*s, dim)
+    x_flat = x_norm.reshape(-1, dim)
+
+    # Fused left: proj + gate in one matmul -> (bs*s*s, 2*hidden_dim)
+    left_fused = F.linear(x_flat, left_fused_w)  # no bias
+    left_proj = left_fused[:, :hidden_dim]
+    left_gate_val = torch.sigmoid(left_fused[:, hidden_dim:])
+
+    # Fused right: proj + gate in one matmul -> (bs*s*s, 2*hidden_dim)
+    right_fused = F.linear(x_flat, right_fused_w)  # no bias
+    right_proj = right_fused[:, :hidden_dim]
+    right_gate_val = torch.sigmoid(right_fused[:, hidden_dim:])
+
+    # Apply mask and gates
+    # mask: (bs, s, s) -> (bs*s*s, 1)
+    mask_flat = mask.reshape(-1, 1).float()
+
+    left_act = (left_proj * left_gate_val * mask_flat).reshape(bs, seq_len, seq_len, hidden_dim)
+    right_act = (right_proj * right_gate_val * mask_flat).reshape(bs, seq_len, seq_len, hidden_dim)
+
+    # out_gate from x_flat
+    out_gate_val = torch.sigmoid(F.linear(x_flat, out_gate_w)).reshape(bs, seq_len, seq_len, hidden_dim)
+
+    # Outer product: '... i k d, ... j k d -> ... i j d'
+    # left_act: (bs, i, k, d), right_act: (bs, j, k, d)
+    # Permute to (bs, d, i, k) and (bs, d, k, j) then bmm
+    # -> (bs*d, i, k) @ (bs*d, k, j) = (bs*d, i, j)
+    # Then reshape to (bs, i, j, d)
+    left_bf = left_act.to(torch.bfloat16)
+    right_bf = right_act.to(torch.bfloat16)
+
+    # (bs, i, k, d) -> (bs, d, i, k)
+    left_perm = left_bf.permute(0, 3, 1, 2).contiguous()
+    # (bs, j, k, d) -> (bs, d, k, j)
+    right_perm = right_bf.permute(0, 3, 2, 1).contiguous()
+
+    # Reshape to (bs*d, i, k) and (bs*d, k, j)
+    left_mat = left_perm.reshape(bs * hidden_dim, seq_len, seq_len)
+    right_mat = right_perm.reshape(bs * hidden_dim, seq_len, seq_len)
+
+    # bmm: (bs*d, i, k) @ (bs*d, k, j) = (bs*d, i, j)
+    out_mat = torch.bmm(left_mat, right_mat)
+
+    # Reshape back: (bs*d, i, j) -> (bs, d, i, j) -> (bs, i, j, d)
+    out = out_mat.reshape(bs, hidden_dim, seq_len, seq_len).permute(0, 2, 3, 1).contiguous().float()
+
+    # Output LayerNorm, gate, projection
+    out = F.layer_norm(out, [hidden_dim], to_out_norm_w, to_out_norm_b)
+    out = out * out_gate_val
+    out = F.linear(out, to_out_w)
+
+    return out
+
+
+def custom_kernel(data):
+    """Entry point: unpacks data and calls functional TriMul forward."""
+    input_tensor, mask, weights, config = data
+    dim = config["dim"]
+    hidden_dim = config["hidden_dim"]
+    device = input_tensor.device
+
+    # Load weights as float32
+    norm_w = weights['norm.weight'].to(torch.float32, device=device)
+    norm_b = weights['norm.bias'].to(torch.float32, device=device)
+    left_proj_w = weights['left_proj.weight'].to(torch.float32, device=device)
+    right_proj_w = weights['right_proj.weight'].to(torch.float32, device=device)
+    left_gate_w = weights['left_gate.weight'].to(torch.float32, device=device)
+    right_gate_w = weights['right_gate.weight'].to(torch.float32, device=device)
+    out_gate_w = weights['out_gate.weight'].to(torch.float32, device=device)
+    to_out_norm_w = weights['to_out_norm.weight'].to(torch.float32, device=device)
+    to_out_norm_b = weights['to_out_norm.bias'].to(torch.float32, device=device)
+    to_out_w = weights['to_out.weight'].to(torch.float32, device=device)
+
+    # Fuse left_proj and left_gate weights: [2*hidden_dim, dim]
+    left_fused_w = torch.cat([left_proj_w, left_gate_w], dim=0)
+    # Fuse right_proj and right_gate weights: [2*hidden_dim, dim]
+    right_fused_w = torch.cat([right_proj_w, right_gate_w], dim=0)
+
+    output = trimul_forward_functional(
+        input_tensor.float(),
+        mask,
+        norm_w, norm_b,
+        left_fused_w,
+        right_fused_w,
+        out_gate_w,
+        to_out_norm_w, to_out_norm_b,
+        to_out_w,
+        dim, hidden_dim,
+    )
+
+    return output.float()
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:16:06,333 - skydiscover.search.default_discovery_manager - INFO - Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+2026-06-19 06:16:44,883 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:16:44,884 - skydiscover.search.default_discovery_manager - WARNING - Diff blocks found but none matched parent solution (iteration=1, attempt 3/3).
+2026-06-19 06:16:44,884 - skydiscover.search.default_discovery_manager - ERROR - All 3 retry attempts failed due to parse/validation error: Diff SEARCH blocks did not match parent solution - no changes applied
+2026-06-19 06:16:44,884 - skydiscover.search.evox.coevolve_manager - WARNING - Iteration 1 failed (used 3 attempts): Diff SEARCH blocks did not match parent solution - no changes applied (after 3 attempts)
+2026-06-19 06:17:16,291 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:17:16,291 - root - INFO - Evaluating program 25a36903-f612-4a3b-a778-5953410b6a88
+2026-06-19 06:17:22,839 - skydiscover.evaluation.evaluator - INFO - Evaluated program 25a36903-f612-4a3b-a778-5953410b6a88 in 6.55s: combined_score=107.6505, geomean_us=9289.3230, pass_rate=1.0000
+2026-06-19 06:17:22,839 - skydiscover.search.default_discovery_manager - INFO - Iteration 4: Program 25a36903-f612-4a3b-a778-5953410b6a88 (parent: 7a5add33-fb55-470c-9ca4-a2fe3e633220) completed in 37.96s
+2026-06-19 06:17:22,839 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=107.6505, geomean_us=9289.3230, pass_rate=1.0000
+2026-06-19 06:17:22,839 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 4
+2026-06-19 06:17:49,785 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:17:49,787 - root - INFO - Evaluating program b2f563f1-70a7-4369-923d-e4dea5293420
+2026-06-19 06:18:01,376 - skydiscover.evaluation.evaluator - INFO - Evaluated program b2f563f1-70a7-4369-923d-e4dea5293420 in 11.59s: combined_score=107.8608, geomean_us=9271.2050, pass_rate=1.0000
+2026-06-19 06:18:01,376 - skydiscover.search.default_discovery_manager - INFO - Iteration 5: Program b2f563f1-70a7-4369-923d-e4dea5293420 (parent: 7a5add33-fb55-470c-9ca4-a2fe3e633220) completed in 38.54s
+2026-06-19 06:18:01,376 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 5
+2026-06-19 06:18:01,376 - skydiscover.search.base_database - INFO - Database has 3 programs, best program score is 107.860844
+2026-06-19 06:18:01,377 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 3 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_5
+2026-06-19 06:18:01,377 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 5 with metrics: combined_score=107.8608, geomean_us=9271.2050, pass_rate=1.0000
+2026-06-19 06:18:01,377 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 5 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_5
+2026-06-19 06:18:01,377 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=107.8608, geomean_us=9271.2050, pass_rate=1.0000
+2026-06-19 06:18:01,377 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 5
+2026-06-19 06:18:35,714 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:18:35,715 - root - INFO - Evaluating program dc22615e-17d8-46e0-86f8-788e41d223cd
+2026-06-19 06:18:40,201 - skydiscover.evaluation.evaluator - INFO - Evaluated program dc22615e-17d8-46e0-86f8-788e41d223cd in 4.49s: combined_score=0.0000, pass_rate=0.8333, error=correctness failed (15/18)
+2026-06-19 06:18:40,201 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (15/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul using fused projections in bfloat16 and efficient outer product via bmm.
+Key optimizations:
+1. Fuse all 5 linear projections into one batched matmul to reduce kernel launches
+2. Avoid module instantiation overhead - work directly with weight tensors
+3. Perform projections in bfloat16 to leverage tensor cores
+4. Use bfloat16 for the expensive outer product bmm
+5. Minimize dtype conversions and use contiguous layouts
+6. Use float32 for LayerNorm stability, bfloat16 for matmuls
+"""
+
+import torch
+import torch.nn.functional as F
+
+
+def custom_kernel(data):
+    """
+    TriMul: LayerNorm(fp32) -> fused 5-way projection(bf16) -> sigmoid gating
+    -> masked outer product via bmm(bf16) -> output LayerNorm(fp32) -> gate -> project(bf16).
+    Projections fused into single matmul in bfloat16; outer product as batched matmul.
+    """
+    input_tensor, mask, weights, config = data
+
+    # Load norm weights in float32 for numerical stability
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+
+    # Load projection weights in bfloat16 for tensor core utilization
+    left_proj_w  = weights['left_proj.weight'].to(torch.bfloat16)
+    right_proj_w = weights['right_proj.weight'].to(torch.bfloat16)
+    left_gate_w  = weights['left_gate.weight'].to(torch.bfloat16)
+    right_gate_w = weights['right_gate.weight'].to(torch.bfloat16)
+    out_gate_w   = weights['out_gate.weight'].to(torch.bfloat16)
+    to_out_w     = weights['to_out.weight'].to(torch.bfloat16)
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = left_proj_w.shape[0]
+
+    # LayerNorm in float32 for stability
+    x_f32 = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # Convert to bfloat16 for tensor core matmuls
+    x_bf16 = x_f32.to(torch.bfloat16)
+
+    # Fuse all 5 projections into single matmul: [5*hidden, dim]
+    fused_w = torch.cat([left_proj_w, right_proj_w, left_gate_w, right_gate_w, out_gate_w], dim=0)
+    x_flat = x_bf16.reshape(-1, dim)
+    fused_out = F.linear(x_flat, fused_w).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections (all in bfloat16)
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    # Apply mask and sigmoid gates in bfloat16
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+    left  = left  * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate)
+
+    # Outer product via bmm in bfloat16:
+    # left:  [bs, i, k, d] -> permute -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> permute -> [bs*d, k, j]
+    left_p  = left.permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out_bf = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1)
+
+    # Output LayerNorm in float32 for stability
+    out = F.layer_norm(out_bf.to(torch.float32), [hidden_dim], out_norm_w, out_norm_b)
+
+    # Apply output gate and project in bfloat16
+    out = out.to(torch.bfloat16) * out_gate_sig
+    out = F.linear(out, to_out_w)
+
+    return out.to(torch.float32)
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:18:40,201 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:19:11,244 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:19:11,246 - root - INFO - Evaluating program 053ee287-c6cb-4b50-8094-ea5e001ba761
+2026-06-19 06:19:28,720 - skydiscover.evaluation.evaluator - INFO - Evaluated program 053ee287-c6cb-4b50-8094-ea5e001ba761 in 17.47s: combined_score=0.0000, pass_rate=0.8889, error=correctness failed (16/18)
+2026-06-19 06:19:28,720 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 2/3): validity=None, error=correctness failed (16/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul using fused projections, torch.compile, and efficient outer product via bmm.
+Key optimizations:
+1. Fuse all 5 linear projections into one batched matmul to reduce kernel launches
+2. Pre-fuse weights once using a cache keyed on weight data_ptr to avoid repeated torch.cat
+3. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+4. Use torch.compile for kernel fusion and auto-optimization
+5. Use contiguous() before bmm to ensure optimal memory access
+"""
+
+import torch
+import torch.nn.functional as F
+
+_fused_weight_cache = {}
+_compiled_fn = None
+
+
+def _trimul_forward(x_flat, fused_w, mask, out_norm_w, out_norm_b, to_out_w,
+                    bs, seqlen, dim, hidden_dim):
+    """Core TriMul computation with fused projection and bmm outer product."""
+    fused_out = F.linear(x_flat, fused_w).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    mask_exp = mask.unsqueeze(-1).to(torch.float32)
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate)
+
+    # Outer product via bmm in bfloat16
+    left_p  = left.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.to(torch.bfloat16).permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    out = torch.bmm(left_p.contiguous(), right_p.contiguous())
+    out = out.reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+    return out
+
+
+_compiled_trimul = torch.compile(_trimul_forward, mode='reduce-overhead')
+
+
+def custom_kernel(data):
+    """
+    TriMul: LayerNorm(fp32) -> fused 5-way projection -> sigmoid gating
+    -> masked outer product via bmm(bf16) -> output LayerNorm -> gate -> project.
+    Uses weight caching to avoid repeated torch.cat, and torch.compile for fusion.
+    """
+    input_tensor, mask, weights, config = data
+
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight'].to(torch.float32)
+
+    bs, seqlen, _, dim = input_tensor.shape
+    left_proj_w = weights['left_proj.weight']
+    hidden_dim = left_proj_w.shape[0]
+
+    # Cache fused weight matrix to avoid repeated torch.cat
+    cache_key = (left_proj_w.data_ptr(), seqlen)
+    if cache_key not in _fused_weight_cache:
+        fused_w = torch.cat([
+            weights['left_proj.weight'].to(torch.float32),
+            weights['right_proj.weight'].to(torch.float32),
+            weights['left_gate.weight'].to(torch.float32),
+            weights['right_gate.weight'].to(torch.float32),
+            weights['out_gate.weight'].to(torch.float32),
+        ], dim=0)
+        _fused_weight_cache[cache_key] = fused_w
+    fused_w = _fused_weight_cache[cache_key]
+
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+    x_flat = x.reshape(-1, dim)
+
+    out = _compiled_trimul(x_flat, fused_w, mask, out_norm_w, out_norm_b, to_out_w,
+                           bs, seqlen, dim, hidden_dim)
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:19:28,720 - skydiscover.search.default_discovery_manager - INFO - Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+2026-06-19 06:20:00,947 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:20:00,948 - root - INFO - Evaluating program 83120b33-f8cb-4b3b-8edb-ea2bc9460e59
+2026-06-19 06:20:09,174 - skydiscover.evaluation.evaluator - INFO - Evaluated program 83120b33-f8cb-4b3b-8edb-ea2bc9460e59 in 8.23s: combined_score=0.0000, pass_rate=0.4444, error=correctness failed (8/18)
+2026-06-19 06:20:09,174 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 3/3): validity=None, error=correctness failed (8/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul using fused projections and efficient outer product via bmm.
+Key optimizations:
+1. Fuse all 5 linear projections into one batched matmul to reduce kernel launches
+2. Avoid module instantiation overhead - work directly with weight tensors
+3. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+4. Use contiguous memory layouts for better GPU utilization
+5. Avoid redundant .to(float32) calls
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Cache for fused weights to avoid repeated torch.cat calls
+_weight_cache = {}
+
+
+def custom_kernel(data):
+    """
+    TriMul forward pass: LayerNorm(fp32) -> fused 5-way projection(fp32) -> sigmoid gating
+    -> masked outer product via bmm(bf16) -> output LayerNorm(fp32) -> gate -> project(fp32).
+    Caches fused weight matrix to avoid repeated torch.cat; uses bmm for outer product.
+    """
+    input_tensor, mask, weights, config = data
+
+    # Load norm weights in float32
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight'].to(torch.float32)
+
+    left_proj_w  = weights['left_proj.weight']
+    right_proj_w = weights['right_proj.weight']
+    left_gate_w  = weights['left_gate.weight']
+    right_gate_w = weights['right_gate.weight']
+    out_gate_w   = weights['out_gate.weight']
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = left_proj_w.shape[0]
+
+    # Cache fused weight matrix keyed on left_proj weight data pointer
+    cache_key = left_proj_w.data_ptr()
+    if cache_key not in _weight_cache:
+        fused_w = torch.cat([
+            left_proj_w.to(torch.float32),
+            right_proj_w.to(torch.float32),
+            left_gate_w.to(torch.float32),
+            right_gate_w.to(torch.float32),
+            out_gate_w.to(torch.float32),
+        ], dim=0).contiguous()
+        _weight_cache[cache_key] = fused_w
+    else:
+        fused_w = _weight_cache[cache_key]
+
+    # LayerNorm input (float32 for stability)
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # Single fused matmul for all 5 projections
+    x_flat = x.reshape(-1, dim)
+    fused_out = F.linear(x_flat, fused_w).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:]
+
+    # Apply mask and sigmoid gates (contiguous for bmm efficiency)
+    mask_exp = mask.unsqueeze(-1).to(torch.float32)
+    left = (left * mask_exp * torch.sigmoid(left_gate)).contiguous()
+    right = (right * mask_exp * torch.sigmoid(right_gate)).contiguous()
+    out_gate_sig = torch.sigmoid(out_gate)
+
+    # Outer product via bmm in bfloat16:
+    # left:  [bs, i, k, d] -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> [bs*d, k, j]
+    left_p  = left.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.to(torch.bfloat16).permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm, gate, and final projection
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:20:09,174 - skydiscover.search.default_discovery_manager - ERROR - All 3 retry attempts failed. Final error: correctness failed (8/18)
+2026-06-19 06:20:09,174 - skydiscover.search.evox.coevolve_manager - WARNING - Iteration 6 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (8/18)
+2026-06-19 06:20:36,113 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:20:36,114 - root - INFO - Evaluating program d6f42d33-29ec-4c0f-829e-52cdae65c7c3
+2026-06-19 06:20:47,954 - skydiscover.evaluation.evaluator - INFO - Evaluated program d6f42d33-29ec-4c0f-829e-52cdae65c7c3 in 11.84s: combined_score=107.6729, geomean_us=9287.3860, pass_rate=1.0000
+2026-06-19 06:20:47,954 - skydiscover.search.default_discovery_manager - INFO - Iteration 9: Program d6f42d33-29ec-4c0f-829e-52cdae65c7c3 (parent: 7a5add33-fb55-470c-9ca4-a2fe3e633220) completed in 38.78s
+2026-06-19 06:20:47,954 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=107.6729, geomean_us=9287.3860, pass_rate=1.0000
+2026-06-19 06:20:47,954 - skydiscover.search.evox.coevolve_manager - INFO - Stagnation detected -> evolving search strategy (solution_iter=9)
+2026-06-19 06:20:47,954 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=73.888808, improvement=19.005215, start=88.855629, end=107.860844, horizon=2
+2026-06-19 06:21:03,520 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:21:03,520 - root - INFO - Evaluating program b638622e-b187-4ac0-a7f3-2041cb42ea6a
+2026-06-19 06:21:03,522 - skydiscover.evaluation.evaluator - INFO - Evaluated program b638622e-b187-4ac0-a7f3-2041cb42ea6a in 0.00s: validity=0.0000, error=Failed to add 10 programs and sample: 'EvolvedProgram' object has no attribute 'score', combined_score=None
+2026-06-19 06:21:03,522 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=0, error=Failed to add 10 programs and sample: 'EvolvedProgram' object has no attribute 'score'
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+from skydiscover.search.base_database import Program, ProgramDatabase
+from skydiscover.config import DatabaseConfig
+from typing import Optional, Tuple, List, Dict
+import logging
+from dataclasses import dataclass
+import random
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class EvolvedProgram(Program):
+    """Program for the evolved database."""
+    
+
+class EvolvedProgramDatabase(ProgramDatabase):
+    """Initial search strategy database."""
+
+    def __init__(self, name: str, config: DatabaseConfig):
+        super().__init__(name, config)
+        self.initial_program = None
+
+        if config.random_seed is not None:
+            random.seed(config.random_seed)
+            logger.debug(f"Database: Set random seed to {config.random_seed}")
+
+    def add(self, program: EvolvedProgram, iteration: Optional[int] = None, **kwargs) -> str:
+        """Add a program to the database."""
+        if iteration == 0 or program.iteration_found == 0:
+            self.initial_program = program
+        
+        self.programs[program.id] = program
+
+        if iteration is not None:
+            self.last_iteration = max(self.last_iteration, iteration)
+
+        if self.config.db_path:
+            self._save_program(program)
+
+        self._update_best_program(program)
+
+        logger.debug(f"Added program {program.id} to the evolve database")
+        return program.id
+
+    def sample(
+        self, 
+        num_inspirations: Optional[int] = 4,
+        **kwargs
+    ) -> Tuple[Dict[str, EvolvedProgram], Dict[str, List[EvolvedProgram]]]:
+        """
+        Score-weighted sampling: selects parent via tournament selection favoring
+        high-scoring programs, and inspirations via a mix of top performers and
+        random diversity to balance exploitation and exploration.
+        """
+        candidates = list(self.programs.values())
+        
+        if len(candidates) == 0:
+            raise ValueError("No candidates available for sampling")
+
+        def get_score(p):
+            """Extract numeric score, defaulting to 0."""
+            try:
+                return float(p.score) if p.score is not None else 0.0
+            except (TypeError, ValueError):
+                return 0.0
+
+        # Tournament selection for parent: pick best of k random candidates
+        tournament_size = min(3, len(candidates))
+        tournament = random.sample(candidates, tournament_size)
+        parent = max(tournament, key=get_score)
+
+        # For inspirations: mix top programs and random ones for diversity
+        remaining = [p for p in candidates if p.id != parent.id]
+        
+        if len(remaining) == 0:
+            examples = []
+        else:
+            num_top = max(1, num_inspirations // 2)
+            num_rand = num_inspirations - num_top
+
+            sorted_candidates = sorted(remaining, key=get_score, reverse=True)
+            top_programs = sorted_candidates[:num_top]
+
+            rand_pool = sorted_candidates[num_top:]
+            rand_programs = random.sample(rand_pool, min(num_rand, len(rand_pool)))
+
+            examples = top_programs + rand_programs
+            random.shuffle(examples)
+            examples = examples[:num_inspirations]
+
+        # Use REFINE_LABEL for exploitation of best solutions
+        label = self.REFINE_LABEL if get_score(parent) > 0 else self.DIVERGE_LABEL
+        parent_dict = {label: parent}
+        inspiration_programs_dict = {label: examples}
+
+        return parent_dict, inspiration_programs_dict
+
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:21:03,522 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:21:21,113 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:21:21,113 - root - INFO - Evaluating program cf4f692b-de49-4df3-9f67-4cc40cb7b1ec
+2026-06-19 06:21:21,115 - skydiscover.evaluation.evaluator - INFO - Evaluated program cf4f692b-de49-4df3-9f67-4cc40cb7b1ec in 0.00s: validity=1.0000, combined_score=0.0000
+2026-06-19 06:21:21,115 - skydiscover.search.evox.utils.coevolve_logging - INFO - Saved labels to trimul/skydiscover_runs/run5/search/iteration_1/labels.yaml (3247/2725 chars)
+2026-06-19 06:21:21,115 - skydiscover.search.evox.utils.coevolve_logging - INFO - New search algorithm generated (iteration 1) - saved to /workspace/trimul-evox/trimul/skydiscover_runs/run5/search/iteration_1 (score pending)
+2026-06-19 06:21:21,116 - skydiscover.search.evox.coevolve_manager - INFO - Switched to search algorithm cf4f692b-de49-4df3-9f67-4cc40cb7b1ec (4 programs migrated)
+2026-06-19 06:21:56,246 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:21:56,247 - root - INFO - Evaluating program 06e2cb8e-35f5-49fa-87d6-fb5adb881851
+2026-06-19 06:22:05,227 - skydiscover.evaluation.evaluator - INFO - Evaluated program 06e2cb8e-35f5-49fa-87d6-fb5adb881851 in 8.98s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+2026-06-19 06:22:05,227 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: fused 5-way projection in bf16, bmm outer product in bfloat16.
+No module instantiation - work directly with weight tensors.
+Uses TF32 + bf16 matmul for maximum H100 tensor core throughput.
+Splits out_gate projection separately to reduce fused GEMM size during bmm-critical path.
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 for fp32 matmul on H100 (uses tensor cores, ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+# Allow reduced precision reductions in fp16/bf16
+torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+
+def custom_kernel(data):
+    """
+    TriMul forward: LayerNorm -> fused 5-way linear (bf16 GEMM) -> sigmoid gates ->
+    masked outer product (bmm in bfloat16) -> output LayerNorm -> gate -> project.
+    All 5 projections fused into single bf16 matmul for maximum tensor core throughput.
+    TF32 enabled for fp32 fallback paths. Contiguous() before permute to avoid extra copies.
+    """
+    input_tensor, mask, weights, config = data
+
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    left_proj_w = weights['left_proj.weight']
+    right_proj_w = weights['right_proj.weight']
+    left_gate_w = weights['left_gate.weight']
+    right_gate_w = weights['right_gate.weight']
+    out_gate_w = weights['out_gate.weight']
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight']
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = left_proj_w.shape[0]
+
+    # LayerNorm input in fp32
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # Convert to bf16 for faster GEMM on H100 tensor cores
+    x_bf16 = x.to(torch.bfloat16)
+
+    # Fuse all 5 projections into single bf16 matmul: [5*hidden, dim]
+    fused_w = torch.cat([
+        left_proj_w.to(torch.bfloat16),
+        right_proj_w.to(torch.bfloat16),
+        left_gate_w.to(torch.bfloat16),
+        right_gate_w.to(torch.bfloat16),
+        out_gate_w.to(torch.bfloat16),
+    ], dim=0)
+    x_flat = x_bf16.reshape(-1, dim)
+    # bf16 GEMM -> result in bf16, then back to fp32 for gating/norm
+    fused_out = F.linear(x_flat, fused_w).to(torch.float32).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    # Apply mask and sigmoid gates in fp32
+    mask_exp = mask.unsqueeze(-1).to(torch.float32)
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate)
+
+    # Outer product via bmm in bfloat16:
+    # left:  [bs, i, k, d] -> permute to [bs, d, i, k] -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> permute to [bs, d, k, j] -> [bs*d, k, j]
+    left_p  = left.to(torch.bfloat16).permute(0, 3, 1, 2).contiguous().reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.to(torch.bfloat16).permute(0, 3, 2, 1).contiguous().reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm, gate, and projection
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    # Use bf16 for output projection too
+    out = F.linear(out.to(torch.bfloat16), to_out_w.to(torch.bfloat16)).to(torch.float32)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:22:05,227 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:22:35,371 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:22:35,373 - root - INFO - Evaluating program 0fcc943b-1bc4-4fbc-9246-c499c1c7adef
+2026-06-19 06:22:46,914 - skydiscover.evaluation.evaluator - INFO - Evaluated program 0fcc943b-1bc4-4fbc-9246-c499c1c7adef in 11.54s: combined_score=156.6654, geomean_us=6383.0290, pass_rate=1.0000
+2026-06-19 06:22:46,914 - skydiscover.search.default_discovery_manager - INFO - Iteration 10: Program 0fcc943b-1bc4-4fbc-9246-c499c1c7adef (parent: d6f42d33-29ec-4c0f-829e-52cdae65c7c3) completed in 85.80s
+2026-06-19 06:22:46,914 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 10
+2026-06-19 06:22:46,914 - skydiscover.search.base_database - INFO - Database has 5 programs, best program score is 156.665433
+2026-06-19 06:22:46,915 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 5 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_10
+2026-06-19 06:22:46,915 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 10 with metrics: combined_score=156.6654, geomean_us=6383.0290, pass_rate=1.0000
+2026-06-19 06:22:46,915 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 10 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_10
+2026-06-19 06:22:46,915 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=156.6654, geomean_us=6383.0290, pass_rate=1.0000
+2026-06-19 06:22:46,915 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 10
+2026-06-19 06:23:22,136 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:23:22,137 - root - INFO - Evaluating program a6e1cace-be4d-40c4-af7a-f326016b8a7c
+2026-06-19 06:23:28,424 - skydiscover.evaluation.evaluator - INFO - Evaluated program a6e1cace-be4d-40c4-af7a-f326016b8a7c in 6.29s: combined_score=156.9641, geomean_us=6370.8820, pass_rate=1.0000
+2026-06-19 06:23:28,425 - skydiscover.search.default_discovery_manager - INFO - Iteration 12: Program a6e1cace-be4d-40c4-af7a-f326016b8a7c (parent: b2f563f1-70a7-4369-923d-e4dea5293420) completed in 41.51s
+2026-06-19 06:23:28,425 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=156.9641, geomean_us=6370.8820, pass_rate=1.0000
+2026-06-19 06:23:28,425 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 12
+2026-06-19 06:24:07,170 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:24:07,171 - root - INFO - Evaluating program 19366289-0b66-44ff-aa3e-f7460f9becd8
+2026-06-19 06:24:15,130 - skydiscover.evaluation.evaluator - INFO - Evaluated program 19366289-0b66-44ff-aa3e-f7460f9becd8 in 7.96s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+2026-06-19 06:24:15,130 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: TF32 enabled, fused 5-way bf16 GEMM projection, bmm outer product in bfloat16.
+Key optimizations:
+1. TF32 enabled globally for fp32 matmul paths (tensor cores ~3x faster)
+2. bf16 reduced precision reduction enabled for further throughput
+3. Fuse all 5 linear projections into one bf16 matmul (tensor core throughput)
+4. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+5. Call .contiguous() before permute to ensure coalesced memory access for bmm
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 on H100 for fp32 matmul (uses tensor cores ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+
+def custom_kernel(data):
+    """
+    TriMul forward: LayerNorm (fp32) -> fused 5-way linear (bf16 GEMM) -> sigmoid gates ->
+    masked outer product (bmm in bfloat16) -> output LayerNorm (fp32) -> gate -> project (fp32).
+    TF32 enabled for all fp32 matmul paths. bf16 GEMM for projections for tensor core throughput.
+    contiguous() called before permute+reshape to ensure coalesced bmm inputs.
+    """
+    input_tensor, mask, weights, config = data
+
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight'].to(torch.float32)
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    # LayerNorm in fp32 for accuracy
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # Fuse all 5 projections into single bf16 matmul for tensor core throughput
+    fused_w_bf16 = torch.cat([
+        weights['left_proj.weight'].to(torch.bfloat16),
+        weights['right_proj.weight'].to(torch.bfloat16),
+        weights['left_gate.weight'].to(torch.bfloat16),
+        weights['right_gate.weight'].to(torch.bfloat16),
+        weights['out_gate.weight'].to(torch.bfloat16),
+    ], dim=0)
+
+    # bf16 GEMM: [bs*seqlen*seqlen, 5*hidden]
+    x_flat_bf16 = x.reshape(-1, dim).to(torch.bfloat16)
+    fused_out = F.linear(x_flat_bf16, fused_w_bf16).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections (still in bf16)
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    # Apply mask and sigmoid gates in bf16
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate).to(torch.float32)
+
+    # Outer product via bmm in bfloat16:
+    # Make contiguous before permute to ensure coalesced memory access
+    # left:  [bs, i, k, d] -> contiguous -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> contiguous -> [bs*d, k, j]
+    left_p  = left.contiguous().permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.contiguous().permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm in fp32 for accuracy
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:24:15,131 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:24:53,396 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:24:53,397 - root - INFO - Evaluating program ecb5f777-5656-470d-8df4-8c240caaf102
+2026-06-19 06:25:01,539 - skydiscover.evaluation.evaluator - INFO - Evaluated program ecb5f777-5656-470d-8df4-8c240caaf102 in 8.14s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+2026-06-19 06:25:01,539 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 2/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: TF32 enabled, fused 5-way bf16 GEMM projection, bmm outer product in bfloat16.
+Key optimizations:
+1. TF32 enabled globally for fp32 matmul paths (tensor cores ~3x faster)
+2. bf16 reduced precision reduction enabled for further throughput
+3. Fuse all 5 linear projections into one bf16 matmul (tensor core throughput)
+4. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+5. Call .contiguous() before permute to ensure coalesced memory access for bmm
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 on H100 for fp32 matmul (uses tensor cores ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+
+def custom_kernel(data):
+    """
+    TriMul forward: LayerNorm (fp32) -> fused 5-way linear (bf16 GEMM) -> sigmoid gates ->
+    masked outer product (bmm in bfloat16) -> output LayerNorm (fp32) -> gate -> project (fp32).
+    TF32 enabled for all fp32 matmul paths. bf16 GEMM for projections for tensor core throughput.
+    contiguous() called before permute+reshape to ensure coalesced bmm inputs.
+    """
+    input_tensor, mask, weights, config = data
+
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight'].to(torch.float32)
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    # LayerNorm in fp32 for accuracy
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # Fuse all 5 projections into single bf16 matmul for tensor core throughput
+    fused_w_bf16 = torch.cat([
+        weights['left_proj.weight'].to(torch.bfloat16),
+        weights['right_proj.weight'].to(torch.bfloat16),
+        weights['left_gate.weight'].to(torch.bfloat16),
+        weights['right_gate.weight'].to(torch.bfloat16),
+        weights['out_gate.weight'].to(torch.bfloat16),
+    ], dim=0)
+
+    # bf16 GEMM: [bs*seqlen*seqlen, 5*hidden]
+    x_flat_bf16 = x.reshape(-1, dim).to(torch.bfloat16)
+    fused_out = F.linear(x_flat_bf16, fused_w_bf16).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections (still in bf16)
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    # Apply mask and sigmoid gates in bf16
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate).to(torch.float32)
+
+    # Outer product via bmm in bfloat16:
+    # Make contiguous before permute to ensure coalesced memory access
+    # left:  [bs, i, k, d] -> contiguous -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> contiguous -> [bs*d, k, j]
+    left_p  = left.contiguous().permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.contiguous().permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm in fp32 for accuracy
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:25:01,539 - skydiscover.search.default_discovery_manager - INFO - Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+2026-06-19 06:25:40,719 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:25:40,719 - root - INFO - Evaluating program 92960e80-4fb1-419a-9d86-207dd8701d0c
+2026-06-19 06:25:52,196 - skydiscover.evaluation.evaluator - INFO - Evaluated program 92960e80-4fb1-419a-9d86-207dd8701d0c in 11.48s: combined_score=156.5433, geomean_us=6388.0070, pass_rate=1.0000
+2026-06-19 06:25:52,196 - skydiscover.search.default_discovery_manager - INFO - Iteration 13: Program 92960e80-4fb1-419a-9d86-207dd8701d0c (parent: 25a36903-f612-4a3b-a778-5953410b6a88) completed in 143.77s
+2026-06-19 06:25:52,196 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=156.5433, geomean_us=6388.0070, pass_rate=1.0000
+2026-06-19 06:26:24,947 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:26:24,948 - root - INFO - Evaluating program d83ef099-7d5a-456a-bae7-4786218660cf
+2026-06-19 06:26:33,060 - skydiscover.evaluation.evaluator - INFO - Evaluated program d83ef099-7d5a-456a-bae7-4786218660cf in 8.11s: combined_score=0.0000, pass_rate=0.6111, error=correctness failed (11/18)
+2026-06-19 06:26:33,061 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (11/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: TF32 enabled, fused 5-way bf16 GEMM projection, bmm outer product in bfloat16.
+Key optimizations:
+1. TF32 enabled globally for fp32 matmul paths (tensor cores ~3x faster)
+2. bf16 reduced precision reduction enabled for further throughput
+3. Fuse all 5 linear projections into one bf16 matmul (tensor core throughput)
+4. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+5. Call .contiguous() before permute to ensure coalesced memory access for bmm
+6. Cache fused weight matrix to avoid repeated torch.cat + .to() overhead per call
+7. Cache norm/out weights to avoid repeated .to() overhead per call
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 on H100 for fp32 matmul (uses tensor cores ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+# Module-level cache to avoid recomputing fused weights every call
+_weight_cache = {}
+
+
+def _get_cached_weights(weights):
+    """Cache fused bf16 weight matrix and fp32 norm weights keyed by weight data_ptr."""
+    # Use left_proj weight data_ptr as cache key (stable across calls for same model)
+    key = weights['left_proj.weight'].data_ptr()
+    if key not in _weight_cache:
+        hidden_dim = weights['left_proj.weight'].shape[0]
+        fused_w_bf16 = torch.cat([
+            weights['left_proj.weight'].to(torch.bfloat16),
+            weights['right_proj.weight'].to(torch.bfloat16),
+            weights['left_gate.weight'].to(torch.bfloat16),
+            weights['right_gate.weight'].to(torch.bfloat16),
+            weights['out_gate.weight'].to(torch.bfloat16),
+        ], dim=0).contiguous()
+        # Also cache fp32 weights to avoid repeated .to() calls
+        norm_w = weights['norm.weight'].to(torch.float32)
+        norm_b = weights['norm.bias'].to(torch.float32)
+        out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+        out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+        to_out_w = weights['to_out.weight'].to(torch.float32)
+        _weight_cache[key] = (fused_w_bf16, norm_w, norm_b, out_norm_w, out_norm_b, to_out_w, hidden_dim)
+    return _weight_cache[key]
+
+
+def custom_kernel(data):
+    """
+    TriMul forward: LayerNorm (fp32) -> fused 5-way linear (bf16 GEMM) -> sigmoid gates ->
+    masked outer product (bmm in bfloat16) -> output LayerNorm (fp32) -> gate -> project (fp32).
+    TF32 enabled for all fp32 matmul paths. bf16 GEMM for projections for tensor core throughput.
+    contiguous() called before permute+reshape to ensure coalesced bmm inputs.
+    Fused weights cached across calls to eliminate torch.cat + .to() overhead.
+    """
+    input_tensor, mask, weights, config = data
+
+    fused_w_bf16, norm_w, norm_b, out_norm_w, out_norm_b, to_out_w, hidden_dim = _get_cached_weights(weights)
+
+    bs, seqlen, _, dim = input_tensor.shape
+
+    # LayerNorm in fp32 for accuracy
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # bf16 GEMM: [bs*seqlen*seqlen, 5*hidden] using cached fused weight
+    x_flat_bf16 = x.reshape(-1, dim).to(torch.bfloat16)
+    fused_out = torch.mm(x_flat_bf16, fused_w_bf16.t()).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections (still in bf16)
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    # Apply mask and sigmoid gates in bf16
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate).to(torch.float32)
+
+    # Outer product via bmm in bfloat16:
+    # Make contiguous before permute to ensure coalesced memory access
+    # left:  [bs, i, k, d] -> contiguous -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> contiguous -> [bs*d, k, j]
+    left_p  = left.contiguous().permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.contiguous().permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm in fp32 for accuracy
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:26:33,061 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:27:07,258 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:27:07,259 - root - INFO - Evaluating program bf13fd65-3362-4d74-bc39-904488e44329
+2026-06-19 06:27:15,584 - skydiscover.evaluation.evaluator - INFO - Evaluated program bf13fd65-3362-4d74-bc39-904488e44329 in 8.32s: combined_score=0.0000, pass_rate=0.6111, error=correctness failed (11/18)
+2026-06-19 06:27:15,584 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 2/3): validity=None, error=correctness failed (11/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: TF32 enabled, fused 5-way bf16 GEMM projection, bmm outer product in bfloat16.
+Key optimizations:
+1. TF32 enabled globally for fp32 matmul paths (tensor cores ~3x faster)
+2. bf16 reduced precision reduction enabled for further throughput
+3. Fuse all 5 linear projections into one bf16 matmul (tensor core throughput)
+4. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+5. Call .contiguous() before permute to ensure coalesced memory access for bmm
+6. Cache fused bf16 weight matrix and fp32 norm/output weights using storage_ptr() as stable key
+7. Cache fp32 norm/out weights to avoid repeated .to() conversions
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 on H100 for fp32 matmul (uses tensor cores ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+# Module-level weight cache to avoid repeated torch.cat + .to() overhead
+_fused_weight_cache = {}
+
+
+def custom_kernel(data):
+    """
+    TriMul forward: LayerNorm (fp32) -> fused 5-way linear (bf16 GEMM) -> sigmoid gates ->
+    masked outer product (bmm in bfloat16) -> output LayerNorm (fp32) -> gate -> project (fp32).
+    TF32 enabled for all fp32 matmul paths. bf16 GEMM for projections for tensor core throughput.
+    Fused bf16 weight matrix cached by storage_ptr to avoid recomputation across calls.
+    contiguous() called before permute+reshape to ensure coalesced bmm inputs.
+    """
+    input_tensor, mask, weights, config = data
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    # Use storage_ptr of left_proj weight as cache key (stable for same model weights)
+    cache_key = weights['left_proj.weight'].storage().data_ptr()
+
+    if cache_key not in _fused_weight_cache:
+        fused_w_bf16 = torch.cat([
+            weights['left_proj.weight'].to(torch.bfloat16),
+            weights['right_proj.weight'].to(torch.bfloat16),
+            weights['left_gate.weight'].to(torch.bfloat16),
+            weights['right_gate.weight'].to(torch.bfloat16),
+            weights['out_gate.weight'].to(torch.bfloat16),
+        ], dim=0).contiguous()
+        norm_w_f32 = weights['norm.weight'].to(torch.float32)
+        norm_b_f32 = weights['norm.bias'].to(torch.float32)
+        out_norm_w_f32 = weights['to_out_norm.weight'].to(torch.float32)
+        out_norm_b_f32 = weights['to_out_norm.bias'].to(torch.float32)
+        to_out_w_f32 = weights['to_out.weight'].to(torch.float32)
+        _fused_weight_cache[cache_key] = (
+            fused_w_bf16, norm_w_f32, norm_b_f32,
+            out_norm_w_f32, out_norm_b_f32, to_out_w_f32
+        )
+
+    fused_w_bf16, norm_w, norm_b, out_norm_w, out_norm_b, to_out_w = _fused_weight_cache[cache_key]
+
+    # LayerNorm in fp32 for accuracy
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # bf16 GEMM: [bs*seqlen*seqlen, 5*hidden]
+    x_flat_bf16 = x.reshape(-1, dim).to(torch.bfloat16)
+    fused_out = F.linear(x_flat_bf16, fused_w_bf16).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections (still in bf16)
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    # Apply mask and sigmoid gates in bf16
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate).to(torch.float32)
+
+    # Outer product via bmm in bfloat16:
+    # Make contiguous before permute to ensure coalesced memory access
+    # left:  [bs, i, k, d] -> contiguous -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> contiguous -> [bs*d, k, j]
+    left_p  = left.contiguous().permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.contiguous().permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm in fp32 for accuracy
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:27:15,584 - skydiscover.search.default_discovery_manager - INFO - Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+2026-06-19 06:27:53,137 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:27:53,138 - root - INFO - Evaluating program c4b9cdd3-01ab-4ae1-a10b-c3e7c38a53b3
+2026-06-19 06:30:13,314 - skydiscover.evaluation.evaluator - INFO - Evaluated program c4b9cdd3-01ab-4ae1-a10b-c3e7c38a53b3 in 140.18s: combined_score=181.4624, geomean_us=5510.7830, pass_rate=1.0000
+2026-06-19 06:30:13,314 - skydiscover.search.default_discovery_manager - INFO - Iteration 16: Program c4b9cdd3-01ab-4ae1-a10b-c3e7c38a53b3 (parent: a6e1cace-be4d-40c4-af7a-f326016b8a7c) completed in 261.12s
+2026-06-19 06:30:13,314 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=181.4624, geomean_us=5510.7830, pass_rate=1.0000
+2026-06-19 06:30:13,314 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 16
+2026-06-19 06:30:53,407 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:30:53,408 - root - INFO - Evaluating program 8c1f05f8-c330-4af5-842e-323eaff04a77
+2026-06-19 06:31:21,721 - skydiscover.evaluation.evaluator - INFO - Evaluated program 8c1f05f8-c330-4af5-842e-323eaff04a77 in 28.31s: combined_score=181.2780, geomean_us=5516.3890, pass_rate=1.0000
+2026-06-19 06:31:21,722 - skydiscover.search.default_discovery_manager - INFO - Iteration 19: Program 8c1f05f8-c330-4af5-842e-323eaff04a77 (parent: b2f563f1-70a7-4369-923d-e4dea5293420) completed in 68.41s
+2026-06-19 06:31:21,722 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=181.2780, geomean_us=5516.3890, pass_rate=1.0000
+2026-06-19 06:32:05,823 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:32:05,824 - root - INFO - Evaluating program 0b2d9dbc-8283-4ba8-95af-058fd7cd9d10
+2026-06-19 06:32:19,530 - skydiscover.evaluation.evaluator - INFO - Evaluated program 0b2d9dbc-8283-4ba8-95af-058fd7cd9d10 in 13.71s: combined_score=0.0000, pass_rate=0.9444, error=correctness failed (17/18)
+2026-06-19 06:32:19,530 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (17/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: TF32 enabled, fused 4+1 bf16 GEMM projection, bmm outer product in bfloat16,
+torch.compile(max-autotune, fullgraph=True) on core computation for kernel fusion.
+Key optimizations:
+1. TF32 enabled globally for fp32 matmul paths (tensor cores ~3x faster)
+2. bf16 reduced precision reduction enabled for further throughput
+3. 4-way fused GEMM for left/right/left_gate/right_gate + separate out_gate GEMM (less register pressure)
+4. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+5. torch.compile(max-autotune, fullgraph=True) on core computation for additional kernel fusion
+6. Cache fused weights and compiled function to avoid recompilation/reallocation overhead
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 on H100 for fp32 matmul (uses tensor cores ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+# Weight cache to avoid repeated torch.cat and dtype conversion
+_weight_cache = {}
+
+
+def _trimul_core(x_flat_bf16, fused_w4_bf16, out_gate_w_bf16, mask_exp,
+                 bs, seqlen, hidden_dim, out_norm_w, out_norm_b, to_out_w):
+    """
+    Core TriMul: 4-way fused bf16 GEMM (left/right/gates) + separate out_gate GEMM,
+    sigmoid gating, masked bmm outer product in bf16, fp32 LayerNorm, gate, project.
+    Compiled with torch.compile(max-autotune) for kernel fusion on H100.
+    """
+    # 4-way fused GEMM: left, right, left_gate, right_gate
+    fused4 = F.linear(x_flat_bf16, fused_w4_bf16).reshape(bs, seqlen, seqlen, 4 * hidden_dim)
+    left       = fused4[..., :hidden_dim]
+    right      = fused4[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused4[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused4[..., 3*hidden_dim:4*hidden_dim]
+
+    # Separate out_gate GEMM (reduces output tensor size vs 5-way fusion)
+    out_gate_raw = F.linear(x_flat_bf16, out_gate_w_bf16).reshape(bs, seqlen, seqlen, hidden_dim)
+
+    # Apply mask and sigmoid gates in bf16
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate_raw).to(torch.float32)
+
+    # Outer product via bmm in bfloat16
+    # left:  [bs, i, k, d] -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> [bs*d, k, j]
+    left_p  = left.contiguous().permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.contiguous().permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm in fp32 for accuracy
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+    return out
+
+
+_compiled_trimul_core = torch.compile(_trimul_core, mode='max-autotune', fullgraph=True)
+
+
+def custom_kernel(data):
+    """
+    TriMul forward: LayerNorm (fp32) -> 4+1 fused linear (bf16 GEMM) -> sigmoid gates ->
+    masked outer product (bmm in bf16) -> output LayerNorm (fp32) -> gate -> project.
+    TF32 + bf16 tensor cores. torch.compile(max-autotune) for fusion. Weight caching.
+    """
+    input_tensor, mask, weights, config = data
+
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight'].to(torch.float32)
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    # LayerNorm in fp32 for accuracy
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    # Cache fused weights to avoid repeated torch.cat and dtype conversion
+    cache_key = id(weights['left_proj.weight'])
+    if cache_key not in _weight_cache:
+        _weight_cache[cache_key] = (
+            torch.cat([
+                weights['left_proj.weight'].to(torch.bfloat16),
+                weights['right_proj.weight'].to(torch.bfloat16),
+                weights['left_gate.weight'].to(torch.bfloat16),
+                weights['right_gate.weight'].to(torch.bfloat16),
+            ], dim=0),
+            weights['out_gate.weight'].to(torch.bfloat16),
+        )
+    fused_w4_bf16, out_gate_w_bf16 = _weight_cache[cache_key]
+
+    x_flat_bf16 = x.reshape(-1, dim).to(torch.bfloat16)
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+
+    out = _compiled_trimul_core(x_flat_bf16, fused_w4_bf16, out_gate_w_bf16, mask_exp,
+                                bs, seqlen, hidden_dim, out_norm_w, out_norm_b, to_out_w)
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:32:19,531 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:32:55,528 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:32:55,529 - root - INFO - Evaluating program 842b439c-879c-459a-954c-e6494e5c7519
+2026-06-19 06:33:27,828 - skydiscover.evaluation.evaluator - INFO - Evaluated program 842b439c-879c-459a-954c-e6494e5c7519 in 32.30s: combined_score=181.5715, geomean_us=5507.4720, pass_rate=1.0000
+2026-06-19 06:33:27,829 - skydiscover.search.default_discovery_manager - INFO - Iteration 20: Program 842b439c-879c-459a-954c-e6494e5c7519 (parent: 92960e80-4fb1-419a-9d86-207dd8701d0c) completed in 126.11s
+2026-06-19 06:33:27,829 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 20
+2026-06-19 06:33:27,829 - skydiscover.search.base_database - INFO - Database has 10 programs, best program score is 181.571509
+2026-06-19 06:33:27,831 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 10 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_20
+2026-06-19 06:33:27,831 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 20 with metrics: combined_score=181.5715, geomean_us=5507.4720, pass_rate=1.0000
+2026-06-19 06:33:27,831 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 20 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_20
+2026-06-19 06:33:27,831 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=181.5715, geomean_us=5507.4720, pass_rate=1.0000
+2026-06-19 06:33:27,831 - skydiscover.search.default_discovery_manager - INFO - 🌟 New best solution found at iteration 20
+2026-06-19 06:34:16,592 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:34:16,592 - root - INFO - Evaluating program 68242ba0-fdb2-4770-8b88-54210d8d7856
+2026-06-19 06:34:30,796 - skydiscover.evaluation.evaluator - INFO - Evaluated program 68242ba0-fdb2-4770-8b88-54210d8d7856 in 14.20s: combined_score=0.0000, pass_rate=0.5556, error=correctness failed (10/18)
+2026-06-19 06:34:30,796 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 1/3): validity=None, error=correctness failed (10/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: TF32 enabled, fused 4+1 bf16 GEMM projection, bmm outer product in bfloat16,
+torch.compile(max-autotune, fullgraph=True) on core computation for kernel fusion.
+Key optimizations:
+1. TF32 enabled globally for fp32 matmul paths (tensor cores ~3x faster)
+2. bf16 reduced precision reduction enabled for further throughput
+3. 4-way fused GEMM for left/right/left_gate/right_gate + separate out_gate (less register pressure)
+4. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+5. torch.compile(max-autotune, fullgraph=True) on core computation for additional kernel fusion
+6. Weight caching: fused weight tensors cached by id() to avoid repeated torch.cat + dtype cast
+7. Norm weight caching: fp32 norm weights cached to avoid repeated .to() overhead
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 on H100 for fp32 matmul (uses tensor cores ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+# Cache for fused weights and norm weights keyed by weight tensor data_ptr
+_weight_cache = {}
+
+
+def _trimul_core(x_flat_bf16, fused_w4_bf16, out_gate_w_bf16, mask_exp,
+                 bs, seqlen, hidden_dim, out_norm_w, out_norm_b, to_out_w):
+    """
+    Core TriMul: 4-way fused bf16 GEMM (left/right/left_gate/right_gate) + separate out_gate GEMM,
+    sigmoid gating, masked bmm outer product in bf16, fp32 LayerNorm, gate, project.
+    Designed for torch.compile(max-autotune, fullgraph=True) fusion on H100.
+    """
+    # 4-way fused GEMM: left, right, left_gate, right_gate
+    fused4 = F.linear(x_flat_bf16, fused_w4_bf16).reshape(bs, seqlen, seqlen, 4 * hidden_dim)
+    left       = fused4[..., :hidden_dim]
+    right      = fused4[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused4[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused4[..., 3*hidden_dim:4*hidden_dim]
+
+    # Separate out_gate GEMM (reduces register pressure vs 5-way fused)
+    out_gate_raw = F.linear(x_flat_bf16, out_gate_w_bf16).reshape(bs, seqlen, seqlen, hidden_dim)
+
+    # Apply mask and sigmoid gates in bf16
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate_raw).to(torch.float32)
+
+    # Outer product via bmm in bfloat16
+    left_p  = left.contiguous().permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.contiguous().permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm in fp32 for accuracy
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+    return out
+
+
+_compiled_trimul_core = torch.compile(_trimul_core, mode='max-autotune', fullgraph=True)
+
+
+def custom_kernel(data):
+    """
+    TriMul forward with weight caching: LayerNorm (fp32) -> split 4+1 fused linear (bf16 GEMM)
+    -> sigmoid gates -> masked outer product (bmm in bfloat16) -> output LayerNorm (fp32)
+    -> gate -> project (fp32).
+    Caches fused bf16 weight tensors and fp32 norm weights by data_ptr to avoid per-call overhead.
+    TF32 + bf16 reduced precision enabled. torch.compile(max-autotune, fullgraph=True) for fusion.
+    """
+    input_tensor, mask, weights, config = data
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    # Use weight data_ptr as cache key to avoid repeated dtype casts and torch.cat
+    cache_key = weights['left_proj.weight'].data_ptr()
+    if cache_key not in _weight_cache:
+        _weight_cache[cache_key] = {
+            'fused_w4_bf16': torch.cat([
+                weights['left_proj.weight'].to(torch.bfloat16),
+                weights['right_proj.weight'].to(torch.bfloat16),
+                weights['left_gate.weight'].to(torch.bfloat16),
+                weights['right_gate.weight'].to(torch.bfloat16),
+            ], dim=0),
+            'out_gate_w_bf16': weights['out_gate.weight'].to(torch.bfloat16),
+            'norm_w': weights['norm.weight'].to(torch.float32),
+            'norm_b': weights['norm.bias'].to(torch.float32),
+            'out_norm_w': weights['to_out_norm.weight'].to(torch.float32),
+            'out_norm_b': weights['to_out_norm.bias'].to(torch.float32),
+            'to_out_w': weights['to_out.weight'].to(torch.float32),
+        }
+    cached = _weight_cache[cache_key]
+
+    fused_w4_bf16 = cached['fused_w4_bf16']
+    out_gate_w_bf16 = cached['out_gate_w_bf16']
+    norm_w = cached['norm_w']
+    norm_b = cached['norm_b']
+    out_norm_w = cached['out_norm_w']
+    out_norm_b = cached['out_norm_b']
+    to_out_w = cached['to_out_w']
+
+    # LayerNorm in fp32 for accuracy
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    x_flat_bf16 = x.reshape(-1, dim).to(torch.bfloat16)
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+
+    out = _compiled_trimul_core(x_flat_bf16, fused_w4_bf16, out_gate_w_bf16, mask_exp,
+                                bs, seqlen, hidden_dim, out_norm_w, out_norm_b, to_out_w)
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:34:30,796 - skydiscover.search.default_discovery_manager - INFO - Retry 2/3: rebuilding prompt with 1 failed attempt(s)
+2026-06-19 06:35:15,818 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:35:15,819 - skydiscover.search.default_discovery_manager - WARNING - Diff blocks found but none matched parent solution (iteration=22, attempt 2/3).
+2026-06-19 06:35:15,819 - skydiscover.search.default_discovery_manager - INFO - Retry 3/3: rebuilding prompt with 2 failed attempt(s)
+2026-06-19 06:36:00,440 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:36:00,441 - root - INFO - Evaluating program fdd8b469-1767-4831-91d6-3e52492e799f
+2026-06-19 06:36:13,929 - skydiscover.evaluation.evaluator - INFO - Evaluated program fdd8b469-1767-4831-91d6-3e52492e799f in 13.49s: combined_score=0.0000, pass_rate=0.5556, error=correctness failed (10/18)
+2026-06-19 06:36:13,929 - skydiscover.search.default_discovery_manager - WARNING - Evaluation failed (attempt 3/3): validity=None, error=correctness failed (10/18)
+----- Generated Solution -----
+# EVOLVE-BLOCK-START
+"""
+Optimized TriMul: TF32 enabled, fused 4+1 bf16 GEMM projection, bmm outer product in bfloat16,
+torch.compile(max-autotune, fullgraph=True) on core computation for kernel fusion.
+Weight caching to avoid repeated torch.cat and dtype conversion overhead across calls.
+Key optimizations:
+1. TF32 enabled globally for fp32 matmul paths (tensor cores ~3x faster)
+2. bf16 reduced precision reduction enabled for further throughput
+3. 4-way fused GEMM for left/right/left_gate/right_gate + separate out_gate (less register pressure)
+4. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+5. torch.compile(max-autotune, fullgraph=True) on core computation for additional kernel fusion
+6. Weight cache: avoid repeated torch.cat + .to(bf16) across calls with same weights
+7. Norm weight cache: avoid repeated .to(float32) for norm weights
+"""
+
+import torch
+import torch.nn.functional as F
+
+# Enable TF32 on H100 for fp32 matmul (uses tensor cores ~3x faster)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+
+# Cache keyed by left_proj weight data_ptr to avoid repeated cat/cast
+_weight_cache = {}
+
+
+def _trimul_core(x_flat_bf16, fused_w4_bf16, out_gate_w_bf16, mask_exp,
+                 bs, seqlen, hidden_dim, out_norm_w, out_norm_b, to_out_w):
+    """
+    Core TriMul: 4-way fused bf16 GEMM (left/right/left_gate/right_gate) + separate out_gate GEMM,
+    sigmoid gating, masked bmm outer product in bf16, fp32 LayerNorm, gate, project.
+    Designed for torch.compile(max-autotune, fullgraph=True) fusion on H100.
+    """
+    # 4-way fused GEMM: left, right, left_gate, right_gate
+    fused4 = F.linear(x_flat_bf16, fused_w4_bf16).reshape(bs, seqlen, seqlen, 4 * hidden_dim)
+    left       = fused4[..., :hidden_dim]
+    right      = fused4[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused4[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused4[..., 3*hidden_dim:4*hidden_dim]
+
+    # Separate out_gate GEMM (reduces register pressure vs 5-way fused)
+    out_gate_raw = F.linear(x_flat_bf16, out_gate_w_bf16).reshape(bs, seqlen, seqlen, hidden_dim)
+
+    # Apply mask and sigmoid gates in bf16
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate_raw).to(torch.float32)
+
+    # Outer product via bmm in bfloat16
+    left_p  = left.contiguous().permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.contiguous().permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm in fp32 for accuracy
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+    return out
+
+
+_compiled_trimul_core = torch.compile(_trimul_core, mode='max-autotune', fullgraph=True)
+
+
+def custom_kernel(data):
+    """
+    TriMul forward: LayerNorm (fp32) -> split 4+1 fused linear (bf16 GEMM) -> sigmoid gates ->
+    masked outer product (bmm in bfloat16) -> output LayerNorm (fp32) -> gate -> project (fp32).
+    TF32 enabled for all fp32 matmul paths. bf16 GEMM for projections for tensor core throughput.
+    4-way fused GEMM for left/right proj+gate, separate GEMM for out_gate to reduce register pressure.
+    torch.compile(max-autotune, fullgraph=True) applied to core computation for additional fusion.
+    Weight caching avoids repeated torch.cat + dtype conversion across calls with same weights.
+    """
+    input_tensor, mask, weights, config = data
+
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = weights['left_proj.weight'].shape[0]
+
+    # Cache key: use data_ptr of left_proj weight (stable across calls for same model)
+    cache_key = weights['left_proj.weight'].data_ptr()
+
+    if cache_key not in _weight_cache:
+        _weight_cache[cache_key] = {
+            'fused_w4_bf16': torch.cat([
+                weights['left_proj.weight'].to(torch.bfloat16),
+                weights['right_proj.weight'].to(torch.bfloat16),
+                weights['left_gate.weight'].to(torch.bfloat16),
+                weights['right_gate.weight'].to(torch.bfloat16),
+            ], dim=0),
+            'out_gate_w_bf16': weights['out_gate.weight'].to(torch.bfloat16),
+            'norm_w': weights['norm.weight'].to(torch.float32),
+            'norm_b': weights['norm.bias'].to(torch.float32),
+            'out_norm_w': weights['to_out_norm.weight'].to(torch.float32),
+            'out_norm_b': weights['to_out_norm.bias'].to(torch.float32),
+            'to_out_w': weights['to_out.weight'].to(torch.float32),
+        }
+
+    cached = _weight_cache[cache_key]
+    fused_w4_bf16 = cached['fused_w4_bf16']
+    out_gate_w_bf16 = cached['out_gate_w_bf16']
+    norm_w = cached['norm_w']
+    norm_b = cached['norm_b']
+    out_norm_w = cached['out_norm_w']
+    out_norm_b = cached['out_norm_b']
+    to_out_w = cached['to_out_w']
+
+    # LayerNorm in fp32 for accuracy
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
+
+    x_flat_bf16 = x.reshape(-1, dim).to(torch.bfloat16)
+    mask_exp = mask.unsqueeze(-1).to(torch.bfloat16)
+
+    out = _compiled_trimul_core(x_flat_bf16, fused_w4_bf16, out_gate_w_bf16, mask_exp,
+                                bs, seqlen, hidden_dim, out_norm_w, out_norm_b, to_out_w)
+    return out
+# EVOLVE-BLOCK-END
+
+--------------------------
+2026-06-19 06:36:13,929 - skydiscover.search.default_discovery_manager - ERROR - All 3 retry attempts failed. Final error: correctness failed (10/18)
+2026-06-19 06:36:13,929 - skydiscover.search.evox.coevolve_manager - WARNING - Iteration 22 failed (used 3 attempts): Evaluator failed after 3 attempts: correctness failed (10/18)
+2026-06-19 06:36:56,480 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-19 06:36:56,481 - root - INFO - Evaluating program 2d3ce008-4822-4df3-856f-d0d87cb64967
+2026-06-19 06:37:27,342 - skydiscover.evaluation.evaluator - INFO - Evaluated program 2d3ce008-4822-4df3-856f-d0d87cb64967 in 30.86s: combined_score=181.2613, geomean_us=5516.8980, pass_rate=1.0000
+2026-06-19 06:37:27,342 - skydiscover.search.default_discovery_manager - INFO - Iteration 25: Program 2d3ce008-4822-4df3-856f-d0d87cb64967 (parent: 0fcc943b-1bc4-4fbc-9246-c499c1c7adef) completed in 73.41s
+2026-06-19 06:37:27,342 - skydiscover.search.default_discovery_manager - INFO - [CHECKPOINT] Checkpoint interval reached at iteration 25
+2026-06-19 06:37:27,342 - skydiscover.search.base_database - INFO - Database has 11 programs, best program score is 181.571509
+2026-06-19 06:37:27,344 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 11 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-19 06:37:27,344 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=181.5715, geomean_us=5507.4720, pass_rate=1.0000
+2026-06-19 06:37:27,345 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-19 06:37:27,345 - skydiscover.search.default_discovery_manager - INFO - Metrics: combined_score=181.2613, geomean_us=5516.8980, pass_rate=1.0000
+2026-06-19 06:37:27,345 - skydiscover.search.evox.utils.search_scorer - INFO - Search strategy score: combined=296.573927, improvement=73.710664, start=107.860844, end=181.571509, horizon=2
+2026-06-19 06:37:27,345 - skydiscover.search.evox.coevolve_manager - INFO - New best search score: 296.573927 (+222.685118)
+2026-06-19 06:37:27,347 - skydiscover.search.evox.coevolve_manager - INFO - [SOLUTION EVOLUTION] Evolution completed: evox
+2026-06-19 06:37:27,350 - skydiscover.search.utils.checkpoint_manager - INFO - [CHECKPOINT] Saved database with 11 programs to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-19 06:37:27,350 - skydiscover.search.main_controller - INFO - [CHECKPOINT] Saved best program at checkpoint 25 with metrics: combined_score=181.5715, geomean_us=5507.4720, pass_rate=1.0000
+2026-06-19 06:37:27,350 - skydiscover.search.main_controller - INFO - Saved checkpoint at iteration 25 to trimul/skydiscover_runs/run5/checkpoints/checkpoint_25
+2026-06-19 06:37:27,352 - skydiscover.search.main_controller - INFO - Using tracked best program: 842b439c-879c-459a-954c-e6494e5c7519
+2026-06-19 06:37:27,352 - skydiscover.search.main_controller - INFO - Discovery process complete. Best program has metrics: combined_score=181.5715, geomean_us=5507.4720, pass_rate=1.0000
+2026-06-19 06:37:27,353 - skydiscover.search.main_controller - INFO - Saved best program to trimul/skydiscover_runs/run5/best/best_program.py with program info to trimul/skydiscover_runs/run5/best/best_program_info.json

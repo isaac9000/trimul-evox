@@ -1,6 +1,6 @@
 iteration: 1
-diverge_label_length: 2753
-refine_label_length: 2432
+diverge_label_length: 3247
+refine_label_length: 2725
 
 diverge_label: |
   ## IMPORTANT: YOU MUST FOLLOW THE FOLLOWING IN YOUR GENERATION, OTHERWISE THE SOLUTION WILL BE REJECTED.
@@ -21,12 +21,20 @@ diverge_label: |
   
   ### Examples
   EXAMPLES OF DIFFERENT approaches (NOT LIMITED TO, PROPOSE YOUR OWN):
-  - **PyTorch fusion / compilation**: torch.compile(mode='max-autotune') ↔ torch.jit.script ↔ manual op fusion ↔ torch.nn.functional fused LayerNorm/sigmoid ↔ CUDA graphs capture for fixed shapes.
-  - **Einsum/matmul restructuring**: replace einsum with batched bmm/matmul ↔ reshape (i,k,d)→matmul over k ↔ collapse batch+dim dims ↔ einsum_path optimization ↔ contiguous-layout reordering before contraction.
-  - **Custom Triton kernels (if available)**: fused LayerNorm+linear ↔ fused sigmoid-gate+outer-product ↔ tiled masked einsum kernel ↔ fused output LayerNorm+gate+projection ↔ block-wise streaming over seqlen.
-  - **Precision / dtype strategy**: fp16/bf16 compute with fp32 accumulate ↔ TF32 matmul ↔ mixed-precision LayerNorm ↔ autocast regions ↔ keep gates in fp32.
-  - **Memory layout / masking**: apply mask before vs after outer product ↔ pre-multiply mask into projections ↔ channels-last layout ↔ fuse mask into gating ↔ avoid materializing large (i,j,k,d) intermediates.
-  - **Pipeline decomposition**: split per-shape specialized paths (small vs large seqlen) ↔ precompute reusable LayerNorm stats ↔ batch small sequences together ↔ chunk seqlen to fit cache/SRAM.
+  
+  - **Libraries / frameworks**: `torch.nn.functional: linear, layer_norm, einsum` ↔ `triton: triton.jit, tl.load/store/dot` ↔ `torch.compile` with `torch.backends.cuda.matmul.allow_tf32`; use `torch.cuda.amp` for mixed precision paths
+  
+  - **Kernel fusion strategy**: Single monolithic Triton kernel fusing all ops (LN→proj→gate→outer product→LN→gate→proj) ↔ two-stage fusion (projections+gating fused, outer-product+output fused) ↔ PyTorch eager with `torch.compile` + `torch.jit.script` ↔ cuBLAS GEMM calls bridged via ctypes for projection steps
+  
+  - **Outer product computation approach**: Direct Triton kernel tiling over i,j,d with shared memory for k-reduction ↔ reshape to batched GEMM (contract k dimension via `torch.bmm` or `torch.einsum`) ↔ split-k parallel reduction across k-dim then accumulate ↔ use `tl.dot` for k-tiled matmul within Triton block
+  
+  - **Memory layout & tiling**: Process (bs*seqlen, seqlen, dim) with i-j outer loop tiled in Triton ↔ transpose to (bs, dim, seqlen, seqlen) for coalesced writes ↔ use persistent kernel grid with work-stealing across (bs, i, j) tiles ↔ bf16/fp16 compute with fp32 accumulation vs full fp32 path
+  
+  - **Mask handling**: Pre-multiply mask into projections before outer product (avoid branch in inner loop) ↔ use mask as block-sparse skip condition in Triton (skip zero-mask tiles entirely) ↔ fuse mask broadcast into LN output scaling step
+  
+  - **Sequence-length adaptive dispatch**: Small seqlen (≤64): pure PyTorch eager (overhead-free) ↔ medium seqlen (64–256): fused torch.compile path ↔ large seqlen (>256): hand-written Triton kernel with large tile sizes; dispatch at runtime based on `config` values
+  
+  ---
   
   ### Output
   Your solution MUST still be VALID / CORRECT for the same problem. A broken "creative" solution is worthless.
@@ -54,12 +62,16 @@ refine_label: |
   
   ### Examples
   EXAMPLES OF REFINEMENT strategies (NOT LIMITED TO, PROPOSE YOUR OWN):
-  - **Libraries / tools for refinement**: torch.compile(mode='max-autotune' / 'reduce-overhead') ↔ CUDA graph capture for repeated shapes ↔ torch.backends.cuda.matmul.allow_tf32=True ↔ torch.backends.cudnn.benchmark=True ↔ fused F.layer_norm.
-  - **Compile / autotune knobs**: try fullgraph=True, dynamic=False per-shape specialization ↔ warmup runs to trigger autotuning ↔ cache compiled artifacts across shapes ↔ enable epilogue fusion.
-  - **Precision tuning**: cast inputs to bf16/fp16 while keeping LayerNorm/gate accumulation in fp32 to stay within correctness tolerance ↔ TF32 for matmuls ↔ minimize redundant casts.
-  - **Memory / intermediate reduction**: fuse mask multiply into projections ↔ reuse buffers in-place ↔ ensure contiguous/channels-last before matmul ↔ avoid large transposes ↔ collapse batch dims for fewer kernel launches.
-  - **Launch-overhead reduction**: merge elementwise ops (sigmoid-gate, mask, residual) into single fused passes ↔ minimize host-device syncs ↔ pre-allocate output tensors ↔ batch tiny sequences to amortize overhead.
-  - **Tiling / block sizes (if Triton path)**: tune BLOCK_K/BLOCK_D, num_warps, num_stages over seqlen ranges ↔ pick best per-shape config via autotune decorator.
+  
+  - **Libraries / tools for refinement**: `triton: tl.dot, tl.load(eviction_policy='evict_last')` for cache pinning ↔ `torch.compile(mode='max-autotune', fullgraph=True)` ↔ `torch.backends.cuda.matmul.allow_tf32 = True` + `allow_fp16_reduced_precision_reduction = True`; add `torch.cuda.synchronize()` only outside timed region
+  
+  - **Triton tile size & occupancy tuning**: Sweep BLOCK_M, BLOCK_N, BLOCK_K (powers of 2: 16–128) via `triton.autotune` with `triton.Config` ↔ increase `num_warps` (4→8→16) and `num_stages` (2→4→6) for H100 pipeline depth ↔ use `tl.constexpr` for dim/seqlen to enable compile-time unrolling
+  
+  - **Memory access pattern polish**: Ensure (i,j,d) output writes are coalesced along d-dimension (innermost) ↔ pad dim to next power-of-2 or multiple of 16 for vectorized `tl.load/store` ↔ prefetch weight tensors into L2 using `tl.prefetch` or `.contiguous()` calls before kernel launch
+  
+  - **Kernel launch overhead reduction**: Pre-allocate output buffers and intermediate tensors outside the timed path ↔ use CUDA graphs (`torch.cuda.CUDAGraph`) to capture and replay the full op sequence ↔ batch multiple (bs, seqlen) configs into a single kernel launch with grid stride loops
+  
+  - **Precision & arithmetic throughput**: Use `tl.float16` or `tl.bfloat16` for projection GEMMs with `tl.float32` accumulator ↔ fuse sigmoid gate as `x * tl.sigmoid(g)` using fast-math approximation ↔ replace LayerNorm with fused Triton LN (compute mean/var in one pass over d-dim, avoid second kernel launch)
   
   ### Output
   Your solution MUST still be VALID / CORRECT for the same problem. A broken solution is worthless.

@@ -221,6 +221,14 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
             std, err = 0.0, 0.0
         return {"runs": n, "mean": avg, "std": std, "err": err}
 
+    def clear_l2_cache():
+        # Mirrors gpu-mode/reference-kernels utils.clear_l2_cache: scrub L2 between
+        # timed calls so a reused `data` tensor can't read a warm cache from the
+        # previous identical call and report optimistically fast.
+        dummy = torch.empty((32, 1024, 1024), dtype=torch.int64, device="cuda")
+        dummy.fill_(42)
+        del dummy
+
     # ── Load submission ──────────────────────────────────────────────────────
 
     gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "unknown"
@@ -367,6 +375,7 @@ def evaluate_kernel(kernel_code: str, mode: str = "leaderboard") -> str:
 
         with ctx:
             for t in range(BENCH_MAX_REPEATS):
+                clear_l2_cache()  # scrub L2 before each timed call (not measured)
                 torch.cuda.synchronize()  # flush any pending work before timing
 
                 if BENCH_USE_CUDA_EVENTS:

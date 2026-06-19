@@ -1,91 +1,75 @@
 # EVOLVE-BLOCK-START
 """
-Initial TriMul submission — PyTorch baseline with dummy Triton kernel.
+Optimized TriMul using fused projections and efficient outer product via bmm.
+Key optimizations:
+1. Fuse all 5 linear projections into one batched matmul to reduce kernel launches
+2. Avoid module instantiation overhead - work directly with weight tensors
+3. Use bfloat16 for the expensive outer product bmm to leverage tensor cores
+4. Use contiguous memory layouts for better GPU utilization
+5. Avoid redundant .to(float32) calls
 """
 
 import torch
-from torch import nn, einsum
-import triton
-import triton.language as tl
-
-
-torch.backends.cuda.matmul.allow_tf32 = True
-torch.backends.cudnn.allow_tf32 = True
-
-
-@triton.jit
-def _dummy_kernel(x_ptr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    pass
-
-
-class TriMul(nn.Module):
-    def __init__(
-        self,
-        dim: int,
-        hidden_dim: int,
-    ):
-        super().__init__()
-
-        self.norm = nn.LayerNorm(dim)
-
-        self.left_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
-        self.right_proj = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
-
-        self.left_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
-        self.right_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
-        self.out_gate = nn.Linear(dim, hidden_dim, bias=False, dtype=torch.float32)
-
-        self.to_out_norm = nn.LayerNorm(hidden_dim)
-        self.to_out = nn.Linear(hidden_dim, dim, bias=False, dtype=torch.float32)
-
-    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-        """Fused TriMul: single combined matmul for all 5 projections,
-        fused mask+sigmoid gating, bf16 outer-product einsum, out norm/gate/proj."""
-        hd = self.left_proj.weight.shape[0]
-
-        x = self.norm(x)
-
-        combined = torch.nn.functional.linear(x, self._fused_w)
-        left, right, left_gate, right_gate, out_gate = combined.split(hd, dim=-1)
-
-        mask = mask.unsqueeze(-1)
-        left = (left * mask).mul_(torch.sigmoid(left_gate))
-        right = (right * mask).mul_(torch.sigmoid(right_gate))
-
-        out = einsum('... i k d, ... j k d -> ... i j d',
-                     left.to(torch.bfloat16), right.to(torch.bfloat16)).to(torch.float32)
-
-        out = self.to_out_norm(out)
-        out = out.mul_(torch.sigmoid(out_gate))
-        return self.to_out(out)
+import torch.nn.functional as F
 
 
 def custom_kernel(data):
+    """
+    TriMul forward pass: LayerNorm -> fused 5-way projection -> sigmoid gating
+    -> masked outer product via bmm in bfloat16 -> output LayerNorm -> gate -> project.
+    All 5 projections fused into single matmul; outer product done as batched matmul.
+    """
     input_tensor, mask, weights, config = data
-    trimul = TriMul(config["dim"], config["hidden_dim"]).to(input_tensor.device)
 
-    trimul.norm.weight = nn.Parameter(weights['norm.weight'].to(torch.float32))
-    trimul.left_proj.weight = nn.Parameter(weights['left_proj.weight'].to(torch.float32))
-    trimul.right_proj.weight = nn.Parameter(weights['right_proj.weight'].to(torch.float32))
-    trimul.left_gate.weight = nn.Parameter(weights['left_gate.weight'].to(torch.float32))
-    trimul.right_gate.weight = nn.Parameter(weights['right_gate.weight'].to(torch.float32))
-    trimul.out_gate.weight = nn.Parameter(weights['out_gate.weight'].to(torch.float32))
-    trimul.to_out_norm.weight = nn.Parameter(weights['to_out_norm.weight'].to(torch.float32))
-    trimul.to_out.weight = nn.Parameter(weights['to_out.weight'].to(torch.float32))
-    trimul.norm.bias = nn.Parameter(weights['norm.bias'].to(torch.float32))
-    trimul.to_out_norm.bias = nn.Parameter(weights['to_out_norm.bias'].to(torch.float32))
+    # Load weights in float32
+    norm_w = weights['norm.weight'].to(torch.float32)
+    norm_b = weights['norm.bias'].to(torch.float32)
+    left_proj_w = weights['left_proj.weight'].to(torch.float32)
+    right_proj_w = weights['right_proj.weight'].to(torch.float32)
+    left_gate_w = weights['left_gate.weight'].to(torch.float32)
+    right_gate_w = weights['right_gate.weight'].to(torch.float32)
+    out_gate_w = weights['out_gate.weight'].to(torch.float32)
+    out_norm_w = weights['to_out_norm.weight'].to(torch.float32)
+    out_norm_b = weights['to_out_norm.bias'].to(torch.float32)
+    to_out_w = weights['to_out.weight'].to(torch.float32)
 
-    trimul._fused_w = torch.cat([
-        trimul.left_proj.weight,
-        trimul.right_proj.weight,
-        trimul.left_gate.weight,
-        trimul.right_gate.weight,
-        trimul.out_gate.weight,
-    ], dim=0).contiguous()
+    bs, seqlen, _, dim = input_tensor.shape
+    hidden_dim = left_proj_w.shape[0]
 
-    with torch.no_grad():
-        output = trimul(input_tensor, mask).to(torch.float32)
+    # LayerNorm input
+    x = F.layer_norm(input_tensor.to(torch.float32), [dim], norm_w, norm_b)
 
-    return output
+    # Fuse all 5 projections into single matmul: [5*hidden, dim]
+    fused_w = torch.cat([left_proj_w, right_proj_w, left_gate_w, right_gate_w, out_gate_w], dim=0)
+    x_flat = x.reshape(-1, dim)
+    fused_out = F.linear(x_flat, fused_w).reshape(bs, seqlen, seqlen, 5 * hidden_dim)
+
+    # Split projections
+    left       = fused_out[..., :hidden_dim]
+    right      = fused_out[..., hidden_dim:2*hidden_dim]
+    left_gate  = fused_out[..., 2*hidden_dim:3*hidden_dim]
+    right_gate = fused_out[..., 3*hidden_dim:4*hidden_dim]
+    out_gate   = fused_out[..., 4*hidden_dim:5*hidden_dim]
+
+    # Apply mask and sigmoid gates
+    mask_exp = mask.unsqueeze(-1).to(torch.float32)
+    left = left * mask_exp * torch.sigmoid(left_gate)
+    right = right * mask_exp * torch.sigmoid(right_gate)
+    out_gate_sig = torch.sigmoid(out_gate)
+
+    # Outer product via bmm in bfloat16:
+    # left:  [bs, i, k, d] -> permute -> [bs*d, i, k]
+    # right: [bs, j, k, d] -> permute -> [bs*d, k, j]
+    left_p  = left.to(torch.bfloat16).permute(0, 3, 1, 2).reshape(bs * hidden_dim, seqlen, seqlen)
+    right_p = right.to(torch.bfloat16).permute(0, 3, 2, 1).reshape(bs * hidden_dim, seqlen, seqlen)
+
+    # bmm: [bs*hidden, i, k] x [bs*hidden, k, j] -> [bs*hidden, i, j]
+    out = torch.bmm(left_p, right_p).reshape(bs, hidden_dim, seqlen, seqlen).permute(0, 2, 3, 1).to(torch.float32)
+
+    # Output LayerNorm, gate, and projection
+    out = F.layer_norm(out, [hidden_dim], out_norm_w, out_norm_b)
+    out = out * out_gate_sig
+    out = F.linear(out, to_out_w)
+
+    return out
 # EVOLVE-BLOCK-END
